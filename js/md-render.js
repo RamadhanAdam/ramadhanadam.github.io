@@ -58,6 +58,7 @@ async function loadWritingIndex() {
   if (!container) return;
 
   try {
+    container.innerHTML = '';
     const res = await fetch('articles/index.json');
     const articles = await res.json();
 
