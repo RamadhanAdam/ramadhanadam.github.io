@@ -61,43 +61,61 @@ async function loadWritingIndex() {
     const res = await fetch('articles/index.json');
     const articles = await res.json();
 
-    // Sort newest first
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const ul = document.createElement('ul');
-    ul.className = 'article-list';
+    const site = articles.filter(a => !a.external);
+    const medium = articles.filter(a => a.external);
 
-    articles.forEach(a => {
-      const li = document.createElement('li');
-      li.className = 'article-item';
+    function buildList(items) {
+      const ul = document.createElement('ul');
+      ul.className = 'article-list';
+      items.forEach(a => {
+        const li = document.createElement('li');
+        li.className = 'article-item';
 
-      const date = document.createElement('span');
-      date.className = 'article-date';
-      date.textContent = a.date;
+        const date = document.createElement('span');
+        date.className = 'article-date';
+        date.textContent = a.date;
 
-      const title = document.createElement('a');
-      title.className = 'article-title';
-      // External (Medium) vs internal
-      if (a.external) {
-        title.href = a.url;
-        title.target = '_blank';
-        title.rel = 'noopener';
-      } else {
-        title.href = `article.html?slug=${a.slug}`;
-      }
-      title.textContent = a.title;
+        const title = document.createElement('a');
+        title.className = 'article-title';
+        if (a.external) {
+          title.href = a.url;
+          title.target = '_blank';
+          title.rel = 'noopener';
+        } else {
+          title.href = `article.html?slug=${a.slug}`;
+        }
+        title.textContent = a.title;
 
-      const source = document.createElement('span');
-      source.className = 'article-source';
-      source.textContent = a.external ? 'medium ↗' : 'site';
+        const source = document.createElement('span');
+        source.className = 'article-source';
+        source.textContent = a.external ? 'medium ↗' : 'site';
 
-      li.appendChild(date);
-      li.appendChild(title);
-      li.appendChild(source);
-      ul.appendChild(li);
-    });
+        li.appendChild(date);
+        li.appendChild(title);
+        li.appendChild(source);
+        ul.appendChild(li);
+      });
+      return ul;
+    }
 
-    container.appendChild(ul);
+    if (site.length) {
+      const h2 = document.createElement('h2');
+      h2.className = 'writing-section-heading';
+      h2.textContent = 'On this site';
+      container.appendChild(h2);
+      container.appendChild(buildList(site));
+    }
+
+    if (medium.length) {
+      const h2 = document.createElement('h2');
+      h2.className = 'writing-section-heading';
+      h2.textContent = 'On Medium';
+      container.appendChild(h2);
+      container.appendChild(buildList(medium));
+    }
+
   } catch (e) {
     container.innerHTML = '<p>Could not load articles.</p>';
   }

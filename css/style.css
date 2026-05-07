@@ -519,3 +519,13 @@ hr {
   .article-item { flex-wrap: wrap; }
   .article-source { margin-left: 0; }
 }
+.writing-section-heading {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 2rem 0 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}
