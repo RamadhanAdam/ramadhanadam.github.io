@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "hebbian-learning-backprop",
+    "title": "Hebbian Learning and the Road to Backpropagation",
+    "date": "2026-05-01",
+    "tags": ["AI", "history", "neural networks"],
+    "external": false
+  },
+  {
+    "title": "I Trained a GPT on Swahili. Here's What It Learned.",
+    "date": "2025-11-10",
+    "tags": ["NLP", "Swahili", "LLM"],
+    "external": true,
+    "url": "https://medium.com/@ramadhanzome4"
+  }
+]

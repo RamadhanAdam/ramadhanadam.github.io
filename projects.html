@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — Ramadhan Adam Zome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="site-wrapper">
+
+  <aside class="sidebar">
+    <a class="site-name" href="index.html">Ramadhan<br>Adam Zome</a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="writing.html">Writing</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="theme-toggle">◑ dark</button>
+      <div class="social-links">
+        <a href="https://github.com/RamadhanAdam" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://medium.com/@ramadhanzome4" target="_blank" rel="noopener">Medium</a>
+        <a href="https://arxiv.org" target="_blank" rel="noopener">arXiv</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1>Projects</h1>
+    </div>
+
+    <ul class="project-list">
+
+      <li class="project-item">
+        <div class="project-title">Deepfake Detection + RAG Explainability</div>
+        <div class="project-desc">
+          Xception CNN trained from scratch on 140k real/fake faces.
+          FAISS vector store + sentence-transformers + Groq LLM for RAG-based explanations.
+          FastAPI backend on HuggingFace Spaces, React/Vite frontend on Vercel.
+        </div>
+        <div class="project-tags">
+          <span class="tag">CV</span>
+          <span class="tag">RAG</span>
+          <span class="tag">FastAPI</span>
+          <span class="tag">React</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/RamadhanAdam/deepfake-rag" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://huggingface.co/RamadhanZome" target="_blank" rel="noopener">HuggingFace</a>
+        </div>
+      </li>
+
+      <li class="project-item">
+        <div class="project-title">Swahili GPT</div>
+        <div class="project-desc">
+          Character-level GPT trained from scratch on 65M characters of Swahili news (29,544 articles).
+          Explores low-resource language modelling for an underrepresented African language.
+        </div>
+        <div class="project-tags">
+          <span class="tag">NLP</span>
+          <span class="tag">LLM</span>
+          <span class="tag">Swahili</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/RamadhanAdam/swahili-gpt" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://medium.com/@ramadhanzome4" target="_blank" rel="noopener">Article</a>
+        </div>
+      </li>
+
+      <li class="project-item">
+        <div class="project-title">BirdSpeak — Acoustic Token Transformer</div>
+        <div class="project-desc">
+          Transformer encoder trained on MFCC + k-means quantized acoustic tokens for bird call classification.
+          Joint classification and masked acoustic modelling objectives. Ablation study against MLP and LSTM baselines.
+        </div>
+        <div class="project-tags">
+          <span class="tag">NLP</span>
+          <span class="tag">Audio</span>
+          <span class="tag">Transformers</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/RamadhanAdam" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </li>
+
+      <li class="project-item">
+        <div class="project-title">AI From First Principles — C Implementations</div>
+        <div class="project-desc">
+          Neural network implementations in C: Elman RNN trained with a genetic algorithm,
+          with a standalone raylib visualizer. Emphasis on understanding internals
+          rather than using frameworks.
+        </div>
+        <div class="project-tags">
+          <span class="tag">C</span>
+          <span class="tag">Neural Nets</span>
+          <span class="tag">Education</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/RamadhanAdam" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://medium.com/@ramadhanzome4" target="_blank" rel="noopener">Series</a>
+        </div>
+      </li>
+
+    </ul>
+
+  </main>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
