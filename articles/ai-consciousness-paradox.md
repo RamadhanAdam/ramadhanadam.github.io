@@ -16,4 +16,4 @@ Consider the hard problem of consciousness (Chalmers): why should any physical p
 
 Perhaps we are asking the wrong question. Instead of "Can AI be conscious?" we should ask "What kind of consciousness would an AI have?" — a consciousness without biology, without evolution, without a body that fears death or desires reproduction. An alien mind, thinking in ways we cannot fully grasp, and *that* is the true philosophical challenge.
 
-- Ramadhan Adam Zomer, 2026-05-07
+- Ramadhan Adam Zome, 2026-05-07

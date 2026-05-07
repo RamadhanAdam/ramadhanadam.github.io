@@ -11,7 +11,9 @@ function parseFrontMatter(raw) {
   const meta = {};
   match[1].split('\n').forEach(line => {
     const [key, ...rest] = line.split(':');
-    if (key && rest.length) meta[key.trim()] = rest.join(':').trim().replace(/^"|"$/g, '');
+    if (key && rest.length) {
+      meta[key.trim()] = rest.join(':').trim().replace(/^"|"$/g, '');
+    }
   });
 
   return { meta, body: match[2] };
@@ -21,21 +23,21 @@ function parseFrontMatter(raw) {
 async function loadArticle() {
   const params = new URLSearchParams(window.location.search);
   const slug = params.get('slug');
+
   if (!slug) {
     document.getElementById('article-body').innerHTML = '<p>Article not found.</p>';
     return;
   }
 
   try {
-    const res = await fetch(`/articles/${slug}.md`);
+    const res = await fetch(`articles/${slug}.md`);
     if (!res.ok) throw new Error('Not found');
+
     const raw = await res.text();
     const { meta, body } = parseFrontMatter(raw);
 
-    // Set page title
     document.title = `${meta.title || 'Article'} — Ramadhan Adam Zome`;
 
-    // Fill header elements
     const titleEl = document.getElementById('article-title');
     if (titleEl) titleEl.textContent = meta.title || '';
 
@@ -44,17 +46,15 @@ async function loadArticle() {
 
     const tagsEl = document.getElementById('article-tags');
     if (tagsEl && meta.tags) {
-      // Convert tags string or array to readable comma-separated
       let tagsStr = meta.tags;
       if (typeof tagsStr === 'string') {
-        tagsStr = tagsStr.replace(/[\[\]]/g, ''); // remove [ and ]
+        tagsStr = tagsStr.replace(/[\[\]]/g, '');
       } else if (Array.isArray(tagsStr)) {
         tagsStr = tagsStr.join(', ');
       }
       tagsEl.textContent = tagsStr;
     }
 
-    // Optional cover image
     const imageContainer = document.getElementById('article-image');
     if (imageContainer) {
       if (meta.image) {
@@ -64,11 +64,10 @@ async function loadArticle() {
         img.style.cssText = 'max-width:100%;margin-bottom:1.5rem;border:1px solid var(--border)';
         imageContainer.appendChild(img);
       } else {
-        imageContainer.innerHTML = ''; // clear if no image
+        imageContainer.innerHTML = '';
       }
     }
 
-    // Render markdown body
     const bodyEl = document.getElementById('article-body');
     if (bodyEl) bodyEl.innerHTML = marked.parse(body);
 
@@ -84,10 +83,9 @@ async function loadWritingIndex() {
   if (!container) return;
 
   try {
-    const res = await fetch(`/articles/${slug}.md`);
+    const res = await fetch('articles/index.json');
     const articles = await res.json();
 
-    // Sort newest first
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const ul = document.createElement('ul');
@@ -103,7 +101,7 @@ async function loadWritingIndex() {
 
       const title = document.createElement('a');
       title.className = 'article-title';
-      // External (Medium) vs internal
+
       if (a.external) {
         title.href = a.url;
         title.target = '_blank';
@@ -111,6 +109,7 @@ async function loadWritingIndex() {
       } else {
         title.href = `article.html?slug=${a.slug}`;
       }
+
       title.textContent = a.title;
 
       const source = document.createElement('span');
@@ -124,6 +123,7 @@ async function loadWritingIndex() {
     });
 
     container.appendChild(ul);
+
   } catch (e) {
     container.innerHTML = '<p>Could not load articles.</p>';
   }
