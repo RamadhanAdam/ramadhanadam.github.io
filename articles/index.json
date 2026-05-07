@@ -1,5 +1,20 @@
 [
   {
+    "file": "hinton-2006-dimensionality.md",
+    "slug": "hinton-2006-dimensionality",
+    "title": "Reducing the Dimensionality of Data with Neural Networks",
+    "date": "2026-05-08",
+    "tags": [
+      "deep-learning",
+      "autoencoders",
+      "dimensionality-reduction",
+      "pretraining",
+      "RBM"
+    ],
+    "external": false,
+    "url": "article.html?slug=hinton-2006-dimensionality"
+  },
+  {
     "title": "Support Vector Networks, Explained",
     "date": "2026-05-07",
     "tags": [
