@@ -27,7 +27,7 @@ async function loadArticle() {
   }
 
   try {
-    const res = await fetch(`articles/${slug}.md`);
+    const res = await fetch(`/articles/${slug}.md`);
     if (!res.ok) throw new Error('Not found');
     const raw = await res.text();
     const { meta, body } = parseFrontMatter(raw);
@@ -84,7 +84,7 @@ async function loadWritingIndex() {
   if (!container) return;
 
   try {
-    const res = await fetch('articles/index.json');
+    const res = await fetch(`/articles/${slug}.md`);
     const articles = await res.json();
 
     // Sort newest first
