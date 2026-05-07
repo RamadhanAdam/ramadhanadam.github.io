@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import os
 from pathlib import Path
 
 def extract_frontmatter(content):
@@ -16,7 +15,6 @@ def extract_frontmatter(content):
                     key = key.strip()
                     val = val.strip()
                     if key == 'tags':
-                        # Handle [tag1, tag2] format
                         val = [t.strip() for t in val.strip('[]').split(',')]
                     data[key] = val
             return data, content[end+3:].strip()
@@ -26,8 +24,19 @@ def main():
     articles_dir = Path('articles')
     output_file = articles_dir / 'index.json'
     
-    articles = []
+    # Load existing index.json to preserve external articles
+    external_articles = []
+    if output_file.exists():
+        with open(output_file, 'r', encoding='utf-8') as f:
+            existing = json.load(f)
+            # Keep only entries that are explicitly external OR have no matching .md file
+            # We'll re-add internal ones from scratch, so just preserve external ones
+            for entry in existing:
+                if entry.get('external') is True:
+                    external_articles.append(entry)
     
+    # Build internal articles from .md files
+    internal_articles = []
     for md_file in sorted(articles_dir.glob('*.md'), reverse=True):
         if md_file.name == 'index.json':
             continue
@@ -45,12 +54,18 @@ def main():
             'external': False,
             'url': f'article.html?slug={md_file.stem}'
         }
-        articles.append(article)
+        internal_articles.append(article)
+    
+    # Merge: external first, then internal (or sort by date)
+    all_articles = external_articles + internal_articles
+    
+    # Sort by date (newest first)
+    all_articles.sort(key=lambda x: x.get('date', ''), reverse=True)
     
     with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(articles, f, indent=2)
+        json.dump(all_articles, f, indent=2)
     
-    print(f"Updated {output_file} with {len(articles)} articles")
+    print(f"Updated {output_file} with {len(internal_articles)} internal + {len(external_articles)} external = {len(all_articles)} total")
 
 if __name__ == '__main__':
     main()
