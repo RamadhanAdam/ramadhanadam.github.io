@@ -61,8 +61,42 @@ async function loadWritingIndex() {
     container.innerHTML = '';
     const res = await fetch('articles/index.json');
     const articles = await res.json();
-
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Collect unique tags
+    const tagSet = new Set();
+    articles.forEach(a => {
+      if (Array.isArray(a.tags)) a.tags.forEach(t => tagSet.add(t));
+    });
+    const tags = ['all', ...Array.from(tagSet).sort()];
+
+    // Filter bar
+    const filterBar = document.createElement('div');
+    filterBar.className = 'tag-filter';
+    tags.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'tag-btn' + (tag === 'all' ? ' active' : '');
+      btn.textContent = tag;
+      btn.dataset.tag = tag;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const selected = btn.dataset.tag;
+        document.querySelectorAll('.article-item').forEach(li => {
+          const itemTags = li.dataset.tags ? li.dataset.tags.split(',') : [];
+          li.style.display = (selected === 'all' || itemTags.includes(selected)) ? '' : 'none';
+        });
+        document.querySelectorAll('.writing-section-heading').forEach(h => {
+          const ul = h.nextElementSibling;
+          if (!ul) return;
+          const visible = Array.from(ul.querySelectorAll('.article-item')).some(li => li.style.display !== 'none');
+          h.style.display = visible ? '' : 'none';
+          ul.style.display = visible ? '' : 'none';
+        });
+      });
+      filterBar.appendChild(btn);
+    });
+    container.appendChild(filterBar);
 
     const site = articles.filter(a => !a.external);
     const medium = articles.filter(a => a.external);
@@ -73,6 +107,7 @@ async function loadWritingIndex() {
       items.forEach(a => {
         const li = document.createElement('li');
         li.className = 'article-item';
+        li.dataset.tags = Array.isArray(a.tags) ? a.tags.join(',') : '';
 
         const date = document.createElement('span');
         date.className = 'article-date';
@@ -108,7 +143,6 @@ async function loadWritingIndex() {
       container.appendChild(h2);
       container.appendChild(buildList(site));
     }
-
     if (medium.length) {
       const h2 = document.createElement('h2');
       h2.className = 'writing-section-heading';

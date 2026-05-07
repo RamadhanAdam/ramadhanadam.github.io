@@ -529,3 +529,31 @@ hr {
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.4rem;
 }
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.tag-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tag-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.tag-btn.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
