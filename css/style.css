@@ -557,3 +557,9 @@ hr {
   color: var(--bg);
   border-color: var(--text);
 }
+.pub-supervisors {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  font-style: italic;
+}
