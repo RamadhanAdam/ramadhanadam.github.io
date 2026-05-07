@@ -58,7 +58,7 @@ Every visible unit connects to every hidden unit. No connections within the same
 
 ### The RBM Learning Rule
 
-$$\Delta w_{ij} = \varepsilon \left( \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{recon}} \right)$$
+`Δw = ε ( ⟨vᵢhⱼ⟩_data − ⟨vᵢhⱼ⟩_recon )`
 
 In plain terms:
 
