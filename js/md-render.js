@@ -21,7 +21,10 @@ function parseFrontMatter(raw) {
 async function loadArticle() {
   const params = new URLSearchParams(window.location.search);
   const slug = params.get('slug');
-  if (!slug) { document.getElementById('article-content').innerHTML = '<p>Article not found.</p>'; return; }
+  if (!slug) {
+    document.getElementById('article-body').innerHTML = '<p>Article not found.</p>';
+    return;
+  }
 
   try {
     const res = await fetch(`articles/${slug}.md`);
@@ -29,26 +32,49 @@ async function loadArticle() {
     const raw = await res.text();
     const { meta, body } = parseFrontMatter(raw);
 
-    // Header
-    document.title = `${meta.title || 'Article'} — Ramadhan Adam`;
-    document.getElementById('article-title').textContent = meta.title || '';
-    document.getElementById('article-date').textContent = meta.date || '';
-    document.getElementById('article-tags').textContent = meta.tags ? meta.tags.replace(/[\[\]]/g, '') : '';
+    // Set page title
+    document.title = `${meta.title || 'Article'} — Ramadhan Adam Zome`;
 
-    // Cover image
-    if (meta.image) {
-      const img = document.createElement('img');
-      img.src = `images/${meta.image}`;
-      img.alt = meta.title || '';
-      img.style.cssText = 'max-width:100%;margin-bottom:1.5rem;border:1px solid var(--border)';
-      document.getElementById('article-image').appendChild(img);
+    // Fill header elements
+    const titleEl = document.getElementById('article-title');
+    if (titleEl) titleEl.textContent = meta.title || '';
+
+    const dateEl = document.getElementById('article-date');
+    if (dateEl) dateEl.textContent = meta.date || '';
+
+    const tagsEl = document.getElementById('article-tags');
+    if (tagsEl && meta.tags) {
+      // Convert tags string or array to readable comma-separated
+      let tagsStr = meta.tags;
+      if (typeof tagsStr === 'string') {
+        tagsStr = tagsStr.replace(/[\[\]]/g, ''); // remove [ and ]
+      } else if (Array.isArray(tagsStr)) {
+        tagsStr = tagsStr.join(', ');
+      }
+      tagsEl.textContent = tagsStr;
     }
 
-    // Body — rendered via marked
-    document.getElementById('article-body').innerHTML = marked.parse(body);
+    // Optional cover image
+    const imageContainer = document.getElementById('article-image');
+    if (imageContainer) {
+      if (meta.image) {
+        const img = document.createElement('img');
+        img.src = `images/${meta.image}`;
+        img.alt = meta.title || '';
+        img.style.cssText = 'max-width:100%;margin-bottom:1.5rem;border:1px solid var(--border)';
+        imageContainer.appendChild(img);
+      } else {
+        imageContainer.innerHTML = ''; // clear if no image
+      }
+    }
+
+    // Render markdown body
+    const bodyEl = document.getElementById('article-body');
+    if (bodyEl) bodyEl.innerHTML = marked.parse(body);
 
   } catch (e) {
-    document.getElementById('article-content').innerHTML = '<p>Could not load article.</p>';
+    console.error(e);
+    document.getElementById('article-body').innerHTML = '<p>Could not load article.</p>';
   }
 }
 
