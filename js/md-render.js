@@ -11,9 +11,7 @@ function parseFrontMatter(raw) {
   const meta = {};
   match[1].split('\n').forEach(line => {
     const [key, ...rest] = line.split(':');
-    if (key && rest.length) {
-      meta[key.trim()] = rest.join(':').trim().replace(/^"|"$/g, '');
-    }
+    if (key && rest.length) meta[key.trim()] = rest.join(':').trim().replace(/^"|"$/g, '');
   });
 
   return { meta, body: match[2] };
@@ -23,57 +21,34 @@ function parseFrontMatter(raw) {
 async function loadArticle() {
   const params = new URLSearchParams(window.location.search);
   const slug = params.get('slug');
-
-  if (!slug) {
-    document.getElementById('article-body').innerHTML = '<p>Article not found.</p>';
-    return;
-  }
+  if (!slug) { document.getElementById('article-content').innerHTML = '<p>Article not found.</p>'; return; }
 
   try {
     const res = await fetch(`articles/${slug}.md`);
     if (!res.ok) throw new Error('Not found');
-
     const raw = await res.text();
     const { meta, body } = parseFrontMatter(raw);
 
-    document.title = `${meta.title || 'Article'} — Ramadhan Adam Zome`;
+    // Header
+    document.title = `${meta.title || 'Article'} — Ramadhan Adam`;
+    document.getElementById('article-title').textContent = meta.title || '';
+    document.getElementById('article-date').textContent = meta.date || '';
+    document.getElementById('article-tags').textContent = meta.tags ? meta.tags.replace(/[\[\]]/g, '') : '';
 
-    const titleEl = document.getElementById('article-title');
-    if (titleEl) titleEl.textContent = meta.title || '';
-
-    const dateEl = document.getElementById('article-date');
-    if (dateEl) dateEl.textContent = meta.date || '';
-
-    const tagsEl = document.getElementById('article-tags');
-    if (tagsEl && meta.tags) {
-      let tagsStr = meta.tags;
-      if (typeof tagsStr === 'string') {
-        tagsStr = tagsStr.replace(/[\[\]]/g, '');
-      } else if (Array.isArray(tagsStr)) {
-        tagsStr = tagsStr.join(', ');
-      }
-      tagsEl.textContent = tagsStr;
+    // Cover image
+    if (meta.image) {
+      const img = document.createElement('img');
+      img.src = `images/${meta.image}`;
+      img.alt = meta.title || '';
+      img.style.cssText = 'max-width:100%;margin-bottom:1.5rem;border:1px solid var(--border)';
+      document.getElementById('article-image').appendChild(img);
     }
 
-    const imageContainer = document.getElementById('article-image');
-    if (imageContainer) {
-      if (meta.image) {
-        const img = document.createElement('img');
-        img.src = `images/${meta.image}`;
-        img.alt = meta.title || '';
-        img.style.cssText = 'max-width:100%;margin-bottom:1.5rem;border:1px solid var(--border)';
-        imageContainer.appendChild(img);
-      } else {
-        imageContainer.innerHTML = '';
-      }
-    }
-
-    const bodyEl = document.getElementById('article-body');
-    if (bodyEl) bodyEl.innerHTML = marked.parse(body);
+    // Body — rendered via marked
+    document.getElementById('article-body').innerHTML = marked.parse(body);
 
   } catch (e) {
-    console.error(e);
-    document.getElementById('article-body').innerHTML = '<p>Could not load article.</p>';
+    document.getElementById('article-content').innerHTML = '<p>Could not load article.</p>';
   }
 }
 
@@ -86,6 +61,7 @@ async function loadWritingIndex() {
     const res = await fetch('articles/index.json');
     const articles = await res.json();
 
+    // Sort newest first
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const ul = document.createElement('ul');
@@ -101,7 +77,7 @@ async function loadWritingIndex() {
 
       const title = document.createElement('a');
       title.className = 'article-title';
-
+      // External (Medium) vs internal
       if (a.external) {
         title.href = a.url;
         title.target = '_blank';
@@ -109,7 +85,6 @@ async function loadWritingIndex() {
       } else {
         title.href = `article.html?slug=${a.slug}`;
       }
-
       title.textContent = a.title;
 
       const source = document.createElement('span');
@@ -123,7 +98,6 @@ async function loadWritingIndex() {
     });
 
     container.appendChild(ul);
-
   } catch (e) {
     container.innerHTML = '<p>Could not load articles.</p>';
   }
