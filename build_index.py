@@ -41,7 +41,9 @@ def main():
             'slug': md_file.stem,
             'title': frontmatter.get('title', md_file.stem.replace('-', ' ').title()),
             'date': frontmatter.get('date', ''),
-            'tags': frontmatter.get('tags', [])
+            'tags': frontmatter.get('tags', []),
+            'external': False,
+            'url': f'article.html?slug={md_file.stem}'
         }
         articles.append(article)
     

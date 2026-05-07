@@ -1,114 +1,28 @@
 [
   {
-    "title": "Support Vector Networks, Explained",
-    "date": "2026-05-07",
-    "tags": ["ML", "SVM", "AI From First Principles"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/support-vector-networks-explained-95a53daec67c"
-  },
-  {
-    "title": "The Longest Training Deployment of This Architecture Is Already in Your Head",
-    "date": "2026-04-29",
-    "tags": ["neuroscience", "AI"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/the-longest-training-deployment-of-this-architecture-is-already-in-your-head-fe4ba67c021d"
-  },
-  {
-    "title": "The Problem Is Physics Now",
-    "date": "2026-03-21",
-    "tags": ["thoughts"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/the-problem-is-physics-now-b13720764063"
-  },
-  {
-    "title": "The Thinking That Isn't",
-    "date": "2026-03-21",
-    "tags": ["philosophy", "thoughts"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/the-thinking-that-isnt-65ded9c257dd"
-  },
-  {
-    "title": "Long Context Does Not Kill RAG. Here Is the Logic.",
-    "date": "2026-03-15",
-    "tags": ["RAG", "LLM"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/long-context-does-not-kill-rag-here-is-thelogic-6cdbf3af1573"
-  },
-  {
-    "title": "I Trained a GPT on Swahili. Here's What It Learned.",
-    "date": "2026-03-12",
-    "tags": ["NLP", "Swahili", "LLM"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/i-trained-a-gpt-on-swahili-heres-what-it-learned-2c293786098c"
-  },
-  {
-    "title": "Recurrent Neural Networks: The Network That Understands Time",
-    "date": "2026-02-23",
-    "tags": ["AI From First Principles", "RNN"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/recurrent-neural-networks-the-network-that-understands-time-4aa965f6c5b5"
-  },
-  {
-    "title": "Hopfield Networks: The Network That Remembers",
-    "date": "2026-02-23",
-    "tags": ["AI From First Principles", "Hopfield"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/hopfield-networks-the-network-that-remembers-21475b4bd9f5"
-  },
-  {
-    "title": "Competitive Neural Networks: When Neurons Fight to Learn",
-    "date": "2026-02-10",
-    "tags": ["AI From First Principles"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/competitive-neural-networks-when-neurons-fight-to-learn-009599f5a0b6"
-  },
-  {
-    "title": "The Algorithm That Learns From Being Wrong",
-    "date": "2026-02-08",
-    "tags": ["AI From First Principles", "backpropagation"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/the-algorithm-that-learns-from-being-wrong-da75f0c50aca"
-  },
-  {
-    "title": "AI From First Principles: Neural Networks — What Happens When You Actually Look Inside?",
-    "date": "2026-01-22",
-    "tags": ["AI From First Principles", "neural networks"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/ai-from-first-principles-neural-networks-what-happens-when-you-actually-look-inside-aa458b24051e"
-  },
-  {
-    "title": "Building a Perceptron From Scratch: Your First Neural Network",
-    "date": "2026-01-12",
-    "tags": ["AI From First Principles", "perceptron"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/building-a-perceptron-from-scratch-your-first-neural-network-baaaada189d9"
-  },
-  {
-    "title": "Windows API & Special Files: The Secret Passage of Your Computer",
-    "date": "2026-01-07",
-    "tags": ["security", "Windows"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/windows-api-special-files-the-secret-passage-of-your-computer-d7adad7a4aff"
-  },
-  {
-    "title": "Lab 01: Where It All Begins — Static Analysis of 4 Malware Samples",
-    "date": "2026-01-06",
-    "tags": ["malware", "security"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/lab-01-where-it-all-begins-static-analysis-of-4-malware-samples-6128aff2e5fb"
-  },
-  {
-    "title": "Lab 03-01: When Malware Fights Back — Analyzing Poison Ivy's Anti-VM Evasion",
-    "date": "2026-01-05",
-    "tags": ["malware", "security"],
-    "external": true,
-    "url": "https://medium.com/@ramadhanzome4/lab-03-01-when-malware-fights-back-analyzing-poison-ivys-anti-vm-evasion-42b56b9119cc"
-  },
-  {
+    "file": "hebbian-learning-backprop.md",
     "slug": "hebbian-learning-backprop",
-    "title": "Hebbian Learning and the Road to Backpropagation",
+    "title": "\"Hebbian Learning and the Road to Backpropagation\"",
+    "date": "2026-05-01",
+    "tags": [
+      "AI",
+      "history",
+      "neural networks"
+    ],
+    "external": false,
+    "url": "article.html?slug=hebbian-learning-backprop"
+  },
+  {
+    "file": "ai-consciousness-paradox.md",
+    "slug": "ai-consciousness-paradox",
+    "title": "The Consciousness Paradox in Large Language Models",
     "date": "2026-05-07",
-    "tags": ["AI", "history", "neural networks"],
-    "external": false
+    "tags": [
+      "philosophy",
+      "AI",
+      "consciousness"
+    ],
+    "external": false,
+    "url": "article.html?slug=ai-consciousness-paradox"
   }
 ]
