@@ -61,6 +61,8 @@ async function loadWritingIndex() {
     container.innerHTML = '';
     const res = await fetch('articles/index.json');
     const articles = await res.json();
+    const liveMedium = await fetchMediumArticles();
+    mergeArticles(articles, liveMedium);
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Collect unique tags
@@ -154,4 +156,53 @@ async function loadWritingIndex() {
   } catch (e) {
     container.innerHTML = '<p>Could not load articles.</p>';
   }
+}
+
+async function fetchMediumArticles() {
+  const feedUrl = 'https://medium.com/feed/@ramadhanzome4';
+  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
+
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error('Medium feed unavailable');
+    const data = await res.json();
+    if (!Array.isArray(data.items)) return [];
+
+    return data.items.map(item => ({
+      title: stripHtml(item.title || ''),
+      date: formatDate(item.pubDate),
+      tags: Array.isArray(item.categories) ? item.categories : [],
+      external: true,
+      url: item.link
+    })).filter(item => item.title && item.url);
+  } catch (e) {
+    return [];
+  }
+}
+
+function mergeArticles(target, incoming) {
+  const seen = new Set(target.map(articleKey));
+  incoming.forEach(article => {
+    const key = articleKey(article);
+    if (!seen.has(key)) {
+      target.push(article);
+      seen.add(key);
+    }
+  });
+}
+
+function articleKey(article) {
+  return String(article.url || article.title || '').trim().toLowerCase();
+}
+
+function formatDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString().slice(0, 10);
+}
+
+function stripHtml(value) {
+  const div = document.createElement('div');
+  div.innerHTML = value;
+  return div.textContent || div.innerText || '';
 }
