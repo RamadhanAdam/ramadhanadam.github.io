@@ -28,3 +28,58 @@ document.querySelectorAll('nav a').forEach(link => {
     link.classList.add('active');
   }
 });
+
+/* ─── Certifications ────────────────────────────────────── */
+async function loadCertificates() {
+  const container = document.getElementById('certifications-list');
+  if (!container) return;
+
+  try {
+    const res = await fetch('certificates/index.json');
+    if (!res.ok) throw new Error('Certificate index not found');
+    const certificates = await res.json();
+
+    if (!Array.isArray(certificates) || certificates.length === 0) return;
+
+    const ul = document.createElement('ul');
+    ul.className = 'certificate-list';
+
+    certificates
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+      .forEach(cert => {
+        const li = document.createElement('li');
+        li.className = 'certificate-item';
+
+        const date = document.createElement('span');
+        date.className = 'certificate-date';
+        date.textContent = cert.date || '';
+
+        const body = document.createElement('span');
+        body.className = 'certificate-body';
+
+        const title = document.createElement(cert.url ? 'a' : 'strong');
+        title.className = 'certificate-title';
+        title.textContent = cert.title || 'Certificate';
+        if (cert.url) {
+          title.href = cert.url;
+          title.target = '_blank';
+          title.rel = 'noopener';
+        }
+
+        const issuer = document.createElement('span');
+        issuer.className = 'certificate-issuer';
+        issuer.textContent = cert.issuer ? ` — ${cert.issuer}` : '';
+
+        body.appendChild(title);
+        body.appendChild(issuer);
+        li.appendChild(date);
+        li.appendChild(body);
+        ul.appendChild(li);
+      });
+
+    container.innerHTML = '';
+    container.appendChild(ul);
+  } catch (e) {
+    container.innerHTML = '<p class="muted-note">Certificates coming soon.</p>';
+  }
+}

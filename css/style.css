@@ -461,6 +461,43 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   margin-bottom: 2rem;
 }
 
+.muted-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.certificate-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.certificate-item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.certificate-date {
+  color: var(--text-light);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  width: 90px;
+}
+
+.certificate-title {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.certificate-issuer {
+  color: var(--text-muted);
+}
+
 /* ─── Contact ────────────────────────────────────────────── */
 .contact-list {
   list-style: none;
@@ -516,6 +553,7 @@ hr {
   .main-content { padding: 2rem 1.5rem; }
 
   .news-list li { flex-direction: column; gap: 0.1rem; }
+  .certificate-item { flex-direction: column; gap: 0.1rem; }
   .article-item { flex-wrap: wrap; }
   .article-source { margin-left: 0; }
 }
