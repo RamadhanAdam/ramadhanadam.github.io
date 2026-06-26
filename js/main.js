@@ -57,11 +57,12 @@ async function loadCertificates() {
         const body = document.createElement('span');
         body.className = 'certificate-body';
 
-        const title = document.createElement(cert.url ? 'a' : 'strong');
+        const href = cert.url || (cert.file ? `certificates/${cert.file}` : '');
+        const title = document.createElement(href ? 'a' : 'strong');
         title.className = 'certificate-title';
         title.textContent = cert.title || 'Certificate';
-        if (cert.url) {
-          title.href = cert.url;
+        if (href) {
+          title.href = href;
           title.target = '_blank';
           title.rel = 'noopener';
         }
@@ -72,6 +73,12 @@ async function loadCertificates() {
 
         body.appendChild(title);
         body.appendChild(issuer);
+        if (cert.description) {
+          const description = document.createElement('span');
+          description.className = 'certificate-description';
+          description.textContent = cert.description;
+          body.appendChild(description);
+        }
         li.appendChild(date);
         li.appendChild(body);
         ul.appendChild(li);
