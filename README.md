@@ -1,17 +1,17 @@
-# ramadhanam.github.io
+# ramadhanadam.github.io
 
 Personal research site. Built with plain HTML/CSS/JS, hosted on GitHub Pages.
 
 ## Structure
 
 ```
-ramadhanam.github.io/
+ramadhanadam.github.io/
 ├── index.html          ← Home + news
 ├── about.html
 ├── publications.html
 ├── projects.html
 ├── certifications.html ← Certificate index (loaded from certificates/index.json)
-├── writing.html        ← Article index (loaded from articles/index.json)
+├── writing.html        ← Local article index + Medium profile link
 ├── article.html        ← Single article reader (reads .md files)
 ├── contact.html
 ├── cv.pdf              ← Add your CV here
@@ -20,7 +20,7 @@ ramadhanam.github.io/
 │   ├── main.js         ← Theme toggle, nav active state
 │   └── md-render.js    ← Markdown loader + writing index builder
 ├── articles/
-│   ├── index.json      ← Article registry — update this when adding articles
+│   ├── index.json      ← Local article registry — generated from front matter
 │   └── *.md            ← Article files
 ├── certificates/
 │   ├── index.json      ← Certificate registry — update this when adding certificates
@@ -36,42 +36,29 @@ ramadhanam.github.io/
 ---
 title: "Your Title"
 date: 2026-05-01
+category: research notes
 tags: [tag1, tag2]
+summary: A one-sentence description for the writing index.
+featured: false
 image: optional-cover.png
 ---
 
 Your content here...
 ```
 
-2. Add an entry to `articles/index.json`:
+2. Regenerate the article index:
 
-```json
-{
-  "slug": "your-slug",
-  "title": "Your Title",
-  "date": "2026-05-01",
-  "tags": ["tag1", "tag2"],
-  "external": false
-}
+```bash
+python build_index.py
 ```
 
 3. `git add . && git commit -m "add article: your title" && git push`
 
 That's it. The article appears on the writing page automatically.
 
-## Adding a Medium article (link only)
+## Medium articles
 
-In `articles/index.json`, add:
-
-```json
-{
-  "title": "Article Title",
-  "date": "2026-01-01",
-  "tags": ["tag"],
-  "external": true,
-  "url": "https://medium.com/your-article-url"
-}
-```
+Medium articles are not copied into `articles/index.json`. The writing page links to the Medium profile directly.
 
 ## Adding a certification
 

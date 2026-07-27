@@ -1,7 +1,10 @@
 ---
 title: Reducing the Dimensionality of Data with Neural Networks
 date: 2026-05-08
+category: reading notes
 tags: [deep-learning, autoencoders, dimensionality-reduction, pretraining, RBM]
+summary: A reading note on Hinton and Salakhutdinov's 2006 autoencoder paper, why greedy RBM pretraining mattered, and how it helped reopen deep learning.
+featured: true
 ---
 
 # Reducing the Dimensionality of Data with Neural Networks

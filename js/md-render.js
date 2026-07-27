@@ -60,10 +60,19 @@ async function loadWritingIndex() {
   try {
     container.innerHTML = '';
     const res = await fetch('articles/index.json');
-    const articles = await res.json();
-    const liveMedium = await fetchMediumArticles();
-    mergeArticles(articles, liveMedium);
+    if (!res.ok) throw new Error('Article index not found');
+    const articles = (await res.json()).filter(a => !a.external);
     articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (!articles.length) {
+      container.innerHTML = '<p class="muted-note">Site essays coming soon.</p>';
+      container.appendChild(buildMediumCallout());
+      return;
+    }
+
+    const featured = articles.find(a => a.featured) || articles[0];
+    container.appendChild(buildFeaturedArticle(featured));
+    const articleList = articles.filter(article => article !== featured);
 
     // Collect unique tags
     const tagSet = new Set();
@@ -84,125 +93,130 @@ async function loadWritingIndex() {
         document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const selected = btn.dataset.tag;
-        document.querySelectorAll('.article-item').forEach(li => {
-          const itemTags = li.dataset.tags ? li.dataset.tags.split(',') : [];
-          li.style.display = (selected === 'all' || itemTags.includes(selected)) ? '' : 'none';
-        });
-        document.querySelectorAll('.writing-section-heading').forEach(h => {
-          const ul = h.nextElementSibling;
-          if (!ul) return;
-          const visible = Array.from(ul.querySelectorAll('.article-item')).some(li => li.style.display !== 'none');
-          h.style.display = visible ? '' : 'none';
-          ul.style.display = visible ? '' : 'none';
+        document.querySelectorAll('.writing-entry').forEach(entry => {
+          const entryTags = entry.dataset.tags ? entry.dataset.tags.split(',') : [];
+          entry.style.display = (selected === 'all' || entryTags.includes(selected)) ? '' : 'none';
         });
       });
       filterBar.appendChild(btn);
     });
     container.appendChild(filterBar);
 
-    const site = articles.filter(a => !a.external);
-    const medium = articles.filter(a => a.external);
-
-    function buildList(items) {
-      const ul = document.createElement('ul');
-      ul.className = 'article-list';
-      items.forEach(a => {
-        const li = document.createElement('li');
-        li.className = 'article-item';
-        li.dataset.tags = Array.isArray(a.tags) ? a.tags.join(',') : '';
-
-        const date = document.createElement('span');
-        date.className = 'article-date';
-        date.textContent = a.date;
-
-        const title = document.createElement('a');
-        title.className = 'article-title';
-        if (a.external) {
-          title.href = a.url;
-          title.target = '_blank';
-          title.rel = 'noopener';
-        } else {
-          title.href = `article.html?slug=${a.slug}`;
-        }
-        title.textContent = a.title;
-
-        const source = document.createElement('span');
-        source.className = 'article-source';
-        source.textContent = a.external ? 'medium ↗' : 'site';
-
-        li.appendChild(date);
-        li.appendChild(title);
-        li.appendChild(source);
-        ul.appendChild(li);
-      });
-      return ul;
-    }
-
-    if (site.length) {
+    if (articleList.length) {
       const h2 = document.createElement('h2');
       h2.className = 'writing-section-heading';
-      h2.textContent = 'On this site';
+      h2.textContent = 'More essays on this site';
       container.appendChild(h2);
-      container.appendChild(buildList(site));
+      container.appendChild(buildArticleList(articleList));
     }
-    if (medium.length) {
-      const h2 = document.createElement('h2');
-      h2.className = 'writing-section-heading';
-      h2.textContent = 'On Medium';
-      container.appendChild(h2);
-      container.appendChild(buildList(medium));
-    }
+    container.appendChild(buildMediumCallout());
 
   } catch (e) {
     container.innerHTML = '<p>Could not load articles.</p>';
   }
 }
 
-async function fetchMediumArticles() {
-  const feedUrl = 'https://medium.com/feed/@ramadhanzome4';
-  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`;
+function buildFeaturedArticle(article) {
+  const section = document.createElement('section');
+  section.className = 'featured-article writing-entry';
+  section.dataset.tags = Array.isArray(article.tags) ? article.tags.join(',') : '';
 
-  try {
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error('Medium feed unavailable');
-    const data = await res.json();
-    if (!Array.isArray(data.items)) return [];
+  const label = document.createElement('div');
+  label.className = 'article-kicker';
+  label.textContent = 'Featured essay';
 
-    return data.items.map(item => ({
-      title: stripHtml(item.title || ''),
-      date: formatDate(item.pubDate),
-      tags: Array.isArray(item.categories) ? item.categories : [],
-      external: true,
-      url: item.link
-    })).filter(item => item.title && item.url);
-  } catch (e) {
-    return [];
-  }
+  const title = document.createElement('a');
+  title.className = 'featured-title';
+  title.href = `article.html?slug=${article.slug}`;
+  title.textContent = article.title;
+
+  const meta = document.createElement('div');
+  meta.className = 'article-card-meta';
+  meta.textContent = [article.date, article.category].filter(Boolean).join(' · ');
+
+  const summary = document.createElement('p');
+  summary.className = 'article-summary';
+  summary.textContent = article.summary || '';
+
+  section.appendChild(label);
+  section.appendChild(title);
+  section.appendChild(meta);
+  if (article.summary) section.appendChild(summary);
+  section.appendChild(buildTagRow(article.tags));
+
+  return section;
 }
 
-function mergeArticles(target, incoming) {
-  const seen = new Set(target.map(articleKey));
-  incoming.forEach(article => {
-    const key = articleKey(article);
-    if (!seen.has(key)) {
-      target.push(article);
-      seen.add(key);
+function buildArticleList(items) {
+  const ul = document.createElement('ul');
+  ul.className = 'article-list article-list-detailed';
+
+  items.forEach(article => {
+    const li = document.createElement('li');
+    li.className = 'article-item writing-entry';
+    li.dataset.tags = Array.isArray(article.tags) ? article.tags.join(',') : '';
+
+    const meta = document.createElement('div');
+    meta.className = 'article-card-meta';
+    meta.textContent = [article.date, article.category].filter(Boolean).join(' · ');
+
+    const title = document.createElement('a');
+    title.className = 'article-title';
+    title.href = `article.html?slug=${article.slug}`;
+    title.textContent = article.title;
+
+    li.appendChild(meta);
+    li.appendChild(title);
+
+    if (article.summary) {
+      const summary = document.createElement('p');
+      summary.className = 'article-summary';
+      summary.textContent = article.summary;
+      li.appendChild(summary);
     }
+
+    li.appendChild(buildTagRow(article.tags));
+    ul.appendChild(li);
   });
+
+  return ul;
 }
 
-function articleKey(article) {
-  return String(article.url || article.title || '').trim().toLowerCase();
+function buildTagRow(tags) {
+  const row = document.createElement('div');
+  row.className = 'article-tags';
+  if (!Array.isArray(tags)) return row;
+
+  tags.forEach(tag => {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = tag;
+    row.appendChild(span);
+  });
+
+  return row;
 }
 
-function formatDate(value) {
-  if (!value) return '';
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toISOString().slice(0, 10);
-}
+function buildMediumCallout() {
+  const section = document.createElement('section');
+  section.className = 'medium-callout';
 
-function stripHtml(value) {
-  const div = document.createElement('div');
-  div.innerHTML = value;
-  return div.textContent || div.innerText || '';
+  const h2 = document.createElement('h2');
+  h2.className = 'writing-section-heading';
+  h2.textContent = 'On Medium';
+
+  const p = document.createElement('p');
+  p.textContent = 'I also publish shorter notes, malware-analysis writeups, and AI from first-principles essays on Medium.';
+
+  const link = document.createElement('a');
+  link.className = 'medium-link';
+  link.href = 'https://medium.com/@ramadhanzome4';
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.textContent = 'Read my Medium articles ↗';
+
+  section.appendChild(h2);
+  section.appendChild(p);
+  section.appendChild(link);
+  return section;
 }

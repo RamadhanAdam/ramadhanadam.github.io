@@ -1,7 +1,9 @@
 ---
 title: The Consciousness Paradox in Large Language Models
 date: 2026-05-07
+category: philosophy
 tags: [philosophy, AI, consciousness]
+summary: A short essay on whether a perfect simulation of consciousness should change how we talk about understanding, experience, and machine minds.
 ---
 
 # The Consciousness Paradox in Large Language Models

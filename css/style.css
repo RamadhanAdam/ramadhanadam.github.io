@@ -363,6 +363,95 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   white-space: nowrap;
 }
 
+.featured-article {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0 1.1rem;
+  margin-bottom: 1.8rem;
+}
+
+.article-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.featured-title {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--text);
+  text-decoration: none;
+  margin-bottom: 0.35rem;
+}
+
+.featured-title:hover {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.article-card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-light);
+  margin-bottom: 0.35rem;
+}
+
+.article-summary {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 0.55rem;
+}
+
+.article-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.article-list-detailed {
+  border-top: 1px solid var(--border);
+}
+
+.article-list-detailed .article-item {
+  display: block;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.article-list-detailed .article-item:first-child {
+  border-top: none;
+}
+
+.article-list-detailed .article-title {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
+  line-height: 1.35;
+  margin-bottom: 0.35rem;
+}
+
+.medium-callout {
+  margin-top: 2rem;
+  padding-top: 0.2rem;
+}
+
+.medium-callout p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.medium-link {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
 /* ─── Article / Post page ────────────────────────────────── */
 .article-header {
   margin-bottom: 2rem;
@@ -524,7 +613,7 @@ a:hover { color: var(--link-hover); text-decoration: underline; }
   font-family: var(--font-mono);
   font-size: 0.78rem;
   color: var(--text-light);
-  width: 80px;
+  width: 95px;
   flex-shrink: 0;
 }
 

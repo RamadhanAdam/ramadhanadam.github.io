@@ -1,7 +1,9 @@
 ---
 title: "Hebbian Learning and the Road to Backpropagation"
 date: 2026-05-01
+category: reading notes
 tags: [AI, history, neural networks]
+summary: A concise look at Hebb's local learning rule, what it still explains well, and why backpropagation solved a different credit-assignment problem.
 ---
 
 Donald Hebb's 1949 rule — *neurons that fire together, wire together* — is often treated as
