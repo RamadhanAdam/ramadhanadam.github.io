@@ -3,60 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Article — Ramadhan Adam Zome</title>
+  <title>Notes | Ramadhan Adam Zome</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23fafaf8'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='34' fill='%238a3324' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+<div class="page">
 
-<div class="site-wrapper">
-
-  <aside class="sidebar">
-    <a class="site-name" href="index.html">Ramadhan<br>Adam Zome</a>
+  <header class="masthead">
+    <a class="name" href="index.html">Ramadhan Adam Zome</a>
     <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="publications.html">Publications</a></li>
-        <li><a href="projects.html">Projects</a></li>
-        <li><a href="certifications.html">Certifications</a></li>
-        <li><a href="writing.html">Writing</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
+      <a href="index.html#research">research</a>
+      <a href="index.html#projects">projects</a>
+      <a href="writing.html" class="here">writing</a>
+      <a href="cv_research.pdf">cv</a>
+      <a href="index.html#contact">contact</a>
+      <button class="theme-toggle" id="theme-toggle" type="button">dark</button>
     </nav>
-    <div class="sidebar-footer">
-      <button class="theme-toggle" id="theme-toggle">◑ dark</button>
-      <div class="social-links">
-        <a href="https://github.com/RamadhanAdam" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://medium.com/@ramadhanzome4" target="_blank" rel="noopener">Medium</a>
-        <a href="https://huggingface.co/RamadhanZome" target="_blank" rel="noopener">HuggingFace</a>
-      </div>
-    </div>
-  </aside>
+  </header>
 
-  <main class="main-content" id="article-content">
-
-    <a class="back-link" href="writing.html">← Writing</a>
-
-    <div class="article-header">
-      <h1 id="article-title"></h1>
-      <div class="article-meta">
-        <span id="article-date"></span>
-        <span id="article-tags"></span>
-      </div>
-    </div>
-
+  <main>
+    <h1 class="article-title" id="article-title"></h1>
+    <div class="article-meta" id="article-meta"></div>
     <div id="article-image"></div>
-
-    <div class="article-body" id="article-body"></div>
-
+    <article class="prose" id="article-body"><p>Loading…</p></article>
+    <p class="small" style="margin-top:30px"><a href="writing.html">Back to writing</a></p>
   </main>
-</div>
 
-<!-- marked.js for markdown rendering -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <footer>&copy; <span id="year">2026</span> Ramadhan Adam Zome</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script src="js/main.js"></script>
 <script src="js/md-render.js"></script>
 <script>loadArticle();</script>

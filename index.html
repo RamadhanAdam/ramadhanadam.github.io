@@ -4,71 +4,137 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ramadhan Adam Zome</title>
-  <meta name="description" content="MSc AI & ML researcher. Self-supervised learning, malware detection, low-resource NLP." />
+  <meta name="description" content="Ramadhan Adam Zome, master's student in AI and Machine Learning at PAUSTI, on a research exchange at Hiroshima University. Malware detection, Windows PE internals." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23fafaf8'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='34' fill='%238a3324' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+<div class="page">
 
-<div class="site-wrapper">
-
-  <aside class="sidebar">
-    <a class="site-name" href="index.html">Ramadhan<br>Adam Zome</a>
+  <header class="masthead">
+    <a class="name" href="index.html">Ramadhan Adam Zome</a>
     <nav>
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="publications.html">Publications</a></li>
-        <li><a href="projects.html">Projects</a></li>
-        <li><a href="certifications.html">Certifications</a></li>
-        <li><a href="writing.html">Writing</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
+      <a href="#research">research</a>
+      <a href="#projects">projects</a>
+      <a href="writing.html">writing</a>
+      <a href="cv_research.pdf">cv</a>
+      <a href="#contact">contact</a>
+      <button class="theme-toggle" id="theme-toggle" type="button">dark</button>
     </nav>
-    <div class="sidebar-footer">
-      <button class="theme-toggle" id="theme-toggle">◑ dark</button>
-      <div class="social-links">
-        <a href="https://github.com/RamadhanAdam" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://medium.com/@ramadhanzome4" target="_blank" rel="noopener">Medium</a>
-        <a href="https://huggingface.co/RamadhanZome" target="_blank" rel="noopener">HuggingFace</a>
-      </div>
-    </div>
-  </aside>
+  </header>
 
-  <main class="main-content">
-
-    <div class="page-header">
-      <h1>Ramadhan Adam Zome</h1>
-      <p class="subtitle">MSc AI &amp; ML · PAUSTI · Nairobi</p>
-    </div>
-
-    <div class="intro">
+  <main>
+    <div class="lede">
       <p>
-        I am a second-year MSc student in Artificial Intelligence and Machine Learning
-        at the Pan African University Institute for Basic Sciences, Technology and Innovation (PAUSTI).
-        My research focuses on open-world Windows malware detection using self-supervised
-        byte-level embeddings and prototypical few-shot adaptation.
+        I'm a master's student in Artificial Intelligence and Machine Learning at the Pan African University
+        Institute for Basic Sciences, Technology and Innovation (PAUSTI) in Nairobi. Until January 2027 I'm a
+        special research student at Hiroshima University, in the Dependable Systems Laboratory, hosted by
+        Assoc. Prof. Junjun Zheng.
       </p>
       <p>
-        I write about Malware Analysis/Reverse Engineering, AI, ML and Data Science. I also write on AI from first principles on <a href="https://medium.com/@ramadhanzome4" target="_blank" rel="noopener">Medium</a>
-        and maintain implementations of foundational models in C and Python on
-        <a href="https://github.com/RamadhanAdam" target="_blank" rel="noopener">GitHub</a>.
+        I work on malware detection, especially on families of malware that a detector has never seen before.
+        I also like taking things apart: I have hand-assembled a Windows executable in NASM, written a PE parser
+        in C, and I write about what I learn along the way.
+      </p>
+      <p>
+        Before the master's I worked as a data analyst and cybersecurity associate at Innovative Toll Solutions
+        in Nairobi. I studied Statistics and Programming at Kenyatta University.
+      </p>
+      <p>I'm looking for a PhD position or a research engineering role from 2027.</p>
+      <p class="linkrow">
+        <a href="cv_research.pdf">CV</a><span class="sep">/</span>
+        <a href="cv_industry.pdf">Résumé</a><span class="sep">/</span>
+        <a href="https://github.com/RamadhanAdam">GitHub</a><span class="sep">/</span>
+        <a href="https://huggingface.co/RamadhanZome">Hugging Face</a><span class="sep">/</span>
+        <a href="https://medium.com/@ramadhanzome4">Medium</a><span class="sep">/</span>
+        <a href="mailto:ramadhanzome4@gmail.com">Email</a>
       </p>
     </div>
 
-    <h2>News</h2>
-    <ul class="news-list">
-      <li><span class="news-date">May 2026</span><span>Site launched.</span></li>
-      <li><span class="news-date">Apr 2026</span><span>Applied to Deep Learning Indaba 2026, Lagos.</span></li>
-      <li><span class="news-date">Mar 2026</span><span>Deepfake detection + RAG explainability system deployed on HuggingFace Spaces.</span></li>
-      <li><span class="news-date">Jun 2025</span><span>Started MSc in AI &amp; ML at PAUSTI.</span></li>
-    </ul>
+    <section id="news">
+      <h2>News</h2>
+      <ul class="dated">
+        <li><span class="d">17 oct 2026</span><span>Talk in Session 25-1 of the Chugoku-section joint conference of electrical and information engineers, Hiroshima University (<a href="https://rentai-chugoku.org/program/Ver0/">programme</a>).</span></li>
+        <li><span class="d">sep 2026</span><span>Two pieces on GPU memory: <a href="https://medium.com/genaitrail/gpu-dram-architecture-explained-simply-a4eb4c4d8dcb">how GPU DRAM works</a>, and Row Hammer.</span></li>
+        <li><span class="d">aug 2026</span><span>Arrived in Higashi-Hiroshima for a research exchange at Hiroshima University.</span></li>
+        <li><span class="d">aug 2026</span><span>Thesis proposal approved.</span></li>
+        <li><span class="d">jul 2026</span><span><a href="https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb">I wrote a Windows PE file from scratch, in assembly</a>.</span></li>
+        <li><span class="d">jun 2025</span><span>Started the master's at PAUSTI on a Pan African University scholarship.</span></li>
+      </ul>
+    </section>
 
+    <section id="research">
+      <h2>Research</h2>
+      <p>
+        <em>Open-world malware detection</em> (master's thesis, in progress). A classifier trained on known malware
+        families can only answer with one of them, so a new family gets a wrong name. My thesis looks at detection
+        that can also answer "unknown": an encoder that reads Windows programs by their PE structure, trained
+        without labels, with family prototypes and per-family thresholds on top. I will add results here once
+        they are published.
+      </p>
+      <p class="small">
+        Supervised by Dr. Albert Njoroge Kahira and Dr. Mulang' Onando (PAUSTI) and
+        Assoc. Prof. Junjun Zheng (Hiroshima University).
+      </p>
+    </section>
+
+    <section id="talks">
+      <h2>Talks</h2>
+      <ul class="plain">
+        <li>
+          <span class="t">Open-World Windows Malware Detection with PE-Aware Hierarchical Embeddings and Few-Shot Adaptation</span>
+          <span class="sub">R. A. Zome, J. Zheng, H. Okamura, T. Dohi. 2026 Joint Conference of Electrical and Information Engineers, Chugoku Section, Hiroshima, 17 October 2026.</span>
+        </li>
+      </ul>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <ul class="plain">
+        <li><span class="t">raw-pe.</span> A Win64 executable written byte by byte in NASM, with every header and import entry by hand and no linker.
+          <span class="go"><a href="https://github.com/RamadhanAdam/raw-pe">code</a><a href="https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb">write-up</a></span></li>
+        <li><span class="t">sco-pe.</span> A small PE parser in C: headers, sections, imports, exports and overlays, with bounds checks for malformed files.
+          <span class="go"><a href="https://github.com/RamadhanAdam/sco-pe">code</a></span></li>
+        <li><span class="t">Explainable deepfake detection.</span> An Xception classifier trained on 140K real and generated faces, with retrieval-based explanations for each prediction.
+          <span class="go"><a href="https://deepfake-rag.vercel.app">demo</a><a href="https://github.com/RamadhanAdam/deepfake-rag">code</a></span></li>
+        <li><span class="t">Phish-Transformer.</span> A 45K-parameter transformer that reads a URL character by character and warns you in Chrome.
+          <span class="go"><a href="https://github.com/RamadhanAdam/phish-transformer">code</a><a href="https://huggingface.co/RamadhanZome/phish-transformer">model</a></span></li>
+        <li><span class="t">ML on Kubernetes.</span> A FastAPI model served on GKE, with CI/CD from GitHub Actions, Postgres for logging and Prometheus, Grafana and Loki for monitoring.
+          <span class="go"><a href="https://github.com/RamadhanAdam/ml_deployment_project">code</a></span></li>
+        <li><span class="t">Swahili GPT.</span> A character-level GPT trained from scratch on Swahili news.
+          <span class="go"><a href="https://huggingface.co/RamadhanZome/swahili-gpt">model</a></span></li>
+        <li><span class="t">BuildNeural.</span> Neural networks from scratch, one lesson at a time: a perceptron, a dense network, a CNN.
+          <span class="go"><a href="https://github.com/RamadhanAdam/buildneural">code</a></span></li>
+      </ul>
+    </section>
+
+    <section id="writing">
+      <h2>Recent writing</h2>
+      <ul class="dated">
+        <li><span class="d">sep 2026</span><a href="https://medium.com/genaitrail/gpu-dram-architecture-explained-simply-a4eb4c4d8dcb">GPU DRAM Architecture, Explained Simply</a></li>
+        <li><span class="d">sep 2026</span><a href="https://medium.com/@ramadhanzome4/the-nvidia-a100-when-gpu-architecture-becomes-part-of-the-research-method-4474c5ada123">The NVIDIA A100: When GPU Architecture Becomes Part of the Research Method</a></li>
+        <li><span class="d">sep 2026</span><a href="https://medium.com/@ramadhanzome4/beyond-the-chatbot-how-self-attention-learns-structure-by-accident-a63baf7fdc1f">Beyond the Chatbot: How Self-Attention Learns Structure by Accident</a></li>
+        <li><span class="d">aug 2026</span><a href="https://medium.com/@ramadhanzome4/rwx-memory-in-windows-what-read-write-and-execute-really-mean-4897c49d3b76">RWX Memory in Windows: What Read, Write, and Execute Really Mean</a></li>
+        <li><span class="d">jul 2026</span><a href="https://medium.com/@ramadhanzome4/pe-overlays-a-small-thing-worth-writing-about-056c39ce3774">PE Overlays: A Small Thing Worth Writing About</a></li>
+      </ul>
+      <p class="small" style="margin-top:10px"><a href="writing.html">Everything I've written, and my reading notes</a></p>
+    </section>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <dl class="contact">
+        <dt>email</dt><dd><a href="mailto:ramadhanzome4@gmail.com">ramadhanzome4@gmail.com</a></dd>
+        <dt>university</dt><dd><a href="mailto:k260152@hiroshima-u.ac.jp">k260152@hiroshima-u.ac.jp</a></dd>
+        <dt>where</dt><dd>Higashi-Hiroshima, Japan, until January 2027; then Nairobi</dd>
+      </dl>
+    </section>
   </main>
-</div>
 
+  <footer>&copy; <span id="year">2026</span> Ramadhan Adam Zome</footer>
+</div>
 <script src="js/main.js"></script>
 </body>
 </html>

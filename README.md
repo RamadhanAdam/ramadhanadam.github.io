@@ -1,32 +1,32 @@
 # ramadhanadam.github.io
 
-Personal research site. Built with plain HTML/CSS/JS, hosted on GitHub Pages.
+Personal research site of Ramadhan Adam Zome. Plain HTML, CSS and a little JavaScript, hosted on GitHub Pages.
 
 ## Structure
 
 ```
 ramadhanadam.github.io/
-├── index.html          ← Home + news
-├── about.html
-├── publications.html
-├── projects.html
-├── certifications.html ← Certificate index (loaded from certificates/index.json)
-├── writing.html        ← Local article index + Medium profile link
-├── article.html        ← Single article reader (reads .md files)
-├── contact.html
-├── cv.pdf              ← Add your CV here
-├── css/style.css
-├── js/
-│   ├── main.js         ← Theme toggle, nav active state
-│   └── md-render.js    ← Markdown loader + writing index builder
-├── articles/
-│   ├── index.json      ← Local article registry — generated from front matter
-│   └── *.md            ← Article files
-├── certificates/
-│   ├── index.json      ← Certificate registry — update this when adding certificates
-│   └── *.pdf/*.png     ← Uploaded certificate files
-└── images/             ← Images for articles and site
+├── index.html          Home: about, news, research, talks, projects, writing, contact
+├── writing.html        Medium articles and the reading notes kept in articles/
+├── article.html        Reader for one note (renders articles/<slug>.md)
+├── about.html, publications.html, projects.html, contact.html, certifications.html
+│                       Redirects to sections of the home page, so old links keep working
+├── cv_research.pdf     Research CV (cv.pdf is the same file, for old links)
+├── cv_industry.pdf     One-page resume
+├── css/style.css       The only stylesheet: EB Garamond and IBM Plex Mono, light and dark
+├── js/main.js          Theme toggle, footer year
+├── js/md-render.js     Note loader and notes index
+├── articles/           Notes as Markdown with front matter; index.json is generated
 ```
+
+## Updating the CVs
+
+The CV sources live outside this repository (`~/Documents/Applications/CV_2026`). Build them with
+`pdflatex cv_research.tex` and `pdflatex cv_industry.tex`, then copy the PDFs here (and `cv_research.pdf` to `cv.pdf`).
+
+## Adding news or a project
+
+Edit the `News` or `Projects` list in `index.html`; each entry is one `<li>`.
 
 ## Adding an article
 
