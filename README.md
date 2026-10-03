@@ -1,115 +1,62 @@
 # ramadhanadam.github.io
 
-Personal research site of Ramadhan Adam Zome. Plain HTML, CSS and a little JavaScript, hosted on GitHub Pages.
+My website: **[ramadhanadam.github.io](https://ramadhanadam.github.io)**
 
-## Structure
+I'm Ramadhan Adam Zome, a master's student in AI and Machine Learning at PAUSTI (Nairobi) and a
+special research student at Hiroshima University until January 2027. I work on machine learning,
+security and low-level systems: malware detection on raw program bytes, federated intrusion
+detection for vehicles, and the security of the hardware AI runs on.
 
-```
-ramadhanadam.github.io/
-├── index.html          Home: about, news, research, talks, projects, writing, contact
-├── writing.html        Medium articles and the reading notes kept in articles/
-├── article.html        Reader for one note (renders articles/<slug>.md)
-├── about.html, publications.html, projects.html, contact.html, certifications.html
-│                       Redirects to sections of the home page, so old links keep working
-├── cv_research.pdf     Research CV (cv.pdf is the same file, for old links)
-├── cv_industry.pdf     One-page resume
-├── css/style.css       The only stylesheet: EB Garamond and IBM Plex Mono, light and dark
-├── js/main.js          Theme toggle, footer year
-├── js/md-render.js     Note loader and notes index
-├── articles/           Notes as Markdown with front matter; index.json is generated
-```
+The site is plain HTML and CSS with a little JavaScript, served by GitHub Pages. Anything pushed to
+`main` is live about a minute later.
 
-## Updating the CVs
+## Writing a note
 
-The CV sources live outside this repository (`~/Documents/Applications/CV_2026`). Build them with
-`pdflatex cv_research.tex` and `pdflatex cv_industry.tex`, then copy the PDFs here (and `cv_research.pdf` to `cv.pdf`).
-
-## Adding news or a project
-
-Edit the `News` or `Projects` list in `index.html`; each entry is one `<li>`.
-
-## Adding an article
-
-1. Write your article as `articles/your-slug.md` with front matter:
+Go to [ramadhanadam.github.io/write.html](https://ramadhanadam.github.io/write.html) (not linked from
+the site). "Start a new note" opens GitHub's editor in `articles/` with this header filled in:
 
 ```markdown
 ---
-title: "Your Title"
-date: 2026-05-01
-category: research notes
-tags: [tag1, tag2]
-summary: A one-sentence description for the writing index.
-featured: false
-image: optional-cover.png
+title: "Title"
+date: 2026-10-03
+category: notes
+summary: One sentence for the writing page.
 ---
 
-Your content here...
+The note, in Markdown.
 ```
 
-2. Regenerate the article index:
+Give the file a short name of letters, numbers and hyphens (it becomes the address,
+`article.html?slug=<name>`), write, and commit. A GitHub Action
+(`.github/workflows/build-index.yml`) rebuilds `articles/index.json`, and the note appears on the
+writing page. The same page links to every existing note for editing. Pictures go in `images/` and
+are used as `![what it shows](images/name.png)`.
 
-```bash
-python build_index.py
+From a laptop it's the same thing: add `articles/<name>.md`, commit, push.
+
+## What's here
+
+```
+index.html          home: intro, news, research, projects, recent writing, scholarships
+writing.html        my notes (from articles/) and the list of Medium articles
+article.html        shows one note
+write.html          my page for writing and editing notes
+404.html            sends old links (about.html, cv.pdf, ...) to the right place
+cv_research.pdf     research CV
+cv_industry.pdf     one-page résumé
+css/style.css       the only stylesheet: EB Garamond and IBM Plex Mono, light and dark
+js/main.js          theme toggle
+js/md-render.js     loads and renders the notes
+articles/           notes in Markdown; index.json is built by the Action
+.github/            the Action and the script it runs (scripts/build_index.py)
 ```
 
-3. `git add . && git commit -m "add article: your title" && git push`
+## Keeping it up to date
 
-That's it. The article appears on the writing page automatically.
-
-## Medium articles
-
-Medium articles are not copied into `articles/index.json`. The writing page links to the Medium profile directly.
-
-## Adding a certification
-
-1. Put the certificate file inside `certificates/`.
-
-Examples:
-
-```text
-certificates/google-data-analytics.pdf
-certificates/aws-cloud-practitioner.png
-```
-
-2. Add an entry to `certificates/index.json`:
-
-```json
-[
-  {
-    "title": "Certificate Name",
-    "issuer": "Issuer Name",
-    "date": "2026",
-    "file": "certificate-file.pdf",
-    "description": "Optional short note."
-  }
-]
-```
-
-Use `file` for certificates uploaded into the `certificates/` folder. Use `url` instead of `file` when the certificate is hosted somewhere else:
-
-```json
-[
-  {
-    "title": "Certificate Name",
-    "issuer": "Issuer Name",
-    "date": "2026",
-    "url": "https://example.com/certificate"
-  }
-]
-```
-
-3. Commit and push:
-
-```bash
-git add certificates/index.json certificates/certificate-file.pdf
-git commit -m "Add certificate: Certificate Name"
-git push
-```
-
-The certificate appears automatically on `certifications.html`.
-
-## Deployment
-
-Hosted on GitHub Pages. Push to `main` → live in ~30 seconds.
-
-To enable: GitHub repo → Settings → Pages → Source: Deploy from branch → `main` / `/ (root)`.
+- **News, projects, research:** edit the lists in `index.html`. Each entry is one `<li>`.
+- **A new Medium article:** add a line at the top of the list in `writing.html`, and swap it into
+  "Writing" on `index.html` if it should be one of the three shown there.
+- **CVs:** the LaTeX sources are in `~/Documents/Applications/CV_2026`. Build with
+  `pdflatex cv_research.tex` and `pdflatex cv_industry.tex`, copy the two PDFs here, commit.
+- **The picture at the top:** the hex dump is the first 32 bytes of a Windows executable. To use a
+  photo instead, put it in `images/` and follow the comment above it in `index.html`.

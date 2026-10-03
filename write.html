@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Write | Ramadhan Adam Zome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<!-- My own page for writing notes. Not linked from the site. -->
+<div class="page">
+
+  <header class="masthead">
+    <a class="name" href="index.html">Ramadhan Adam Zome</a>
+    <nav>
+      <a href="writing.html">writing</a>
+      <button class="theme-toggle" id="theme-toggle" type="button">dark</button>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Write</h2>
+      <p><a id="new-note" href="https://github.com/RamadhanAdam/ramadhanadam.github.io/new/main/articles">Start a new note</a></p>
+      <p class="small">
+        This opens GitHub's editor with the header filled in. Change the file name to a short slug
+        (letters, numbers and hyphens, like <code>gpu-side-channels.md</code>), set the title and the
+        one-line summary, write underneath in Markdown, then press <em>Commit changes</em>. A GitHub
+        Action adds the note to the writing page; it's live about a minute later. Pictures: upload them
+        to <code>images/</code> first, then use <code>![what it shows](images/name.png)</code>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Edit a note</h2>
+      <ul class="dated" id="edit-list"><li>Loading…</li></ul>
+    </section>
+  </main>
+
+  <footer><a href="writing.html">writing</a></footer>
+</div>
+<script src="js/main.js"></script>
+<script>
+(function () {
+  const repo = "https://github.com/RamadhanAdam/ramadhanadam.github.io";
+  const today = new Date().toISOString().slice(0, 10);
+  const template = [
+    "---",
+    'title: "Title"',
+    "date: " + today,
+    "category: notes",
+    "summary: One sentence for the writing page.",
+    "---",
+    "",
+    "Write here. Markdown works: **bold**, *italic*, `code`, lists, [links](https://example.com).",
+    "",
+  ].join("\n");
+  document.getElementById("new-note").href =
+    repo + "/new/main/articles?filename=new-note.md&value=" + encodeURIComponent(template);
+
+  const list = document.getElementById("edit-list");
+  fetch("articles/index.json")
+    .then(r => r.json())
+    .then(items => {
+      list.innerHTML = "";
+      items.forEach(a => {
+        const li = document.createElement("li");
+        const d = document.createElement("span");
+        d.className = "d";
+        d.textContent = a.date || "";
+        const body = document.createElement("span");
+        const edit = document.createElement("a");
+        edit.href = repo + "/edit/main/articles/" + encodeURIComponent(a.file);
+        edit.textContent = a.title;
+        const view = document.createElement("a");
+        view.href = "article.html?slug=" + encodeURIComponent(a.slug);
+        view.textContent = "view";
+        view.className = "go";
+        body.append(edit, " ", view);
+        li.append(d, body);
+        list.appendChild(li);
+      });
+      if (!items.length) list.innerHTML = "<li>No notes yet.</li>";
+    })
+    .catch(() => { list.innerHTML = "<li>Could not load the notes list.</li>"; });
+})();
+</script>
+</body>
+</html>

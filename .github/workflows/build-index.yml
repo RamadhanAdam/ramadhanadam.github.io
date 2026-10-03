@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'articles/*.md'
+      - '.github/scripts/build_index.py'
 
 permissions:
   contents: write
@@ -19,7 +20,7 @@ jobs:
         with:
           python-version: '3.x'
 
-      - run: python build_index.py
+      - run: python .github/scripts/build_index.py
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
