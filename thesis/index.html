@@ -1,0 +1,1658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Reading malware like a map</title>
+<script>try { var t = localStorage.getItem("thesis-theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: one column like ramadhanadam.github.io; a malware file travels down the page through each stage, with a live figure per stage. */
+:root {
+  --paper: #fafaf8; --paper-2: #f2f1ee; --ink: #1a1a1a; --ink-2: #555049; --ink-3: #8c867c; --rule: #e0ddd8;
+  --accent: #8a3324; --blue: #2f5d8a; --green: #3d6e4e; --red: #b5372a; --gold: #a8741a; --plum: #7d4f86;
+  --t-header: #7a6f5f; --t-text: #2f5d8a; --t-rdata: #5b7f99; --t-data: #3d6e4e; --t-idata: #a8741a; --t-rsrc: #7d4f86;
+  --t-reloc: #6f6d3a; --t-other: #b5372a; --t-overlay: #a35a1f; --t-unsec: #555049; --t-pad: #c9c4bb;
+  --serif: "EB Garamond", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141413; --paper-2: #1e1e1c; --ink: #e8e6e1; --ink-2: #b3aea5; --ink-3: #7d786f; --rule: #2c2b28;
+    --accent: #e3a77c; --blue: #8fb3d9; --green: #86b496; --red: #e0705f; --gold: #d6a24a; --plum: #c09bc9;
+    --t-header: #b3a690; --t-text: #8fb3d9; --t-rdata: #9ab7cc; --t-data: #86b496; --t-idata: #d6a24a; --t-rsrc: #c09bc9;
+    --t-reloc: #b8b57a; --t-other: #e0705f; --t-overlay: #d9955a; --t-unsec: #b3aea5; --t-pad: #4a4740; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #141413; --paper-2: #1e1e1c; --ink: #e8e6e1; --ink-2: #b3aea5; --ink-3: #7d786f; --rule: #2c2b28;
+  --accent: #e3a77c; --blue: #8fb3d9; --green: #86b496; --red: #e0705f; --gold: #d6a24a; --plum: #c09bc9;
+  --t-header: #b3a690; --t-text: #8fb3d9; --t-rdata: #9ab7cc; --t-data: #86b496; --t-idata: #d6a24a; --t-rsrc: #c09bc9;
+  --t-reloc: #b8b57a; --t-other: #e0705f; --t-overlay: #d9955a; --t-unsec: #b3aea5; --t-pad: #4a4740; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 20px; line-height: 1.6; margin: 0; padding: 0 20px; padding-block: 0; -webkit-font-smoothing: antialiased; }
+.page { max-width: 760px; margin: 0 auto; padding-block: 52px 72px; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--mono); font-size: 0.74em; }
+.byline { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-3); letter-spacing: 0.04em; }
+h1 { font-weight: 500; font-size: 2.4rem; line-height: 1.08; margin: 8px 0 16px; letter-spacing: -0.005em; text-wrap: balance; }
+.lede { margin: 0 0 8px; }
+.ch { margin-top: 56px; scroll-margin-top: 16px; }
+h2 { font-family: var(--mono); font-weight: 400; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; }
+h2 .lane { letter-spacing: 0.06em; }
+h2 .lane.p1 { color: var(--blue); }
+h2 .lane.p2 { color: var(--green); }
+p { margin: 0 0 14px; }
+.note { font-size: 0.9rem; color: var(--ink-2); }
+.fig { margin: 20px 0 8px; }
+.frame { overflow-x: auto; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 10px 0; }
+.frame svg { display: block; width: 100%; min-width: 540px; height: auto; touch-action: none; }
+.controls { display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; margin: 0 0 10px; font-family: var(--mono); font-size: 0.66rem; color: var(--ink-3); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px 16px; }
+.seg button, .btn { font: 400 0.66rem var(--mono); color: var(--ink-3); background: none; border: 0; padding: 2px 0; cursor: pointer; text-transform: lowercase; letter-spacing: 0.02em; }
+.seg button:hover, .btn:hover { color: var(--accent); }
+.seg button[aria-pressed="true"] { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; }
+.btn.go { color: var(--accent); }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+.ctl { display: inline-flex; align-items: center; gap: 8px; }
+input[type="range"] { width: 150px; accent-color: var(--accent); }
+.caption { font-size: 0.86rem; font-style: italic; color: var(--ink-2); margin: 8px 0 0; }
+.readout { font-size: 0.9rem; color: var(--ink-2); margin: 10px 0 0; min-height: 1.6em; font-variant-numeric: tabular-nums; }
+.readout b { color: var(--ink); font-weight: 500; }
+.split { display: grid; grid-template-columns: minmax(0, 230px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.split .frame svg { min-width: 0; }
+.hex { font-family: var(--mono); font-size: 0.58rem; line-height: 1.65; background: var(--paper-2); padding: 8px 10px; margin: 8px 0 0; white-space: pre; overflow-x: auto; color: var(--ink-2); }
+.hex .hl { color: var(--accent); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 0 14px; font-family: var(--mono); font-size: 0.62rem; color: var(--ink-2); }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--mono); font-size: 0.6rem; color: var(--ink-3); }
+.chips span::before { content: "· "; }
+.cards { display: grid; gap: 10px; }
+.card { border: 1px solid var(--rule); padding: 10px 12px; font-family: var(--mono); font-size: 0.62rem; color: var(--ink-2); display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.card b { color: var(--ink); font-weight: 500; }
+.formula { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-2); background: var(--paper-2); padding: 8px 10px; overflow-x: auto; white-space: pre; margin: 10px 0; }
+.topbar { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.theme { font: 400 0.68rem var(--mono); color: var(--ink-3); background: none; border: 0; padding: 2px 0; cursor: pointer; letter-spacing: 0.04em; white-space: nowrap; }
+.theme:hover { color: var(--accent); }
+.player { gap: 6px 18px; }
+.pbtn { font: 400 0.66rem var(--mono); color: var(--ink-2); background: none; border: 0; padding: 2px 0; cursor: pointer; text-transform: lowercase; letter-spacing: 0.02em; white-space: nowrap; }
+.pbtn:hover { color: var(--accent); }
+.pbtn:first-child { color: var(--accent); min-width: 3.6em; text-align: left; }
+.speed { display: inline-flex; gap: 10px; align-items: baseline; margin-left: auto; }
+.todo { list-style: none; padding: 0; margin: 8px 0 0; font-size: 0.92rem; color: var(--ink-2); }
+.todo li { display: flex; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+.todo .box { flex: none; width: 1.05em; height: 1.05em; border: 1px solid var(--ink-3); font-family: var(--mono); font-size: 0.68rem; line-height: 1.05em; text-align: center; color: var(--accent); transform: translateY(2px); }
+.todo li.done { color: var(--ink); }
+.todo li.done .box { border-color: var(--accent); }
+.scrub { flex: 1; display: flex; gap: 12px; align-items: center; }
+.scrub input { flex: 1; width: auto; min-width: 140px; }
+#s11 .panel { transition: opacity 0.35s ease; }
+/* the card that shows what the file has turned into */
+.now { position: fixed; z-index: 5; font-family: var(--mono); color: var(--ink-3); background: var(--paper); display: none; }
+.now .k { font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.5; }
+.now .v { font-size: 0.64rem; color: var(--ink); line-height: 1.4; }
+.now svg { display: block; overflow: visible; }
+.now .form { opacity: 0; transition: opacity 0.45s ease; }
+.now .form.on { opacity: 1; }
+.now .x, .nowshow { font: 400 0.6rem var(--mono); color: var(--ink-3); background: none; border: 0; cursor: pointer; padding: 2px 0; }
+.nowshow { position: fixed; right: 12px; bottom: 10px; z-index: 5; display: none; background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; }
+@media (min-width: 1240px) {
+  .now { display: block; left: 24px; top: 50%; transform: translateY(-50%); width: 196px; padding: 10px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .now svg { width: 180px; height: 110px; margin: 8px 0; }
+  .now .x { display: none; }
+}
+@media (max-width: 1239px) {
+  .now { display: flex; left: 0; right: 0; bottom: 0; gap: 12px; align-items: center; padding: 6px 16px; border-top: 1px solid var(--rule); }
+  .now .head { display: none; }
+  .now svg { width: 74px; height: 45px; flex: none; }
+  .now .txt { flex: 1; min-width: 0; }
+  .now .k { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body { padding-bottom: 72px; }
+  .now.closed { display: none; }
+  .now.closed ~ .nowshow { display: block; }
+}
+footer { margin-top: 64px; padding-top: 16px; border-top: 1px solid var(--rule); font-family: var(--mono); font-size: 0.64rem; color: var(--ink-3); }
+svg text { font-family: var(--mono); }
+svg .t { font-size: 12px; fill: var(--ink-2); }
+svg .ts { font-size: 11px; fill: var(--ink-3); }
+svg .tb { font-size: 12.5px; fill: var(--ink); font-weight: 500; }
+svg .serif { font-family: var(--serif); font-size: 19px; fill: var(--ink); }
+@media (max-width: 600px) { body { font-size: 18px; } h1 { font-size: 1.95rem; } .split { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<aside class="now" id="now" aria-label="What the file has turned into so far">
+  <div class="k head">your file right now</div>
+  <svg id="nowsvg" viewBox="0 0 180 110" aria-hidden="true"></svg>
+  <div class="txt">
+    <div class="v" id="nowtext"></div>
+    <div class="k" id="nowstep"></div>
+  </div>
+  <button class="x" id="nowhide" type="button">hide</button>
+</aside>
+<button class="nowshow" id="nowshow" type="button">show the file</button>
+
+<div class="page">
+  <header>
+    <div class="topbar"><div class="byline">Master's thesis · Ramadhan Adam Zome · PAUSTI and Hiroshima University</div><button class="theme" id="theme" type="button">dark mode</button></div>
+    <h1>Reading malware like a map</h1>
+    <p class="lede">Follow one suspicious file from the moment it lands in someone's inbox to the moment it gets a name, or gets flagged as something nobody has seen before. To the person using it, a malware detector is a black box: a file goes in, an answer comes out. This page opens the box. The file gets read two ways, turned into 128 numbers and placed on a map of the malware families the system knows. The card at the edge of the screen shows what the file has turned into at each step. Everything here moves, and you can pause it, step through it or play with it.</p>
+  </header>
+
+  <!-- 0 -->
+  <section class="ch" id="arrive" data-rail="the file arrives">
+    <h2><span>01 · the file arrives</span></h2>
+    <p>Someone at work gets an email about an overdue invoice, with <code>invoice.pdf</code> attached. Windows hides the last part of a file's name, so they can't see that it's really <code>invoice.pdf.exe</code>: a program dressed up as a PDF, a PE file. Before anyone opens it, it goes through a detector. Pick what the file really is; your choice follows it all the way down the page.</p>
+    <div class="fig">
+      <div class="controls">
+        <span>the file is</span>
+        <div class="seg sample-seg" role="group" aria-label="Which file">
+          <button type="button" data-v="known" aria-pressed="true">from a known family</button>
+          <button type="button" data-v="new" aria-pressed="false">from a family never seen</button>
+          <button type="button" data-v="packed" aria-pressed="false">packed</button>
+        </div>
+      </div>
+      <div class="controls player" id="p0"></div>
+      <div class="frame"><svg id="s0" viewBox="0 0 760 300" role="img" aria-label="An attacker emails the file; it lands in someone's inbox looking like a PDF, goes into a black box called the detector, and an answer comes out."></svg></div>
+      <div class="controls" style="margin-top:10px"><button class="btn go" type="button" id="peel0">peel off the disguise</button></div>
+      <div class="readout" id="s0read"></div>
+    </div>
+    <p>That's all the person at the desk ever sees: a file goes into a box and an answer comes out. The rest of this page opens the box and follows the file through it, one step at a time.</p>
+  </section>
+
+  <!-- 1 -->
+  <section class="ch" id="anatomy" data-rail="inside the file">
+    <h2><span>02 · inside the file</span></h2>
+    <p>A PE file is not a blob. It starts with a header, then a table of sections, then the sections themselves: <code>.text</code> holds the code, <code>.rdata</code> constants and the names of the functions it imports, <code>.data</code> its variables, <code>.rsrc</code> icons and other resources, <code>.reloc</code> fix-ups for the loader. Anything after the last section is the overlay. Click a region to look at its bytes.</p>
+    <p>The strip beside the file is entropy, from 0 (the same byte over and over) to 8 (indistinguishable from random). Code sits around 6. Packed or encrypted content runs close to 8, which is why a packed file glows.</p>
+    <div class="fig split">
+      <div class="frame"><svg id="s1" viewBox="0 0 230 400" role="img" aria-label="The file drawn as a stack of regions with an entropy strip beside it."></svg></div>
+      <div>
+        <dl class="kv" id="s1kv"></dl>
+        <div class="hex" id="s1hex"></div>
+      </div>
+    </div>
+    <p class="note">The files in SOREL-20M and BODMAS are disarmed: two header fields, <code>Machine</code> and <code>Subsystem</code>, are set to zero so that they cannot run. Every other byte is the original. You can see the zeros in the header.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="ch" id="fork" data-rail="two ways to read it">
+    <h2><span>03 · two ways to read it</span></h2>
+    <p>The file is read twice. Pipeline 1 measures it: EMBER's extractor turns it into a list of numbers about its header, sections, imports, strings and byte statistics. Pipeline 2 reads the bytes themselves, region by region. The two fail in different ways. A packer hides much of what the measurements describe, while the bytes still show what the file holds. Both end in the same place: 128 numbers that describe the file.</p>
+    <div class="fig"><div class="frame"><svg id="s2" viewBox="0 0 760 200" role="img" aria-label="The file splits into two lanes, one for measured features and one for bytes, which meet again at a 128-number description."></svg></div></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="ch" id="p1data" data-rail="pipeline 1 · numbers">
+    <h2><span>04 · from file to numbers</span><span class="lane p1">pipeline 1</span></h2>
+    <p>EMBER describes a file with 2,568 numbers. They need cleaning before a network can use them. 706 columns are almost always zero or never change, so they go, leaving 1,862. A few header fields, such as the image base, reach values around 10<sup>12</sup>, so five columns are clipped and every value is squashed with a signed logarithm. Then each column is standardised with statistics from the training data only.</p>
+    <p>To learn without labels, the encoder is shown two views of the same file. Each view keeps about half of the features, the two views share three quarters of theirs, and in one view 60% of the shared values are swapped for values taken from other files. The encoder has to work out that the two views are the same file anyway.</p>
+    <div class="fig">
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Step" id="s3step">
+          <button type="button" data-v="0" aria-pressed="true">1 measure</button>
+          <button type="button" data-v="1" aria-pressed="false">2 drop quiet columns</button>
+          <button type="button" data-v="2" aria-pressed="false">3 clip and log</button>
+          <button type="button" data-v="3" aria-pressed="false">4 standardise</button>
+          <button type="button" data-v="4" aria-pressed="false">5 two views</button>
+        </div>
+      </div>
+      <div class="frame"><svg id="s3" viewBox="0 0 760 300" role="img" aria-label="A row of feature bars going through cleaning steps, then split into two overlapping views."></svg></div>
+      <div class="readout" id="s3read"></div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="ch" id="p1engine" data-rail="pipeline 1 · the engine">
+    <h2><span>05 · the feature engine</span><span class="lane p1">pipeline 1</span></h2>
+    <p>Each feature becomes a token. Its value goes through one shared layer into 512 numbers, and a learned embedding of the feature's index is added, so the engine knows which feature it is looking at even when a view has moved it. A <code>[CLS]</code> token goes in front. Six transformer layers, eight attention heads each, let every token look at every other. What comes out of <code>[CLS]</code> is squeezed to 128 numbers.</p>
+    <p>Letting every token look at every other has a price. With 931 tokens, a batch of 128 files and 8 heads, one layer's table of attention scores holds about 888 million numbers. Drag the slider to see how fast it grows, and whether it would still fit on a graphics card. FlashAttention computes the table in tiles and never keeps the whole of it, and activation checkpointing recomputes layers instead of storing them, which brought training down to about 10 GB.</p>
+    <div class="fig">
+      <div class="controls player" id="p4"></div>
+      <div class="frame"><svg id="s4" viewBox="0 0 760 366" role="img" aria-label="Feature tokens and a CLS token passing through six attention layers to a 128-number output."></svg></div>
+      <div class="readout" id="s4layer"></div>
+      <div class="controls" style="margin-top:22px">
+        <label class="ctl" for="s4n">tokens <input type="range" id="s4n" min="64" max="1863" step="1" value="931"></label>
+        <div class="seg" role="group" aria-label="How attention is computed" id="s4mode">
+          <button type="button" data-v="full" aria-pressed="true">keep the whole table</button>
+          <button type="button" data-v="tiles" aria-pressed="false">compute in tiles</button>
+        </div>
+      </div>
+      <div class="frame"><svg id="s4b" viewBox="0 0 760 184" role="img" aria-label="The n by n table of attention scores, growing with the number of tokens, and the memory it needs next to the size of a graphics card."></svg></div>
+      <div class="readout" id="s4read"></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="ch" id="p2data" data-rail="pipeline 2 · regions">
+    <h2><span>06 · from file to regions</span><span class="lane p2">pipeline 2</span></h2>
+    <p>Pipeline 2 cuts the file along its own structure. Every region gets one of eleven types (header, the six common sections, other, overlay, unsectioned, and pad for empty slots), plus its entropy and its share of the file. A file keeps at most 16 regions: the header and overlay always, then the largest sections. From each region, up to four windows of 512 bytes are taken, spread from its start to its end. Every file becomes the same shape: 16 regions × 4 windows × 512 bytes.</p>
+    <p>The views here only take things away: some windows dropped, short spans hidden inside others, now and then a whole region removed. Removing bytes cannot invent content, so both views are still the same file. Two tiers that rewrite bytes were built and tested; they did not help, so training uses removal alone.</p>
+    <div class="fig">
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Make view B" id="s5ops">
+          <button type="button" data-v="a" aria-pressed="true">view A, as stored</button>
+          <button type="button" data-v="drop" aria-pressed="false">drop windows</button>
+          <button type="button" data-v="span" aria-pressed="false">mask spans</button>
+          <button type="button" data-v="region" aria-pressed="false">drop a region</button>
+        </div>
+        <button class="btn" type="button" id="s5again">↻ redraw</button>
+      </div>
+      <div class="frame"><svg id="s5" viewBox="0 0 760 390" role="img" aria-label="The file cut into typed regions, sixteen slots, and a grid of four windows per region."></svg></div>
+      <div class="chips"><span>rolling XOR: tested, not used</span><span>instruction substitution: tested, not used</span></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="ch" id="p2engine" data-rail="pipeline 2 · the engine">
+    <h2><span>07 · the byte engine</span><span class="lane p2">pipeline 2</span></h2>
+    <p>The engine works from the bottom up. First, inside one window, each of the 512 bytes is looked up in a table of 257 rows (256 byte values and one for a hidden byte) and given its position. Two attention layers let the bytes look at each other, then a single learned query pulls them together into one vector of 128 numbers. The query decides which bytes matter.</p>
+    <div class="fig">
+      <div class="controls player" id="p6a"></div>
+      <div class="frame"><svg id="s6a" viewBox="0 0 760 306" role="img" aria-label="Bytes of one window turned into embeddings, mixed by attention, and pooled by a single query into a window vector."></svg></div>
+      <div class="readout" id="s6aread"></div>
+    </div>
+    <p>The four window vectors of a region are averaged into one region vector. Then the regions look at each other through two more attention layers, with one addition: before the softmax, every pair of regions gets a bonus for being the same type, for having similar entropy and for having similar size. The three weights start at 1 and are learned. Move them, and click a region to see whom it pays attention to.</p>
+    <div class="fig">
+      <div class="controls">
+        <label class="ctl" for="w1">w₁ same type <input type="range" id="w1" min="-2" max="3" step="0.1" value="1"></label>
+        <label class="ctl" for="w2">w₂ entropy <input type="range" id="w2" min="-2" max="3" step="0.1" value="1"></label>
+        <label class="ctl" for="w3">w₃ size <input type="range" id="w3" min="-2" max="3" step="0.1" value="1"></label>
+      </div>
+      <div class="controls" id="s6preset"><span>try</span></div>
+      <div class="formula">B(i,j) = w₁·[type_i = type_j] + w₂·(1 − |H_i − H_j| / 8) + w₃·min(size_i, size_j) / max(size_i, size_j)</div>
+      <div class="frame"><svg id="s6b" viewBox="0 0 760 380" role="img" aria-label="Regions arranged in a circle with attention links from the selected region, and the bias matrix as a heat map."></svg></div>
+      <div class="readout" id="s6read"></div>
+    </div>
+    <p>A masked mean over the real regions gives the file's 128 numbers. Padded slots are left out of attention and out of the mean.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="ch" id="fingerprint" data-rail="128 numbers">
+    <h2><span>08 · 128 numbers</span></h2>
+    <p>Both pipelines end with 128 numbers for the file. Think of them as a fingerprint drawn as a strip: files of one family should produce similar strips, files of different families different ones. Nothing has told the encoders what a family is. The next stage is how they learned it anyway.</p>
+    <div class="fig"><div class="frame"><svg id="s7" viewBox="0 0 760 210" role="img" aria-label="Strips of 128 coloured cells for the file and for files of the same and of another family."></svg></div></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="ch" id="pretrain" data-rail="learning without labels">
+    <h2><span>09 · learning without labels</span></h2>
+    <p>Both encoders are trained the same way, on files nobody labelled: Pipeline 2 on the 19.7 million binaries of SOREL-20M, Pipeline 1 on EMBER. Each step takes a batch of files, makes two views of each, and runs them through the encoder and a small projection head. The loss pulls the two views of one file together and pushes them away from every other file in the batch. Families come out of that on their own, because files of one family share structure that survives the damage. Press play and watch the map organise itself; colour shows the families the encoder never sees.</p>
+    <div class="fig">
+      <div class="controls">
+        <button class="btn go" type="button" id="s8play">▶ play</button>
+        <button class="btn" type="button" id="s8reset">↻ start again</button>
+        <div class="seg" role="group" aria-label="Show families" id="s8col">
+          <button type="button" data-v="off" aria-pressed="true">no colours</button>
+          <button type="button" data-v="on" aria-pressed="false">show the hidden families</button>
+        </div>
+        <span class="speed"><span>speed</span><span class="seg" role="group" aria-label="Speed" id="s8speed"><button type="button" data-v="slow" aria-pressed="true">slow</button><button type="button" data-v="normal" aria-pressed="false">normal</button></span></span>
+      </div>
+      <div class="frame"><canvas id="s8" width="1520" height="680" style="width:100%;display:block;min-width:540px" aria-label="Points for files moving from random positions into groups as training proceeds."></canvas></div>
+      <div class="readout" id="s8read"></div>
+    </div>
+    <p class="note">A sketch: the real map has 128 dimensions, and the projection head is thrown away after training. The 128 numbers before the head are what the next stages use.</p>
+  </section>
+
+  <!-- 9 -->
+  <section class="ch" id="families" data-rail="known or unknown">
+    <h2><span>10 · known or unknown</span></h2>
+    <p>Each known family becomes a few landmarks, its prototypes. A family can be two clumps, so one average would sit in the empty space between them; HDBSCAN finds the clumps, and each gets a prototype. A family can also be stretched, so distance is measured in units of the family's own spread (Mahalanobis distance) instead of a plain ruler.</p>
+    <p>A file goes to its nearest family, and is rejected as unknown if it is farther away than that family's threshold. Thresholds belong to families, because families differ in spread, and each is set by fitting a Weibull curve to the tail of the family's own distances. Drag the file around, and try the three things under the map; they tick themselves off.</p>
+    <div class="fig">
+      <div class="controls">
+        <div class="seg sample-seg" role="group" aria-label="Which file">
+          <button type="button" data-v="known" aria-pressed="true">known family</button>
+          <button type="button" data-v="new" aria-pressed="false">never seen</button>
+          <button type="button" data-v="packed" aria-pressed="false">packed</button>
+        </div>
+        <div class="seg" role="group" aria-label="Prototypes" id="s9proto">
+          <button type="button" data-v="many" aria-pressed="true">several prototypes</button>
+          <button type="button" data-v="one" aria-pressed="false">one average</button>
+        </div>
+        <div class="seg" role="group" aria-label="Distance" id="s9dist">
+          <button type="button" data-v="maha" aria-pressed="true">shaped distance</button>
+          <button type="button" data-v="euclid" aria-pressed="false">plain ruler</button>
+        </div>
+      </div>
+      <div class="frame"><svg id="s9" viewBox="0 0 760 400" role="img" aria-label="A map with four families, their prototypes and thresholds, and the file, which can be dragged."></svg></div>
+      <div class="split" style="margin-top:10px; grid-template-columns: minmax(0,1fr) minmax(0, 270px)">
+        <div class="readout" id="s9read" style="margin:0"></div>
+        <svg id="s9w" viewBox="0 0 270 110" role="img" aria-label="The nearest family's own distances, the fitted tail and the threshold, with the file's distance marked."></svg>
+      </div>
+      <ul class="todo" id="s9todo" aria-live="polite"></ul>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="ch" id="newfamily" data-rail="a new family">
+    <h2><span>11 · from unknown to a new family</span></h2>
+    <p>Rejected files are not dumped in a pile. HDBSCAN groups them by density, with no preset number of groups, and each group is shown to the analyst once, through its medoid, the member closest to all the others. When the analyst confirms a group, its files become the examples of a new family: the prototype is their average, built from one to twenty examples. Nothing is retrained. The next file of that family is recognised.</p>
+    <div class="fig">
+      <div class="controls">
+        <button class="btn go" type="button" id="s10group">group the unknowns</button>
+        <label class="ctl" for="s10k">examples used <input type="range" id="s10k" min="1" max="20" step="1" value="5" disabled></label>
+        <span id="s10kval">5</span>
+        <button class="btn" type="button" id="s10next" disabled>send another file of this family</button>
+        <button class="btn" type="button" id="s10reset">↻ start again</button>
+      </div>
+      <div class="split" style="grid-template-columns: minmax(0,1fr) minmax(0, 250px)">
+        <div class="frame"><svg id="s10" viewBox="0 0 470 330" role="img" aria-label="Rejected files arriving in a tray, grouped by density, and a new prototype forming." style="min-width:0"></svg></div>
+        <div class="cards" id="s10cards"><div class="card">Rejected files will be grouped here.</div></div>
+      </div>
+      <div class="readout" id="s10read"></div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="ch" id="whole" data-rail="open the box">
+    <h2><span>12 · open the box</span></h2>
+    <p>Back at the desk. From the outside the detector is still a black box: a file goes in, an answer comes out. Here is the same box with the lid off. Pick a file, then drag it through with the slider, or press play, and see what it turns into at every step.</p>
+    <div class="fig">
+      <div class="controls">
+        <span>the file is</span>
+        <div class="seg sample-seg" role="group" aria-label="Which file">
+          <button type="button" data-v="known" aria-pressed="true">known family</button>
+          <button type="button" data-v="new" aria-pressed="false">never seen</button>
+          <button type="button" data-v="packed" aria-pressed="false">packed</button>
+        </div>
+      </div>
+      <div class="controls player" id="p11"></div>
+      <div class="frame"><svg id="s11" viewBox="0 0 760 420" role="img" aria-label="The detector as a box with eight stations inside; the file moves from station to station and a panel below shows what it looks like at each one."></svg></div>
+      <div class="controls" style="margin-top:12px"><label class="ctl scrub" for="s11t">drag the file through <input type="range" id="s11t" min="0" max="7" step="0.01" value="0"></label></div>
+      <div class="readout" id="s11read"></div>
+    </div>
+    <p>Two encoders, trained without labels, turn a file into 128 numbers. One shared layer names the families it knows, sets aside what it doesn't, groups what it set aside, and learns each confirmed group from a few examples. The same layer sits on both encoders, so any difference between them comes from what they read.</p>
+  </section>
+
+  <footer>Master's thesis, PAUSTI, with Hiroshima University · Ramadhan Adam Zome · <a href="https://ramadhanadam.github.io">ramadhanadam.github.io</a></footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const NS = "http://www.w3.org/2000/svg";
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const txt = (parent, x, y, s, cls, extra) => { const t = el("text", Object.assign({ x, y, class: cls || "t" }, extra || {}), parent); t.textContent = s; return t; };
+  function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const gauss = r => { let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const hex2 = n => n.toString(16).toUpperCase().padStart(2, "0");
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  function tween(ms, fn, done) { if (reduced) { fn(1); if (done) done(); return; } const t0 = performance.now(); const step = now => { const t = Math.min(1, (now - t0) / ms); fn(t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2); if (t < 1) requestAnimationFrame(step); else if (done) done(); }; requestAnimationFrame(step); }
+  function segmented(g, onChange) {
+    const buttons = [...(typeof g === "string" ? document.getElementById(g) : g).querySelectorAll("button")];
+    buttons.forEach(b => b.addEventListener("click", () => { buttons.forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); onChange(b.dataset.v); }));
+    return () => buttons.find(b => b.getAttribute("aria-pressed") === "true").dataset.v;
+  }
+  function whenVisible(node, start, stop) {
+    if (!("IntersectionObserver" in window)) { setTimeout(start, 0); return; }
+    new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? start() : stop && stop()), { threshold: 0.1 }).observe(node);
+  }
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* not available */ } },
+  };
+
+  /* ---------- light and dark ---------- */
+  (function () {
+    const btn = document.getElementById("theme"), root = document.documentElement;
+    const media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    const isDark = () => root.dataset.theme ? root.dataset.theme === "dark" : !!(media && media.matches);
+    const label = () => { btn.textContent = isDark() ? "light mode" : "dark mode"; };
+    const saved = store.get("thesis-theme");
+    if (saved === "dark" || saved === "light") root.dataset.theme = saved;
+    label();
+    btn.addEventListener("click", () => { const t = isDark() ? "light" : "dark"; root.dataset.theme = t; store.set("thesis-theme", t); label(); dispatchEvent(new Event("themechange")); });
+    if (media && media.addEventListener) media.addEventListener("change", () => { label(); dispatchEvent(new Event("themechange")); });
+  })();
+
+  /* ---------- pause, step and speed for the moving figures ---------- */
+  function Player(id, o) {
+    const box = document.getElementById(id);
+    const self = { playing: !reduced, visible: false, fast: false };
+    const button = text => { const b = document.createElement("button"); b.type = "button"; b.className = "pbtn"; b.textContent = text; box.appendChild(b); return b; };
+    const play = button("");
+    if (o.back) button("‹ " + (o.backText || "back")).addEventListener("click", () => { self.pause(); o.back(); });
+    if (o.next) button((o.nextText || "next") + " ›").addEventListener("click", () => { self.pause(); o.next(); });
+    if (o.extra) o.extra.forEach(([text, fn]) => button(text).addEventListener("click", fn));
+    const speed = document.createElement("span");
+    speed.className = "speed";
+    speed.innerHTML = '<span>speed</span><span class="seg" role="group" aria-label="Speed"><button type="button" data-v="slow" aria-pressed="true">slow</button><button type="button" data-v="normal" aria-pressed="false">normal</button></span>';
+    box.appendChild(speed);
+    const sb = [...speed.querySelectorAll("button")];
+    sb.forEach(b => b.addEventListener("click", () => { sb.forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false")); self.fast = b.dataset.v === "normal"; }));
+    function sync() { play.textContent = self.playing ? "pause" : "play"; if (self.playing && self.visible) o.start(); else o.stop(); }
+    play.addEventListener("click", () => { self.playing = !self.playing; sync(); });
+    self.pause = () => { self.playing = false; sync(); };
+    self.play = () => { self.playing = true; sync(); };
+    play.textContent = self.playing ? "pause" : "play";
+    whenVisible(o.watch, () => { self.visible = true; sync(); }, () => { self.visible = false; sync(); });
+    return self;
+  }
+  // A figure that moves through numbered steps; back and next step through them by hand.
+  function Stepper(o) {
+    let i = o.first != null ? o.first : o.n - 1, timer = 0, player = null;
+    const delay = () => (player && player.fast ? o.normal : o.slow) + (i === o.n - 1 ? (o.hold || 0) : 0);
+    function go(j) { i = (j + o.n) % o.n; o.show(i); }
+    function tick() { go(i + 1); timer = setTimeout(tick, delay()); }
+    player = Player(o.player, {
+      watch: o.watch,
+      start() { if (!timer) timer = setTimeout(tick, delay()); },
+      stop() { clearTimeout(timer); timer = 0; },
+      back() { go(i - 1); }, next() { go(i + 1); },
+      backText: o.backText, nextText: o.nextText,
+    });
+    go(i);
+    return { player, redraw() { o.show(i); } };
+  }
+  const TYPECOL = { pad: "--t-pad", header: "--t-header", text: "--t-text", rdata: "--t-rdata", data: "--t-data", idata: "--t-idata", rsrc: "--t-rsrc", reloc: "--t-reloc", other: "--t-other", overlay: "--t-overlay", unsectioned: "--t-unsec" };
+  const TYPEID = { pad: 0, header: 1, text: 2, rdata: 3, data: 4, idata: 5, rsrc: 6, reloc: 7, other: 8, overlay: 9, unsectioned: 10 };
+  const tc = type => `var(${TYPECOL[type]})`;
+  const tint = (c, p) => `color-mix(in srgb, ${c} ${p}%, var(--paper))`;
+  function heat(H) {
+    const stops = [[0, [43, 74, 116]], [3, [106, 90, 138]], [6, [181, 55, 42]], [8, [227, 162, 74]]];
+    for (let i = 1; i < stops.length; i++) if (H <= stops[i][0]) { const [h0, c0] = stops[i - 1], [h1, c1] = stops[i]; const t = (H - h0) / (h1 - h0); return `rgb(${c0.map((v, j) => Math.round(v + (c1[j] - v) * t)).join(",")})`; }
+    return "rgb(227,162,74)";
+  }
+
+  /* ---------- the files ---------- */
+  const FILES = {
+    known: [
+      { name: "HEADER", type: "header", size: 0.02, H: 2.1, flags: "R--", bytes: 1024 },
+      { name: ".text", type: "text", size: 0.46, H: 6.3, flags: "R-X", bytes: 214016 },
+      { name: ".rdata", type: "rdata", size: 0.14, H: 4.9, flags: "R--", bytes: 65536 },
+      { name: ".data", type: "data", size: 0.07, H: 2.8, flags: "RW-", bytes: 32768 },
+      { name: ".rsrc", type: "rsrc", size: 0.22, H: 5.4, flags: "R--", bytes: 102400 },
+      { name: ".reloc", type: "reloc", size: 0.04, H: 5.0, flags: "R--", bytes: 18432 },
+      { name: "OVERLAY", type: "overlay", size: 0.05, H: 7.2, flags: "---", bytes: 23040 },
+    ],
+    new: [
+      { name: "HEADER", type: "header", size: 0.02, H: 2.4, flags: "R--", bytes: 1024 },
+      { name: ".text", type: "text", size: 0.38, H: 6.1, flags: "R-X", bytes: 160768 },
+      { name: ".rdata", type: "rdata", size: 0.18, H: 5.3, flags: "R--", bytes: 76288 },
+      { name: ".data", type: "data", size: 0.05, H: 1.9, flags: "RW-", bytes: 20480 },
+      { name: ".gfids", type: "other", size: 0.03, H: 3.2, flags: "R--", bytes: 12288 },
+      { name: ".00cfg", type: "other", size: 0.02, H: 0.6, flags: "R--", bytes: 8192 },
+      { name: ".rsrc", type: "rsrc", size: 0.32, H: 6.8, flags: "R--", bytes: 135168 },
+    ],
+    packed: [
+      { name: "HEADER", type: "header", size: 0.01, H: 2.6, flags: "R--", bytes: 1024 },
+      { name: "UPX0", type: "other", size: 0.01, H: 0.3, flags: "RWX", bytes: 2048 },
+      { name: "UPX1", type: "other", size: 0.76, H: 7.92, flags: "RWX", bytes: 331776 },
+      { name: ".rsrc", type: "rsrc", size: 0.20, H: 5.1, flags: "RW-", bytes: 87040 },
+      { name: "OVERLAY", type: "overlay", size: 0.02, H: 7.6, flags: "---", bytes: 8704 },
+    ],
+  };
+  const state = { sample: "known" };
+  const onSample = [];
+  function setSample(v) {
+    state.sample = v;
+    document.querySelectorAll(".sample-seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v ? "true" : "false"));
+    onSample.forEach(f => f(v));
+  }
+  document.querySelectorAll(".sample-seg button").forEach(b => b.addEventListener("click", () => setSample(b.dataset.v)));
+
+  const windowsFor = r => Math.max(1, Math.min(4, Math.ceil(r.bytes / 512)));
+  // the 128-number fingerprints drawn as strips (same seeds everywhere on the page)
+  const vec = (seed, base, noise) => { const r = rng(seed); return Array.from({ length: 128 }, (_, i) => (base ? base[i] : 0) + gauss(r) * noise); };
+  const cellCol = x => { const t = Math.max(-1, Math.min(1, x / 1.6)); return t >= 0 ? `color-mix(in srgb, var(--accent) ${Math.round(t * 85)}%, var(--paper))` : `color-mix(in srgb, var(--blue) ${Math.round(-t * 85)}%, var(--paper))`; };
+  const FAMSEED = { known: 3, new: 77, packed: 5 };
+  function prints(sample) {
+    const fam = FAMSEED[sample], b1 = vec(fam * 11, null, 1), b2 = vec(fam * 13, null, 1);
+    return { p1: vec(fam * 101 + 1, b1, 0.35), p2: vec(fam * 101 + 2, b2, 0.35), same: vec(fam * 101 + 3, b2, 0.35), other: vec(999, vec(4242, null, 1), 0.35) };
+  }
+  // what the rest of the page shares: the confirmed new family, and listeners for changes
+  const shared = { fam: { confirmed: false, k: 5 } };
+  const onState = [];
+  const changed = () => onState.forEach(f => f());
+
+  /* ---------- the map of known families, shared by sections 10 and 12 and the card ---------- */
+  const MAP = (function () {
+    const fams = [
+      { name: "family A", col: "--blue", clusters: [[150, 110, 26, 22, 0], [255, 205, 24, 20, 0]] },
+      { name: "family B", col: "--green", clusters: [[470, 105, 70, 16, -0.45]] },
+      { name: "family C", col: "--plum", clusters: [[380, 290, 30, 26, 0.3]] },
+      { name: "family D", col: "--gold", clusters: [[620, 270, 36, 30, 0.8]] },
+    ];
+    const r = rng(17);
+    fams.forEach(f => {
+      f.pts = [];
+      f.clusters.forEach(([cx, cy, sx, sy, th]) => { for (let i = 0; i < 26; i++) { const a = gauss(r) * sx, b = gauss(r) * sy; f.pts.push([cx + a * Math.cos(th) - b * Math.sin(th), cy + a * Math.sin(th) + b * Math.cos(th)]); } });
+      const n = f.pts.length, mx = f.pts.reduce((s, p) => s + p[0], 0) / n, my = f.pts.reduce((s, p) => s + p[1], 0) / n;
+      f.mean = [mx, my];
+      f.protos = f.clusters.map(c => [c[0], c[1]]);
+      // covariance shared by the family's prototypes: within-cluster spread
+      let sxx = 0, syy = 0, sxy = 0;
+      f.pts.forEach(p => { const near = f.protos.reduce((b, q) => Math.hypot(p[0] - q[0], p[1] - q[1]) < Math.hypot(p[0] - b[0], p[1] - b[1]) ? q : b, f.protos[0]); const dx = p[0] - near[0], dy = p[1] - near[1]; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; });
+      f.covMany = [[sxx / n + 4, sxy / n], [sxy / n, syy / n + 4]];
+      let txx = 0, tyy = 0, txy = 0; f.pts.forEach(p => { const dx = p[0] - mx, dy = p[1] - my; txx += dx * dx; tyy += dy * dy; txy += dx * dy; });
+      f.covOne = [[txx / n + 4, txy / n], [txy / n, tyy / n + 4]];
+    });
+    const POS = { known: [382, 284], new: [600, 120], packed: [628, 262] };
+    function inv(c) { const d = c[0][0] * c[1][1] - c[0][1] * c[1][0]; return [[c[1][1] / d, -c[0][1] / d], [-c[1][0] / d, c[0][0] / d]]; }
+    function dist(p, q, cov, dm) {
+      const dx = p[0] - q[0], dy = p[1] - q[1];
+      if (dm === "euclid") { const s = Math.sqrt((cov[0][0] + cov[1][1]) / 2); return Math.hypot(dx, dy) / s; }
+      const iv = inv(cov); return Math.sqrt(dx * (iv[0][0] * dx + iv[0][1] * dy) + dy * (iv[1][0] * dx + iv[1][1] * dy));
+    }
+    const cache = {};
+    function info(f, pm, dm) {
+      const key = f.name + pm + dm;
+      if (cache[key]) return cache[key];
+      const protos = pm === "many" ? f.protos : [f.mean];
+      const cov = pm === "many" ? f.covMany : f.covOne;
+      const own = f.pts.map(p => Math.min(...protos.map(q => dist(p, q, cov, dm)))).sort((a, b) => a - b);
+      return (cache[key] = { protos, cov, own, thr: own[Math.floor(own.length * 0.95)] * 1.12 });
+    }
+    function classify(p, pm, dm) {
+      let best = null;
+      fams.forEach((f, k) => { const I = info(f, pm, dm); I.protos.forEach(q => { const d = dist(p, q, I.cov, dm); if (!best || d < best.d) best = { d, k, q }; }); });
+      best.thr = info(fams[best.k], pm, dm).thr;
+      best.known = best.d <= best.thr;
+      best.name = fams[best.k].name;
+      return best;
+    }
+    // each family's boundary: an ellipse in its own units, or a circle for the plain ruler
+    function shape(g, f, I, dm, sc, ox, oy) {
+      const col = `var(${f.col})`;
+      I.protos.forEach(q => {
+        const cx = ox + q[0] * sc, cy = oy + q[1] * sc;
+        if (dm === "euclid") { const s = Math.sqrt((I.cov[0][0] + I.cov[1][1]) / 2); el("circle", { cx, cy, r: I.thr * s * sc, fill: tint(col, 8), stroke: col, "stroke-dasharray": "4 4" }, g); return; }
+        const c = I.cov, tr = c[0][0] + c[1][1], det = c[0][0] * c[1][1] - c[0][1] * c[1][0];
+        const l1 = tr / 2 + Math.sqrt(tr * tr / 4 - det), l2 = tr / 2 - Math.sqrt(tr * tr / 4 - det);
+        const ang = Math.atan2(l1 - c[0][0], c[0][1]) * 180 / Math.PI;
+        el("ellipse", { cx, cy, rx: I.thr * Math.sqrt(l1) * sc, ry: I.thr * Math.sqrt(Math.max(1, l2)) * sc, transform: `rotate(${ang} ${cx} ${cy})`, fill: tint(col, 8), stroke: col, "stroke-dasharray": "4 4" }, g);
+      });
+    }
+    // where the file is now on the map; section 10 replaces this once it has a draggable file
+    const api = { fams, POS, info, classify, dist, shape };
+    api.current = () => { const p = POS[state.sample]; return { p, pm: "many", dm: "maha", v: classify(p, "many", "maha") }; };
+    return api;
+  })();
+  const verdictOf = sample => MAP.classify(MAP.POS[sample], "many", "maha");
+
+  /* ---------- hex for a region ---------- */
+  function hexFor(region, sample) {
+    const r = rng(region.name.length * 977 + region.bytes + (sample === "new" ? 13 : 0));
+    let rows = [];
+    const asc = arr => arr.map(b => b >= 32 && b < 127 ? String.fromCharCode(b) : ".").join("");
+    const strBytes = s => [...s].map(c => c.charCodeAt(0));
+    let data = [], hl = new Set();
+    if (region.type === "header") {
+      data = [0x4D,0x5A,0x90,0,3,0,0,0,4,0,0,0,0xFF,0xFF,0,0, 0xB8,0,0,0,0,0,0,0,0x40,0,0,0,0,0,0,0];
+      data = data.concat(Array(16).fill(0), [0,0,0,0,0,0,0,0,0,0,0,0,0x80,0,0,0]);
+      data = data.concat([0x0E,0x1F,0xBA,0x0E,0x00,0xB4,0x09,0xCD,0x21,0xB8,0x01,0x4C,0xCD,0x21], strBytes("This program cannot be run in DOS mode."), [0x0D,0x0D,0x0A,0x24]);
+      while (data.length < 128) data.push(0);
+      data = data.slice(0, 128).concat([0x50,0x45,0,0, 0,0, 3,0, 0x2A,0x7C,0x3B,0x66, 0,0,0,0]);
+      hl = new Set([0, 1, 132, 133]);
+    } else if (region.type === "text") {
+      data = [0x55,0x8B,0xEC,0x83,0xEC,0x18,0x53,0x56,0x57,0x8B,0x7D,0x08,0x85,0xFF,0x74,0x2A, 0x8B,0x45,0x0C,0x50,0x57,0xE8,0x7B,0x12,0x00,0x00,0x83,0xC4,0x08,0x85,0xC0,0x75, 0x1C,0x6A,0x00,0x68,0x00,0x30,0x40,0x00,0xFF,0x15,0x64,0x20,0x40,0x00,0x8B,0xF0, 0x85,0xF6,0x74,0x0B,0x56,0xFF,0x15,0x60,0x20,0x40,0x00,0x33,0xC0,0xEB,0x05,0xB8, 0x01,0x00,0x00,0x00,0x5F,0x5E,0x5B,0x8B,0xE5,0x5D,0xC3,0xCC,0xCC,0xCC,0xCC,0xCC];
+      const ops = [0x8B, 0x89, 0x83, 0xFF, 0xE8, 0x50, 0x6A, 0x74, 0x75, 0x33, 0xC3, 0x55, 0x8D];
+      while (data.length < 128) data.push(r() < 0.35 ? ops[Math.floor(r() * ops.length)] : r() < 0.4 ? 0 : Math.floor(r() * 256));
+      hl = new Set([0, 1, 2]);
+    } else if (region.type === "rdata") {
+      data = strBytes("kernel32.dll\0CreateFileA\0WriteFile\0RegSetValueExA\0advapi32.dll\0InternetOpenA\0wininet.dll\0GetTempPathA\0ShellExecuteA\0");
+      while (data.length < 128) data.push(0);
+    } else if (region.type === "data") {
+      for (let i = 0; i < 128; i++) data.push(r() < 0.7 ? 0 : Math.floor(r() * 256));
+    } else if (region.type === "rsrc") {
+      data = [0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A,0,0,0,0x0D,0x49,0x48,0x44,0x52];
+      while (data.length < 128) data.push(Math.floor(r() * 256));
+      hl = new Set([1, 2, 3]);
+    } else if (region.type === "reloc") {
+      data = [0x00,0x10,0x00,0x00,0x1C,0x01,0x00,0x00];
+      for (let i = 0; data.length < 128; i++) { const v = 0x3000 + ((i * 8) % 0xFFF); data.push(v & 0xFF, v >> 8); }
+    } else {
+      for (let i = 0; i < 128; i++) data.push(region.H < 1 ? 0 : Math.floor(r() * 256));
+      if (region.name === "UPX1") { data.splice(16, 4, 0x55, 0x50, 0x58, 0x21); hl = new Set([16, 17, 18, 19]); }
+    }
+    for (let i = 0; i < data.length; i += 16) {
+      const row = data.slice(i, i + 16);
+      const hexs = row.map((b, j) => hl.has(i + j) ? `<span class="hl">${hex2(b)}</span>` : hex2(b)).join(" ");
+      rows.push(`${(i).toString(16).padStart(4, "0")}  ${hexs}  ${asc(row).replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c])}`);
+    }
+    return rows.join("\n");
+  }
+
+  /* ---------- 0: arrival ---------- */
+  (function () {
+    const svg = document.getElementById("s0"), read = document.getElementById("s0read"), peel = document.getElementById("peel0");
+    let disguised = true;
+    el("line", { x1: 10, y1: 272, x2: 750, y2: 272, stroke: "var(--rule)", "stroke-width": 1.5 }, svg);
+    // the attacker's desk and laptop
+    el("rect", { x: 96, y: 206, width: 118, height: 6, fill: "var(--ink-3)" }, svg);
+    el("line", { x1: 104, y1: 212, x2: 104, y2: 272, stroke: "var(--ink-3)", "stroke-width": 3 }, svg);
+    el("line", { x1: 206, y1: 212, x2: 206, y2: 272, stroke: "var(--ink-3)", "stroke-width": 3 }, svg);
+    el("rect", { x: 122, y: 200, width: 78, height: 6, rx: 2, fill: "var(--ink-2)" }, svg);
+    el("rect", { x: 130, y: 146, width: 62, height: 52, rx: 3, fill: "var(--paper-2)", stroke: "var(--ink-2)", "stroke-width": 1.4 }, svg);
+    const typed = [0, 1, 2, 3].map(k => el("line", { x1: 137, y1: 158 + k * 9, x2: 137, y2: 158 + k * 9, stroke: "var(--ink-3)", "stroke-width": 2, "stroke-linecap": "round" }, svg));
+    // the attacker
+    const who = el("g", { transform: "translate(64,272)" }, svg);
+    el("path", { d: "M-16,-98 Q0,-138 16,-98 L20,-46 L-20,-46 Z", fill: "var(--ink)" }, who);
+    el("circle", { cx: 2, cy: -110, r: 10, fill: "var(--paper-2)" }, who);
+    el("path", { d: "M-12,-122 Q2,-138 16,-120 Q12,-104 2,-100 Q-10,-104 -12,-122 Z", fill: "var(--ink)", opacity: 0.85 }, who);
+    el("circle", { cx: 6, cy: -111, r: 1.6, fill: "var(--red)" }, who);
+    el("line", { x1: -6, y1: -46, x2: -8, y2: 0, stroke: "var(--ink)", "stroke-width": 7, "stroke-linecap": "round" }, who);
+    el("line", { x1: 6, y1: -46, x2: 8, y2: 0, stroke: "var(--ink)", "stroke-width": 7, "stroke-linecap": "round" }, who);
+    const arm = el("line", { x1: 10, y1: -88, x2: 70, y2: -74, stroke: "var(--ink)", "stroke-width": 6, "stroke-linecap": "round" }, who);
+    txt(svg, 64, 290, "the attacker", "ts", { "text-anchor": "middle" });
+    // the other desk: a screen with an inbox, and the detector beside it
+    el("rect", { x: 420, y: 214, width: 330, height: 6, fill: "var(--ink-3)" }, svg);
+    el("line", { x1: 430, y1: 220, x2: 430, y2: 272, stroke: "var(--ink-3)", "stroke-width": 3 }, svg);
+    el("line", { x1: 740, y1: 220, x2: 740, y2: 272, stroke: "var(--ink-3)", "stroke-width": 3 }, svg);
+    el("rect", { x: 436, y: 52, width: 202, height: 142, rx: 6, fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.5 }, svg);
+    el("rect", { x: 444, y: 60, width: 186, height: 126, rx: 3, fill: "var(--paper-2)" }, svg);
+    el("rect", { x: 528, y: 194, width: 18, height: 20, fill: "var(--ink-3)" }, svg);
+    txt(svg, 452, 76, "inbox", "ts");
+    txt(svg, 537, 290, "someone at work", "ts", { "text-anchor": "middle" });
+    const mail = el("g", { opacity: 0 }, svg);
+    el("rect", { x: 450, y: 84, width: 174, height: 34, fill: "var(--paper)", stroke: "var(--rule)" }, mail);
+    txt(mail, 458, 98, "Accounts", "ts", { style: "fill:var(--ink)" });
+    txt(mail, 458, 112, "Overdue invoice, please pay", "ts", { style: "font-size:10px" });
+    const chip = el("g", { opacity: 0 }, svg);
+    el("rect", { x: 452, y: 126, width: 150, height: 22, rx: 3, fill: "var(--paper)", stroke: "var(--ink-3)" }, chip);
+    el("rect", { x: 457, y: 130, width: 11, height: 14, fill: "var(--paper)", stroke: "var(--ink-2)" }, chip);
+    const chipKind = txt(chip, 462.5, 140, "PDF", "ts", { "text-anchor": "middle", style: "font-size:5.5px;fill:var(--red)" });
+    const chipName = txt(chip, 474, 141, "", "ts");
+    const status = txt(svg, 452, 174, "", "ts");
+    const box = el("g", {}, svg);
+    el("rect", { x: 660, y: 122, width: 82, height: 92, rx: 5, fill: "var(--ink)" }, box);
+    el("rect", { x: 684, y: 118, width: 34, height: 5, rx: 2, fill: "var(--ink-3)" }, box);
+    txt(box, 701, 176, "?", "serif", { "text-anchor": "middle", style: "fill:var(--paper);font-size:30px" });
+    const leds = [682, 701, 720].map(x => el("circle", { cx: x, cy: 200, r: 3, fill: "var(--ink-3)" }, box));
+    txt(svg, 701, 238, "the detector", "ts", { "text-anchor": "middle" });
+    const dots = txt(svg, 701, 108, "", "ts", { "text-anchor": "middle" });
+    // things in flight
+    const env = el("g", { opacity: 0 }, svg);
+    el("rect", { x: -17, y: -11, width: 34, height: 22, rx: 2, fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.3 }, env);
+    el("path", { d: "M-17,-11 L0,3 L17,-11", fill: "none", stroke: "var(--ink)", "stroke-width": 1.3 }, env);
+    const fly = el("g", { opacity: 0 }, svg);
+    el("rect", { x: -6, y: -8, width: 12, height: 16, fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.2 }, fly);
+    const flyKind = txt(fly, 0, 2, "PDF", "ts", { "text-anchor": "middle", style: "font-size:5.5px;fill:var(--red)" });
+    // the answer
+    const tag = el("g", { opacity: 0 }, svg);
+    el("line", { x1: 701, y1: 46, x2: 701, y2: 116, stroke: "var(--ink-3)", "stroke-dasharray": "3 3" }, tag);
+    const tagBox = el("rect", { x: 590, y: 8, width: 160, height: 38, rx: 4, fill: "var(--paper)", stroke: "var(--accent)", "stroke-width": 1.6 }, tag);
+    const tagText = txt(tag, 670, 32, "", "t", { "text-anchor": "middle", style: "fill:var(--ink)" });
+
+    const D = [2400, 2200, 1800, 2200, 2600, 1200], S = [0];
+    D.forEach((d, i) => S.push(S[i] + d));
+    const END = S[D.length];
+    const LINES = [
+      "The attacker writes an email and attaches the file.",
+      "Off it goes.",
+      "It lands in someone's inbox, looking like an ordinary PDF.",
+      "Before anyone opens it, the attachment goes to the detector.",
+      "The detector reads the file…",
+    ];
+    const PEELED = " <b>Disguise off:</b> the real name is <b>invoice.pdf.exe</b>, and the file starts with the bytes <b>4D 5A</b>, the letters MZ that begin every Windows program.";
+    const ease = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    let t = 0, raf = 0, last = 0, player = null;
+    function dress() {
+      chipName.textContent = disguised ? "invoice.pdf" : "invoice.pdf.exe";
+      chipName.setAttribute("style", disguised ? "fill:var(--ink)" : "fill:var(--red)");
+      chipKind.textContent = flyKind.textContent = disguised ? "PDF" : "EXE";
+      peel.textContent = disguised ? "peel off the disguise" : "put the disguise back";
+    }
+    function render() {
+      let ph = 0;
+      while (ph < D.length - 1 && t >= S[ph + 1]) ph++;
+      const k = Math.min(1, (t - S[ph]) / D[ph]);
+      typed.forEach((l, i) => { const f = ph > 0 ? 1 : Math.max(0, Math.min(1, k * 4 - i)); l.setAttribute("x2", 137 + f * (i === 3 ? 26 : 46)); });
+      arm.setAttribute("y2", ph === 0 ? -74 + Math.sin(t / 90) * 3 : -74);
+      if (ph === 1) {
+        const e = ease(k), x = 190 + (520 - 190) * e, y = 160 + (100 - 160) * e - 90 * Math.sin(e * Math.PI);
+        env.setAttribute("transform", `translate(${x},${y})`); env.setAttribute("opacity", 1);
+      } else if (ph === 0 && k > 0.8) { env.setAttribute("transform", "translate(190,160)"); env.setAttribute("opacity", ((k - 0.8) * 5).toFixed(2)); }
+      else env.setAttribute("opacity", 0);
+      const shown = ph >= 2 ? (ph === 2 ? Math.min(1, k * 2) : 1) : 0;
+      mail.setAttribute("opacity", shown);
+      chip.setAttribute("opacity", ph >= 3 ? 0.45 : shown);
+      if (ph === 3) {
+        const e = ease(k);
+        fly.setAttribute("transform", `translate(${462 + (701 - 462) * e},${137 + (116 - 137) * e - 40 * Math.sin(e * Math.PI)}) scale(${1.6 - 0.8 * e})`);
+        fly.setAttribute("opacity", k > 0.92 ? ((1 - k) * 12).toFixed(2) : 1);
+      } else fly.setAttribute("opacity", 0);
+      leds.forEach((l, i) => l.setAttribute("fill", ph === 5 || (ph === 4 && Math.sin(t / 150 + i * 2) > 0) ? "var(--green)" : "var(--ink-3)"));
+      dots.textContent = ph === 4 ? "reading" + ".".repeat(1 + Math.floor(t / 300) % 3) : "";
+      status.textContent = ph === 4 ? "checking the attachment…" : ph === 5 ? "checked" : "";
+      const v = verdictOf(state.sample);
+      tagText.textContent = v.known ? `named: ${v.name}` : "unknown family";
+      tagBox.setAttribute("stroke", v.known ? "var(--accent)" : "var(--red)");
+      tag.setAttribute("opacity", ph === 5 ? Math.min(1, k * 2).toFixed(2) : 0);
+      const line = ph === 5
+        ? (v.known ? `Out comes an answer: <b>${v.name}</b>, a family it knows.` : "Out comes an answer: <b>a family it has never seen</b>, so the file is set aside.") + " From the outside, that's all anyone sees."
+        : LINES[ph];
+      read.innerHTML = line + (disguised ? "" : PEELED);
+    }
+    function frame(now) {
+      const dt = Math.min(80, now - last); last = now;
+      t = Math.min(END, t + dt * (player.fast ? 1 : 0.6));
+      render();
+      if (t >= END) { raf = 0; player.pause(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    player = Player("p0", {
+      watch: svg,
+      start() { if (raf) return; if (t >= END) t = 0; last = performance.now(); raf = requestAnimationFrame(frame); },
+      stop() { cancelAnimationFrame(raf); raf = 0; },
+      extra: [["start again", () => { t = 0; render(); player.play(); }]],
+    });
+    peel.addEventListener("click", () => { disguised = !disguised; dress(); render(); });
+    onSample.push(() => { t = 0; render(); if (!reduced) player.play(); });
+    t = reduced ? END : 0;
+    dress(); render();
+  })();
+
+  /* ---------- 1: anatomy ---------- */
+  (function () {
+    const svg = document.getElementById("s1"), kv = document.getElementById("s1kv"), hex = document.getElementById("s1hex");
+    let selected = 1;
+    function draw() {
+      svg.replaceChildren();
+      const regs = FILES[state.sample];
+      const top = 14, H = 372, minH = 22;
+      const raw = regs.map(r => Math.max(minH, r.size * H));
+      const scale = H / raw.reduce((a, b) => a + b, 0);
+      let y = top;
+      regs.forEach((r, i) => {
+        const h = raw[i] * scale;
+        const g = el("g", { tabindex: 0, role: "button", "aria-label": `${r.name}, ${r.type}, entropy ${r.H}` }, svg);
+        g.style.cursor = "pointer";
+        el("rect", { x: 20, y, width: 150, height: h - 2, fill: tint(tc(r.type), i === selected ? 34 : 18), stroke: tc(r.type), "stroke-width": i === selected ? 2.4 : 1 }, g);
+        txt(g, 30, y + Math.min(h / 2 + 4, 18), r.name, "tb");
+        if (h > 40) txt(g, 30, y + 34, r.type, "ts");
+        el("rect", { x: 180, y, width: 26, height: h - 2, fill: heat(r.H) }, g);
+        if (h > 20) txt(g, 193, y + Math.min(h / 2 + 4, 16), r.H.toFixed(1), "ts", { "text-anchor": "middle", fill: "#fff", style: "fill:#fff" });
+        const pick = () => { selected = i; draw(); };
+        g.addEventListener("click", pick);
+        g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+        y += h;
+      });
+      txt(svg, 193, 398, "entropy", "ts", { "text-anchor": "middle" });
+      const r = regs[selected];
+      kv.innerHTML = `<dt>region</dt><dd>${r.name}</dd><dt>type</dt><dd>${r.type} (category ${TYPEID[r.type]} of 11)</dd><dt>size</dt><dd>${r.bytes.toLocaleString()} bytes, ${(r.size * 100).toFixed(0)}% of the file</dd><dt>entropy</dt><dd>${r.H.toFixed(2)} bits per byte</dd><dt>flags</dt><dd>${r.flags.replace(/-/g, "·")} (read, write, execute)</dd>`;
+      hex.innerHTML = hexFor(r, state.sample);
+    }
+    onSample.push(() => { selected = Math.min(selected, FILES[state.sample].length - 1); if (state.sample === "packed") selected = 2; draw(); });
+    draw();
+  })();
+
+  /* ---------- 2: the fork ---------- */
+  (function () {
+    const svg = document.getElementById("s2");
+    const fileAt = (x, y) => { const g = el("g", { transform: `translate(${x},${y})` }, svg); el("path", { d: "M0,0 H18 L25,7 V33 H0 Z", fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.3 }, g); txt(g, 12.5, 23, "exe", "ts", { "text-anchor": "middle", style: "fill:var(--red)" }); };
+    fileAt(24, 82);
+    const up = "M60,99 C120,99 130,48 200,48 L560,48 C630,48 640,99 690,99";
+    const dn = "M60,99 C120,99 130,150 200,150 L560,150 C630,150 640,99 690,99";
+    el("path", { d: up, fill: "none", stroke: "var(--blue)", "stroke-width": 2 }, svg);
+    el("path", { d: dn, fill: "none", stroke: "var(--green)", "stroke-width": 2 }, svg);
+    txt(svg, 380, 36, "pipeline 1 · measure it: 2,568 EMBER features", "t", { "text-anchor": "middle", style: "fill:var(--blue)" });
+    txt(svg, 380, 172, "pipeline 2 · read its bytes, region by region", "t", { "text-anchor": "middle", style: "fill:var(--green)" });
+    el("rect", { x: 690, y: 84, width: 54, height: 30, fill: "var(--paper-2)", stroke: "var(--ink-3)" }, svg);
+    txt(svg, 717, 103, "128", "tb", { "text-anchor": "middle" });
+    if (!reduced) [up, dn].forEach((d, k) => { for (let i = 0; i < 3; i++) { const c = el("circle", { r: 4, fill: k ? "var(--green)" : "var(--blue)" }, svg); el("animateMotion", { dur: "6s", repeatCount: "indefinite", begin: `${-i * 2}s`, path: d }, c); } });
+  })();
+
+  /* ---------- 3: pipeline 1 data and views ---------- */
+  (function () {
+    const svg = document.getElementById("s3"), read = document.getElementById("s3read");
+    const N = 96, X0 = 30, W = 700, bw = W / N, BASE = 150;
+    const r = rng(21);
+    const raw = [], quiet = [], giant = [];
+    for (let i = 0; i < N; i++) {
+      const z = r() < 0.3;
+      quiet.push(z && r() < 0.95);
+      const g = !z && r() < 0.045;
+      giant.push(g);
+      raw.push(z ? 0 : g ? 1e12 : Math.pow(r(), 2) * 900 + 1);
+    }
+    const logv = raw.map(v => Math.sign(v) * Math.log1p(Math.abs(v)));
+    const keep = quiet.map(q => !q);
+    const kept = logv.filter((_, i) => keep[i]);
+    const mean = kept.reduce((a, b) => a + b, 0) / kept.length;
+    const sd = Math.sqrt(kept.reduce((a, b) => a + (b - mean) ** 2, 0) / kept.length);
+    const zv = logv.map(v => (v - mean) / sd);
+    const inA = [], inB = [], swapped = [];
+    const kidx = keep.map((k, i) => k ? i : -1).filter(i => i >= 0);
+    kidx.forEach((i, j) => { const u = (j * 37) % 100; inA[i] = u < 50; inB[i] = (u >= 12.5 && u < 62.5); });
+    kidx.forEach(i => { swapped[i] = inA[i] && inB[i] && r() < 0.6; });
+    const bars = [];
+    for (let i = 0; i < N; i++) bars.push(el("rect", { x: X0 + i * bw + 0.6, width: bw - 1.2, fill: "var(--blue)" }, svg));
+    const top = txt(svg, X0, 22, "", "t");
+    const mid = el("line", { x1: X0, x2: X0 + W, y1: BASE, y2: BASE, stroke: "var(--rule)" }, svg);
+    const groups = [["byte histograms", 0, 0.28], ["strings", 0.28, 0.4], ["header", 0.4, 0.52], ["sections", 0.52, 0.66], ["imports and exports", 0.66, 0.92], ["other", 0.92, 1]];
+    const glab = el("g", {}, svg);
+    groups.forEach(([n, a, b]) => { el("line", { x1: X0 + a * W + 2, x2: X0 + b * W - 2, y1: 282, y2: 282, stroke: "var(--ink-3)" }, glab); txt(glab, X0 + (a + b) / 2 * W, 296, n, "ts", { "text-anchor": "middle" }); });
+    const viewG = el("g", {}, svg);
+    let cur = { h: raw.map(() => 0), y: raw.map(() => BASE), op: raw.map(() => 1) };
+    function target(step) {
+      const h = [], y = [], op = [];
+      for (let i = 0; i < N; i++) {
+        let hh, yy, o = 1;
+        if (step === 0) { hh = giant[i] ? 124 : Math.min(118, raw[i] / 900 * 118); yy = 150 - hh; }
+        else if (step === 1) { hh = giant[i] ? 124 : Math.min(118, raw[i] / 900 * 118); yy = 150 - hh; if (!keep[i]) { o = 0.12; } }
+        else if (step === 2) { hh = logv[i] / 28 * 130; yy = 150 - hh; if (!keep[i]) o = 0; }
+        else { const v = zv[i] * 38; hh = Math.abs(v); yy = v >= 0 ? BASE - v : BASE; if (!keep[i]) o = 0; }
+        if (step === 4 && keep[i] && !inA[i] && !inB[i]) o = 0.18;
+        h.push(Math.max(0.5, hh)); y.push(yy); op.push(o);
+      }
+      return { h, y, op };
+    }
+    const msgs = [
+      "2,568 numbers per file. A few header fields reach 10^12 and run off the chart (marked ↑).",
+      "706 columns are almost always zero or never change. They are dropped, leaving 1,862.",
+      "Five header columns are clipped at ±2^32, then every value is squashed with a signed logarithm.",
+      "Each column is shifted and scaled with the training data's mean and spread.",
+      "Two views: each keeps about half of the 1,862 features, the two share three quarters of theirs, and in view A 60% of the shared values are swapped for values from other files (red).",
+    ];
+    function show(step) {
+      const from = cur, to = target(step);
+      top.textContent = ["2,568 features", "1,862 features left", "after clipping and log", "standardised", "view A (top) and view B (bottom)"][step];
+      read.textContent = msgs[step];
+      mid.setAttribute("opacity", step === 3 ? 1 : 0);
+      viewG.replaceChildren();
+      glab.setAttribute("opacity", step >= 4 ? 0 : 1);
+      if (step === 4) {
+        for (const [row, set, label] of [[0, inA, "view A"], [1, inB, "view B"]]) {
+          const yb = row ? 220 : 100;
+          txt(viewG, X0, yb - 40, label, "ts");
+          el("line", { x1: X0, x2: X0 + W, y1: yb, y2: yb, stroke: "var(--rule)" }, viewG);
+          for (let i = 0; i < N; i++) {
+            if (!keep[i] || !set[i]) continue;
+            const shared = inA[i] && inB[i];
+            const sw = row === 0 && swapped[i];
+            const v = Math.max(-34, Math.min(34, sw ? gauss(rng(i)) * 18 : zv[i] * 11));
+            el("rect", { x: X0 + i * bw + 0.6, y: v >= 0 ? yb - v : yb, width: bw - 1.2, height: Math.max(1, Math.abs(v)), fill: sw ? "var(--red)" : shared ? "var(--blue)" : "var(--ink-3)" }, viewG);
+          }
+        }
+      }
+      tween(700, t => {
+        for (let i = 0; i < N; i++) {
+          const op = step === 4 ? 0 : from.op[i] + (to.op[i] - from.op[i]) * t;
+          bars[i].setAttribute("height", from.h[i] + (to.h[i] - from.h[i]) * t);
+          bars[i].setAttribute("y", from.y[i] + (to.y[i] - from.y[i]) * t);
+          bars[i].setAttribute("opacity", op);
+          bars[i].setAttribute("fill", step < 2 && giant[i] ? "var(--red)" : "var(--blue)");
+        }
+      }, () => { cur = to; });
+      [...svg.querySelectorAll(".giant")].forEach(n => n.remove());
+      if (step === 0 || step === 1) giant.forEach((g, i) => { if (g) { txt(svg, X0 + i * bw + bw / 2, 22, "↑", "t", { "text-anchor": "middle", class: "t giant", style: "fill:var(--red)" }); } });
+    }
+    const getStep = segmented("s3step", v => show(+v));
+    show(0);
+  })();
+
+  /* ---------- 4: pipeline 1 engine ---------- */
+  (function () {
+    const svg = document.getElementById("s4"), layerRead = document.getElementById("s4layer");
+    const toks = ["[CLS]", "f17 = 0.84", "f203 = −1.12", "f340 = 0.05", "f722 = 2.31", "f901 = −0.40", "f1288 = 1.77", "… ~931 tokens"];
+    const ys = toks.map((_, i) => 46 + i * 38);
+    toks.forEach((s, i) => {
+      el("rect", { x: 20, y: ys[i] - 14, width: 150, height: 26, fill: i === 0 ? tint("var(--accent)", 16) : "var(--paper-2)", stroke: i === 0 ? "var(--accent)" : "var(--rule)" }, svg);
+      txt(svg, 28, ys[i] + 3, s, i === 0 ? "tb" : "t");
+      if (i < 7) { el("line", { x1: 172, y1: ys[i] - 1, x2: 222, y2: ys[i] - 1, stroke: "var(--ink-3)" }, svg); txt(svg, 197, ys[i] - 6, "512", "ts", { "text-anchor": "middle" }); }
+    });
+    const PX = l => 236 + l * 56;
+    const plates = [];
+    for (let l = 0; l < 6; l++) {
+      plates.push(el("rect", { x: PX(l), y: 20, width: 40, height: 290, rx: 4, fill: "var(--paper-2)", stroke: "var(--rule)" }, svg));
+      txt(svg, PX(l) + 20, 328, "layer " + (l + 1), "ts", { "text-anchor": "middle" });
+    }
+    ys.slice(0, 7).forEach(y => el("line", { x1: 222, y1: y - 1, x2: 572, y2: y - 1, stroke: "var(--rule)" }, svg));
+    const arcs = el("g", {}, svg);
+    el("line", { x1: 572, y1: ys[0] - 1, x2: 612, y2: ys[0] - 1, stroke: "var(--accent)", "stroke-width": 2 }, svg);
+    const r = rng(4);
+    for (let k = 0; k < 64; k++) el("rect", { x: 616 + (k % 16) * 8.5, y: 34 + Math.floor(k / 16) * 8.5, width: 7.5, height: 7.5, fill: r() < 0.5 ? "var(--blue)" : "var(--accent)", opacity: (0.25 + r() * 0.75).toFixed(2) }, svg);
+    txt(svg, 616, 86, "128 numbers out", "t");
+    txt(svg, 616, 102, "(64 of them shown)", "ts");
+    txt(svg, 380, 354, "in every layer, every token looks at every other token · 8 heads each", "ts", { "text-anchor": "middle" });
+    // fixed weights per layer, so stepping back shows the same picture
+    const W = Array.from({ length: 6 }, (_, l) => { const rr = rng(l * 31 + 7); return Array.from({ length: 7 }, () => Array.from({ length: 7 }, () => rr())); });
+    function show(layer) {
+      arcs.replaceChildren();
+      plates.forEach((p, i) => { p.setAttribute("stroke", i === layer ? "var(--blue)" : "var(--rule)"); p.setAttribute("stroke-width", i === layer ? 2 : 1); p.setAttribute("fill", i < layer ? tint("var(--blue)", 8) : "var(--paper-2)"); });
+      const x = PX(layer) + 20;
+      for (let a = 0; a < 7; a++) for (let b = a + 1; b < 7; b++) {
+        const w = W[layer][a][b];
+        if (w < 0.45) continue;
+        const ya = ys[a] - 1, yb = ys[b] - 1, bend = 12 + (yb - ya) * 0.16;
+        el("path", { d: `M${x},${ya} C${x + bend},${ya} ${x + bend},${yb} ${x},${yb}`, fill: "none", stroke: a === 0 ? "var(--accent)" : "var(--blue)", "stroke-width": (0.6 + (w - 0.45) * 5).toFixed(2), opacity: (0.3 + (w - 0.45)).toFixed(2) }, arcs);
+      }
+      const cls = [1, 2, 3, 4, 5, 6].map(b => [W[layer][0][b], b]).sort((p, q) => q[0] - p[0]);
+      const nm = i => toks[i].split(" ")[0];
+      layerRead.innerHTML = `<b>Layer ${layer + 1} of 6.</b> Every token looks at every other one. <b>[CLS]</b>, whose output becomes the 128 numbers, looks hardest at <b>${nm(cls[0][1])}</b> and <b>${nm(cls[1][1])}</b> here (its lines are in orange).`;
+    }
+    Stepper({ player: "p4", watch: svg, n: 6, first: 0, show, slow: 1900, normal: 800, hold: 700, nextText: "next layer" });
+
+    const g = document.getElementById("s4b"), slider = document.getElementById("s4n"), read = document.getElementById("s4read");
+    let tileTimer = 0;
+    const mode = segmented("s4mode", () => drawGrid());
+    function drawGrid() {
+      const n = +slider.value, tiles = mode() === "tiles";
+      g.replaceChildren();
+      const side = 20 + 130 * Math.sqrt(n / 1863);
+      const x0 = 30, y0 = 176 - side;
+      el("rect", { x: x0, y: y0, width: side, height: side, fill: tiles ? "var(--paper-2)" : tint("var(--red)", 30), stroke: "var(--ink-3)" }, g);
+      const cells = 12;
+      for (let i = 1; i < cells; i++) {
+        el("line", { x1: x0 + side * i / cells, y1: y0, x2: x0 + side * i / cells, y2: y0 + side, stroke: "var(--paper)", "stroke-width": 0.6 }, g);
+        el("line", { x1: x0, y1: y0 + side * i / cells, x2: x0 + side, y2: y0 + side * i / cells, stroke: "var(--paper)", "stroke-width": 0.6 }, g);
+      }
+      txt(g, x0 + side + 10, y0 + 12, `${n.toLocaleString()} × ${n.toLocaleString()}`, "t");
+      txt(g, x0 + side + 10, y0 + 28, "scores per head", "ts");
+      const values = 128 * 8 * n * n, gb = values * 4 / 1e9;
+      clearInterval(tileTimer);
+      if (tiles) {
+        const tile = el("rect", { x: x0, y: y0, width: side / cells, height: side / cells, fill: "var(--blue)", opacity: 0.8 }, g);
+        let k = 0;
+        if (!reduced) tileTimer = setInterval(() => { k = (k + 1) % (cells * cells); tile.setAttribute("x", x0 + (k % cells) * side / cells); tile.setAttribute("y", y0 + Math.floor(k / cells) * side / cells); }, 160);
+      }
+      // will it fit on a graphics card?
+      const BX = 430, BW = 300, sc = v => Math.min(BW, v / 100 * BW);
+      txt(g, BX, 18, "memory just for the attention scores", "ts");
+      [["one layer", gb, 34], ["six layers, all kept for training", gb * 6, 86]].forEach(([lab, v, y]) => {
+        txt(g, BX, y + 4, lab, "ts");
+        el("rect", { x: BX, y: y + 10, width: BW, height: 18, fill: "var(--paper-2)" }, g);
+        const w = tiles ? 2 : Math.max(2, sc(v));
+        el("rect", { x: BX, y: y + 10, width: w, height: 18, fill: tiles ? "var(--blue)" : v > 24 ? "var(--red)" : "var(--blue)" }, g);
+        const s = tiles ? "never stored whole" : v > 100 ? `${v.toFixed(0)} GB, off the scale` : `${v.toFixed(1)} GB`;
+        if (w > 120) txt(g, BX + w - 6, y + 23, s, "ts", { "text-anchor": "end", style: "fill:var(--paper)" });
+        else txt(g, BX + w + 6, y + 23, s, "ts", { style: "fill:var(--ink)" });
+      });
+      [[24, "24 GB card"], [80, "80 GB card"]].forEach(([v, lab]) => {
+        const x = BX + v / 100 * BW;
+        el("line", { x1: x, y1: 40, x2: x, y2: 124, stroke: "var(--ink-3)", "stroke-dasharray": "3 3" }, g);
+        txt(g, x, 140, lab, "ts", { "text-anchor": "middle" });
+      });
+      txt(g, BX, 168, "scale: 0 to 100 GB", "ts");
+      if (tiles) read.innerHTML = `With tiles the whole table is never kept, so this memory stops growing with it. Training ran at about <b>9.7 GB</b> at its peak with tiles and checkpointing, against <b>32.5 GB</b> without checkpointing.`;
+      else read.innerHTML = `One layer's attention scores: 128 files × 8 heads × ${n.toLocaleString()}² = <b>${(values / 1e6).toFixed(0)} million</b> numbers, <b>${gb.toFixed(2)} GB</b>.${gb * 6 > 24 ? " Keep all six layers for training and that alone is more than a 24 GB card holds." : ""} Double the tokens and it quadruples.`;
+    }
+    slider.addEventListener("input", drawGrid);
+    drawGrid();
+  })();
+
+  /* ---------- 5: pipeline 2 regions and views ---------- */
+  (function () {
+    const svg = document.getElementById("s5");
+    let op = "a", seed = 1;
+    function windowsFor(r) { return Math.max(1, Math.min(4, Math.ceil(r.bytes / 512))); }
+    function draw() {
+      svg.replaceChildren();
+      const regs = FILES[state.sample];
+      txt(svg, 20, 16, "the file", "ts");
+      let x = 20; const W = 720;
+      const ws = regs.map(r => Math.max(34, r.size * W));
+      const sc = W / ws.reduce((a, b) => a + b, 0);
+      regs.forEach((r, i) => { const w = ws[i] * sc; el("rect", { x, y: 22, width: w - 2, height: 26, fill: tint(tc(r.type), 25), stroke: tc(r.type) }, svg); if (w > 44) txt(svg, x + 5, 39, r.name, "ts", { style: `fill:${tc(r.type)}` }); x += w; });
+      txt(svg, 20, 78, "16 region slots, each with its type, entropy and share of the file", "ts");
+      for (let s = 0; s < 16; s++) {
+        const r = regs[s], x0 = 20 + s * 45;
+        el("rect", { x: x0, y: 86, width: 41, height: 50, fill: r ? tint(tc(r.type), 22) : "none", stroke: r ? tc(r.type) : "var(--t-pad)", "stroke-dasharray": r ? "" : "3 3" }, svg);
+        if (r) { txt(svg, x0 + 3, 99, r.name.slice(0, 6), "ts", { style: `font-size:10px;fill:var(--ink)` }); txt(svg, x0 + 3, 113, "H " + r.H.toFixed(1), "ts", { style: "font-size:10px" }); txt(svg, x0 + 3, 127, (r.size * 100).toFixed(0) + "%", "ts", { style: "font-size:10px" }); }
+        else txt(svg, x0 + 20.5, 115, "pad", "ts", { "text-anchor": "middle", style: "font-size:10px" });
+      }
+      txt(svg, 20, 166, "up to four windows of 512 bytes per region, spread from start to end", "ts");
+      const r = rng(seed * 7 + regs.length);
+      const dropRegion = op === "region" ? 1 + Math.floor(r() * (regs.length - 1)) : -1;
+      regs.forEach((reg, i) => {
+        const y = 176 + i * 29;
+        txt(svg, 20, y + 15, reg.name, "t", { style: `fill:${tc(reg.type)}` });
+        el("rect", { x: 100, y: y + 8, width: 120, height: 6, fill: tint(tc(reg.type), 30) }, svg);
+        const nw = windowsFor(reg);
+        for (let w = 0; w < nw; w++) { const p = nw === 1 ? 0 : w / (nw - 1); el("rect", { x: 100 + p * 112, y: y + 4, width: 8, height: 14, fill: "none", stroke: tc(reg.type), "stroke-width": 1.2 }, svg); }
+        for (let w = 0; w < 4; w++) {
+          const x0 = 250 + w * 122;
+          const valid = w < nw;
+          const dropped = op === "drop" && valid && r() < 0.35;
+          const masked = op === "span" && valid && r() < 0.3;
+          const gone = i === dropRegion;
+          if (!valid) { el("rect", { x: x0, y: y + 2, width: 112, height: 20, fill: "none", stroke: "var(--rule)", "stroke-dasharray": "2 3" }, svg); txt(svg, x0 + 56, y + 16, "unused", "ts", { "text-anchor": "middle" }); continue; }
+          el("rect", { x: x0, y: y + 2, width: 112, height: 20, fill: gone || dropped ? "none" : tint(tc(reg.type), 30), stroke: gone || dropped ? "var(--ink-3)" : tc(reg.type), "stroke-dasharray": gone || dropped ? "4 3" : "", opacity: gone ? 0.5 : 1 }, svg);
+          if (!(gone || dropped)) { for (let b = 0; b < 14; b++) el("rect", { x: x0 + 4 + b * 7.6, y: y + 8, width: 5, height: 8, fill: heat(Math.max(0, Math.min(8, reg.H + gauss(r) * 0.8))), opacity: 0.85 }, svg); }
+          if (masked) { const s0 = 10 + r() * 60; el("rect", { x: x0 + s0, y: y + 5, width: 18 + r() * 24, height: 14, fill: "var(--ink)" }, svg); }
+          if (dropped) txt(svg, x0 + 56, y + 16, "dropped", "ts", { "text-anchor": "middle" });
+          if (gone && w === 0) txt(svg, x0 + 56, y + 16, "region dropped", "ts", { "text-anchor": "middle" });
+        }
+      });
+      txt(svg, 740, 384, "shape: 16 regions × 4 windows × 512 bytes", "ts", { "text-anchor": "end" });
+    }
+    segmented("s5ops", v => { op = v; draw(); });
+    document.getElementById("s5again").addEventListener("click", () => { seed++; draw(); });
+    onSample.push(draw);
+    draw();
+  })();
+
+  /* ---------- 6a: window encoder ---------- */
+  (function () {
+    const svg = document.getElementById("s6a"), read = document.getElementById("s6aread");
+    const bytes = [0x55,0x8B,0xEC,0x83,0xEC,0x18,0x53,0x56,0x57,0x8B,0x7D,0x08,0x85,0xFF,0x74,0x2A,0x8B,0x45,0x0C,0x50,0x57,0xE8,0x7B,0x12];
+    const n = bytes.length, x0 = 22, step = 716 / n;
+    const cx = i => x0 + i * step + step / 2;
+    const r = rng(9);
+    const cells = [];
+    bytes.forEach((b, i) => {
+      cells.push(el("rect", { x: x0 + i * step + 1, y: 12, width: step - 2, height: 24, fill: "var(--paper-2)" }, svg));
+      txt(svg, cx(i), 28, hex2(b), "ts", { "text-anchor": "middle", style: "font-size:11px;fill:var(--ink)" });
+      for (let k = 0; k < 8; k++) { const v = Math.sin(b * 0.37 + k * 1.7) * 0.5 + 0.5; el("rect", { x: x0 + i * step + 4, y: 44 + k * 5.5, width: step - 8, height: 4.5, fill: v > 0.5 ? "var(--green)" : "var(--blue)", opacity: (0.2 + 0.8 * Math.abs(v - 0.5) * 2).toFixed(2) }, svg); }
+    });
+    txt(svg, 22, 104, `${n} of the window's 512 bytes; each becomes a row of a 257-row table, plus its position`, "ts");
+    el("rect", { x: 22, y: 114, width: 716, height: 80, fill: "none", stroke: "var(--rule)" }, svg);
+    txt(svg, 30, 130, "2 attention layers, 4 heads: the bytes look at each other", "ts");
+    const mix = el("g", {}, svg);
+    const q = { x: 380, y: 262 };
+    const lines = bytes.map((_, i) => el("line", { x1: cx(i), y1: 196, x2: q.x, y2: q.y - 12, stroke: "var(--green)" }, svg));
+    el("circle", { cx: q.x, cy: q.y, r: 12, fill: "var(--paper)", stroke: "var(--green)", "stroke-width": 2 }, svg);
+    txt(svg, q.x, q.y + 4, "q", "tb", { "text-anchor": "middle" });
+    txt(svg, q.x - 22, q.y + 4, "learned query", "ts", { "text-anchor": "end" });
+    el("line", { x1: q.x + 13, y1: q.y, x2: 470, y2: q.y, stroke: "var(--green)", "stroke-width": 2 }, svg);
+    for (let k = 0; k < 32; k++) el("rect", { x: 476 + k * 8, y: q.y - 7, width: 7, height: 14, fill: r() < 0.5 ? "var(--green)" : "var(--accent)", opacity: (0.25 + r() * 0.75).toFixed(2) }, svg);
+    txt(svg, 476, q.y + 28, "one vector of 128 numbers for the window", "ts");
+    const NOTE = { 0x55: "55, push ebp, which is how a function usually starts", 0xE8: "E8, a call to another function", 0x8B: "8B, a mov that copies a value", 0x85: "85, a test", 0x74: "74, a jump if equal", 0x75: "75, a jump if not equal", 0xFF: "FF, often an indirect call", 0x83: "83, arithmetic with a small number" };
+    function show(t) {
+      const w = bytes.map((b, i) => Math.exp(2.2 * Math.sin(i * 0.9 + t * 0.8) + (b === 0xE8 || b === 0x55 ? 1.2 : 0)));
+      const s = w.reduce((a, b) => a + b, 0);
+      let top = 0;
+      w.forEach((v, i) => { if (v > w[top]) top = i; });
+      lines.forEach((l, i) => { const p = w[i] / s; l.setAttribute("stroke-width", (0.4 + p * 24).toFixed(2)); l.setAttribute("opacity", Math.min(1, 0.12 + p * 7).toFixed(2)); });
+      cells.forEach((c, i) => c.setAttribute("fill", i === top ? tint("var(--green)", 40) : "var(--paper-2)"));
+      mix.replaceChildren();
+      const rr = rng(t * 7 + 1);
+      for (let k = 0; k < 10; k++) {
+        const a = Math.floor(rr() * n), b = Math.floor(rr() * n);
+        if (a === b) continue;
+        const xa = cx(a), xb = cx(b), h = Math.min(50, 10 + Math.abs(a - b) * 2.6);
+        el("path", { d: `M${xa},190 Q${(xa + xb) / 2},${190 - 2 * h} ${xb},190`, fill: "none", stroke: "var(--green)", opacity: 0.55 }, mix);
+      }
+      read.innerHTML = `Right now the query is looking hardest at byte <b>${NOTE[bytes[top]] || hex2(bytes[top])}</b>. The weights in this picture are made up; the real query learns what to look for.`;
+    }
+    Stepper({ player: "p6a", watch: svg, n: 16, first: 0, show, slow: 1700, normal: 650, nextText: "next" });
+  })();
+
+  /* ---------- 6b: section encoder with the structural bias ---------- */
+  (function () {
+    const svg = document.getElementById("s6b"), read = document.getElementById("s6read");
+    const w1 = document.getElementById("w1"), w2 = document.getElementById("w2"), w3 = document.getElementById("w3");
+    const presets = document.getElementById("s6preset");
+    let sel = 1;
+    [["start: 1, 1, 1", [1, 1, 1]], ["only same type", [2.5, 0, 0]], ["only entropy", [0, 2.5, 0]], ["only size", [0, 0, 2.5]], ["no bias: 0, 0, 0", [0, 0, 0]]].forEach(([lab, v]) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "btn"; b.textContent = lab;
+      b.addEventListener("click", () => { [w1, w2, w3].forEach((s, i) => { s.value = v[i]; }); draw(); });
+      presets.appendChild(b);
+    });
+    function draw() {
+      svg.replaceChildren();
+      const regs = FILES[state.sample], n = regs.length;
+      const W1 = +w1.value, W2 = +w2.value, W3 = +w3.value;
+      const B = regs.map(a => regs.map(b => W1 * (a.type === b.type ? 1 : 0) + W2 * (1 - Math.abs(a.H - b.H) / 8) + W3 * Math.min(a.size, b.size) / Math.max(a.size, b.size)));
+      const content = regs.map((a, i) => regs.map((b, j) => 0.3 * Math.sin(i * 1.3 + j * 0.7)));
+      const scores = B[sel].map((v, j) => v + content[sel][j]);
+      const mx = Math.max(...scores), ex = scores.map(s => Math.exp(s - mx)), sum = ex.reduce((a, b) => a + b, 0), att = ex.map(e => e / sum);
+      const C = { x: 190, y: 192 }, R = 138;
+      const pos = regs.map((_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [C.x + R * Math.cos(a), C.y + R * Math.sin(a)]; });
+      regs.forEach((_, j) => { if (j === sel) return; el("line", { x1: pos[sel][0], y1: pos[sel][1], x2: pos[j][0], y2: pos[j][1], stroke: "var(--green)", "stroke-width": (1 + att[j] * 22).toFixed(2), opacity: (0.25 + att[j] * 1.6).toFixed(2), "stroke-linecap": "round" }, svg); });
+      regs.forEach((reg, i) => {
+        const g = el("g", { tabindex: 0, role: "button", "aria-label": `region ${reg.name}` }, svg); g.style.cursor = "pointer";
+        el("circle", { cx: pos[i][0], cy: pos[i][1], r: 29, fill: tint(tc(reg.type), i === sel ? 40 : 18), stroke: tc(reg.type), "stroke-width": i === sel ? 2.6 : 1.2 }, g);
+        txt(g, pos[i][0], pos[i][1] - 1, reg.name.slice(0, 7), "ts", { "text-anchor": "middle", style: "font-size:11px;fill:var(--ink)" });
+        txt(g, pos[i][0], pos[i][1] + 13, (att[i] * 100).toFixed(0) + "%", "ts", { "text-anchor": "middle", style: "font-size:10.5px" });
+        const pick = () => { sel = i; draw(); };
+        g.addEventListener("click", pick); g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+      });
+      const cs = Math.min(40, 280 / n), hx = 440, hy = 50;
+      const all = B.flat(), lo = Math.min(...all), hi = Math.max(...all);
+      txt(svg, hx, 26, "bias B(i, j), added before the softmax", "ts");
+      regs.forEach((a, i) => {
+        txt(svg, hx - 6, hy + i * cs + cs / 2 + 4, a.name.slice(0, 7), "ts", { "text-anchor": "end", style: "font-size:10px" });
+        txt(svg, hx + i * cs + cs / 2, hy + n * cs + 15, a.name.slice(0, 4), "ts", { "text-anchor": "middle", style: "font-size:9.5px" });
+        regs.forEach((b, j) => {
+          const v = (B[i][j] - lo) / ((hi - lo) || 1);
+          el("rect", { x: hx + j * cs, y: hy + i * cs, width: cs - 1, height: cs - 1, fill: `color-mix(in srgb, var(--green) ${Math.round(v * 85 + 5)}%, var(--paper))`, stroke: i === sel ? "var(--ink)" : "none", "stroke-width": i === sel ? 0.8 : 0 }, svg);
+          if (cs > 30) txt(svg, hx + j * cs + cs / 2, hy + i * cs + cs / 2 + 4, B[i][j].toFixed(1), "ts", { "text-anchor": "middle", style: `font-size:10px;fill:${v > 0.55 ? "var(--paper)" : "var(--ink-2)"}` });
+        });
+      });
+      const top2 = att.map((a, j) => [a, j]).filter(([, j]) => j !== sel).sort((x, y) => y[0] - x[0]).slice(0, 2);
+      read.innerHTML = `With w₁ = ${W1.toFixed(1)}, w₂ = ${W2.toFixed(1)}, w₃ = ${W3.toFixed(1)}: of the other regions, <b>${regs[sel].name}</b> pays most attention to <b>${regs[top2[0][1]].name}</b> (${(top2[0][0] * 100).toFixed(0)}%) and <b>${regs[top2[1][1]].name}</b> (${(top2[1][0] * 100).toFixed(0)}%), and ${(att[sel] * 100).toFixed(0)}% to itself. In training the weights start at 1 and are learned, and they can turn negative.`;
+    }
+    [w1, w2, w3].forEach(s => s.addEventListener("input", draw));
+    onSample.push(() => { sel = Math.min(sel, FILES[state.sample].length - 1); draw(); });
+    draw();
+  })();
+
+  /* ---------- 7: fingerprints ---------- */
+  (function () {
+    const svg = document.getElementById("s7");
+    function vec(seed, base, noise) { const r = rng(seed); return Array.from({ length: 128 }, (_, i) => (base ? base[i] : 0) + gauss(r) * noise); }
+    function strip(v, y, label) {
+      txt(svg, 20, y + 12, label, "ts");
+      v.forEach((x, i) => { const t = Math.max(-1, Math.min(1, x / 1.6)); el("rect", { x: 250 + i * 3.8, y, width: 3.4, height: 18, fill: t >= 0 ? `color-mix(in srgb, var(--accent) ${Math.round(t * 85)}%, var(--paper))` : `color-mix(in srgb, var(--blue) ${Math.round(-t * 85)}%, var(--paper))` }, svg); });
+    }
+    function draw() {
+      svg.replaceChildren();
+      const fam = { known: 3, new: 77, packed: 5 }[state.sample];
+      const base1 = vec(fam * 11, null, 1), base2 = vec(fam * 13, null, 1);
+      strip(vec(fam * 101 + 1, base1, 0.35), 18, "this file · pipeline 1");
+      strip(vec(fam * 101 + 2, base2, 0.35), 50, "this file · pipeline 2");
+      strip(vec(fam * 101 + 3, base2, 0.35), 98, "same family · pipeline 2");
+      strip(vec(999, vec(4242, null, 1), 0.35), 130, "other family · pipeline 2");
+      txt(svg, 250, 178, "each cell is one of the 128 numbers · blue below zero, red above", "ts");
+      txt(svg, 250, 196, state.sample === "new" ? "a new family has its own pattern, close to nothing the system knows" : "files of one family come out alike", "ts");
+    }
+    onSample.push(draw);
+    draw();
+  })();
+
+  /* ---------- 8: contrastive pretraining sketch ---------- */
+  (function () {
+    const cv = document.getElementById("s8"), ctx = cv.getContext("2d"), read = document.getElementById("s8read");
+    const W = cv.width, H = cv.height;
+    const FAM = 7, PER = 26;
+    let pts = [], progress = 0, playing = false, raf = 0, color = false, loss = [];
+    const famCols = ["--blue", "--green", "--red", "--gold", "--plum", "--t-reloc", "--ink-2"];
+    function reset() {
+      const r = rng(5);
+      const centers = Array.from({ length: FAM }, (_, k) => [W * (0.14 + 0.72 * ((k * 0.61803) % 1)), H * (0.18 + 0.64 * ((k * 0.3819 + 0.2) % 1))]);
+      pts = [];
+      for (let f = 0; f < FAM; f++) for (let i = 0; i < PER; i++) {
+        const lx = centers[f][0] + gauss(r) * 34, ly = centers[f][1] + gauss(r) * 30;
+        const rx = W * (0.06 + 0.88 * r()), ry = H * (0.08 + 0.84 * r());
+        const off = [gauss(r) * 70, gauss(r) * 70];
+        pts.push({ f, lx, ly, rx, ry, off });
+      }
+      progress = 0; loss = []; draw();
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = css("--paper"); ctx.fillRect(0, 0, W, H);
+      const p = progress, e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      const ink = css("--ink-3");
+      pts.forEach((q, i) => {
+        const x = q.rx + (q.lx - q.rx) * e, y = q.ry + (q.ly - q.ry) * e;
+        const sep = (1 - e) * 0.9 + 0.08;
+        const ax = x + q.off[0] * sep * 0.5, ay = y + q.off[1] * sep * 0.5, bx = x - q.off[0] * sep * 0.5, by = y - q.off[1] * sep * 0.5;
+        const c = color ? css(famCols[q.f]) : ink;
+        if (i % 9 === 0) { ctx.strokeStyle = c; ctx.globalAlpha = 0.35; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); }
+        ctx.globalAlpha = 0.9; ctx.fillStyle = c;
+        ctx.beginPath(); ctx.arc(ax, ay, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(bx, by, 6, 0, Math.PI * 2); ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      const l = 5.5 * Math.exp(-3.2 * e) + 0.6 + 0.08 * Math.sin(progress * 60);
+      read.innerHTML = `step <b>${Math.round(progress * 154700).toLocaleString()}</b> of one pass over SOREL-20M (154,700 steps) · loss <b>${l.toFixed(2)}</b> · each pair of dots is two views of one file; the line joins a few of them`;
+    }
+    function loop() { progress = Math.min(1, progress + (speed8() === "normal" ? 0.0026 : 0.0011)); draw(); if (progress < 1 && playing) raf = requestAnimationFrame(loop); else { playing = false; playBtn.textContent = "▶ play"; } }
+    const playBtn = document.getElementById("s8play");
+    const speed8 = segmented("s8speed", () => {});
+    playBtn.addEventListener("click", () => { if (playing) { playing = false; cancelAnimationFrame(raf); playBtn.textContent = "▶ play"; } else { if (progress >= 1) progress = 0; playing = true; playBtn.textContent = "❚❚ pause"; if (reduced) { progress = 1; draw(); playing = false; playBtn.textContent = "▶ play"; } else loop(); } });
+    document.getElementById("s8reset").addEventListener("click", () => { playing = false; cancelAnimationFrame(raf); playBtn.textContent = "▶ play"; reset(); });
+    segmented("s8col", v => { color = v === "on"; draw(); });
+    reset();
+    addEventListener("themechange", draw);
+  })();
+
+  /* ---------- 9: prototypes, thresholds, drag the file ---------- */
+  (function () {
+    const svg = document.getElementById("s9"), read = document.getElementById("s9read"), wsvg = document.getElementById("s9w"), todo = document.getElementById("s9todo");
+    const fams = MAP.fams;
+    const file = { x: 0, y: 0 };
+    const protoMode = segmented("s9proto", draw), distMode = segmented("s9dist", draw);
+    MAP.current = () => { const p = [file.x, file.y], pm = protoMode(), dm = distMode(); return { p, pm, dm, v: MAP.classify(p, pm, dm) }; };
+    const goals = [
+      ["Get the file named family B.", p => { const c = MAP.classify(p, protoMode(), distMode()); return c.known && c.k === 1; }],
+      ["Switch to one average, and park the file between family A's two clumps. One average calls it family A; several prototypes wouldn't.", p => { if (protoMode() !== "one") return false; const a = MAP.classify(p, "one", distMode()), b = MAP.classify(p, "many", distMode()); return a.known && a.k === 0 && !b.known; }],
+      ["Switch to the plain ruler, and find a spot it calls family B that the shaped distance would reject.", p => { if (distMode() !== "euclid") return false; const e = MAP.classify(p, protoMode(), "euclid"), m = MAP.classify(p, protoMode(), "maha"); return e.known && e.k === 1 && !(m.known && m.k === 1); }],
+    ];
+    const done = goals.map(() => false);
+    function draw() {
+      svg.replaceChildren();
+      const pm = protoMode(), dm = distMode();
+      fams.forEach((f, k) => {
+        const I = MAP.info(f, pm, dm), col = `var(${f.col})`;
+        MAP.shape(svg, f, I, dm, 1, 0, 0);
+        f.pts.forEach(p => el("circle", { cx: p[0], cy: p[1], r: 3.2, fill: col, opacity: 0.75 }, svg));
+        I.protos.forEach(q => el("path", { d: `M${q[0]},${q[1] - 8} L${q[0] + 8},${q[1]} L${q[0]},${q[1] + 8} L${q[0] - 8},${q[1]} Z`, fill: "var(--paper)", stroke: col, "stroke-width": 2.2 }, svg));
+        const lab = f.clusters[0];
+        txt(svg, lab[0] + (k === 1 ? 70 : 0), lab[1] - (k === 1 ? 26 : 40), f.name, "t", { "text-anchor": "middle", style: `fill:${col}` });
+      });
+      const best = MAP.classify([file.x, file.y], pm, dm);
+      el("line", { x1: file.x, y1: file.y, x2: best.q[0], y2: best.q[1], stroke: "var(--ink)", "stroke-dasharray": "2 3" }, svg);
+      const g = el("g", { transform: `translate(${file.x - 13},${file.y - 17})`, tabindex: 0, role: "button", "aria-label": "The file. Drag it, or use the arrow keys." }, svg);
+      g.style.cursor = "grab";
+      el("path", { d: "M0,0 H18 L25,7 V33 H0 Z", fill: "var(--paper)", stroke: best.known ? "var(--ink)" : "var(--red)", "stroke-width": 2 }, g);
+      el("path", { d: "M18,0 V7 H25", fill: "none", stroke: best.known ? "var(--ink)" : "var(--red)", "stroke-width": 2 }, g);
+      txt(g, 12.5, 23, "exe", "ts", { "text-anchor": "middle", style: "fill:var(--red)" });
+      g.addEventListener("pointerdown", startDrag);
+      g.addEventListener("keydown", e => { const m = { ArrowLeft: [-10, 0], ArrowRight: [10, 0], ArrowUp: [0, -10], ArrowDown: [0, 10] }[e.key]; if (m) { e.preventDefault(); file.x = Math.max(20, Math.min(740, file.x + m[0])); file.y = Math.max(20, Math.min(380, file.y + m[1])); draw(); svg.querySelector('[role="button"]').focus(); } });
+      read.innerHTML = best.known
+        ? `Nearest: <b>${best.name}</b>, distance <b>${best.d.toFixed(2)}</b> against its threshold <b>${best.thr.toFixed(2)}</b>. Inside, so the file is named <b>${best.name}</b>.`
+        : `Nearest: <b>${best.name}</b>, distance <b>${best.d.toFixed(2)}</b>, but its threshold is <b>${best.thr.toFixed(2)}</b>. Too far from every family, so the file is <b>set aside as unknown</b>.`;
+      drawWeibull(MAP.info(fams[best.k], pm, dm), best.d, `var(${fams[best.k].col})`);
+      const p = [file.x, file.y];
+      goals.forEach(([, test], i) => { if (!done[i] && test(p)) done[i] = true; });
+      const n = done.filter(Boolean).length;
+      todo.innerHTML = goals.map(([text], i) => `<li class="${done[i] ? "done" : ""}"><span class="box" aria-hidden="true">${done[i] ? "✓" : ""}</span><span>${text}</span></li>`).join("") + (n === goals.length ? `<li class="done"><span class="box" aria-hidden="true">★</span><span>All three. That's the whole idea behind several prototypes and a shaped distance.</span></li>` : "");
+      changed();
+    }
+    function drawWeibull(I, d, col) {
+      wsvg.replaceChildren();
+      const xmax = Math.max(I.thr * 1.6, Math.min(d * 1.1, I.thr * 3)), bins = 16, hist = Array(bins).fill(0);
+      I.own.forEach(v => { const b = Math.min(bins - 1, Math.floor(v / xmax * bins)); hist[b]++; });
+      const hm = Math.max(...hist);
+      hist.forEach((h, b) => el("rect", { x: 10 + b * (250 / bins), y: 88 - h / hm * 64, width: 250 / bins - 1.5, height: h / hm * 64, fill: col, opacity: 0.55 }, wsvg));
+      const tail = []; for (let i = 0; i <= 40; i++) { const x = I.thr * 0.6 + (xmax - I.thr * 0.6) * i / 40; const y = 88 - 64 * Math.exp(-Math.pow((x - I.thr * 0.55) / (I.thr * 0.35), 1.6)) * 0.6; tail.push(`${10 + x / xmax * 250},${y}`); }
+      el("polyline", { points: tail.join(" "), fill: "none", stroke: "var(--ink-2)", "stroke-width": 1.4 }, wsvg);
+      const tx = 10 + I.thr / xmax * 250;
+      el("line", { x1: tx, y1: 16, x2: tx, y2: 92, stroke: "var(--ink)", "stroke-dasharray": "3 3" }, wsvg);
+      txt(wsvg, tx + 3, 22, "threshold", "ts");
+      const fx = 10 + Math.min(d, xmax) / xmax * 250;
+      el("path", { d: `M${fx},96 l-5,9 h10 z`, fill: "var(--red)" }, wsvg);
+      txt(wsvg, 10, 10, "the family's own distances, tail fitted", "ts");
+    }
+    let dragging = false;
+    function toSvg(e) { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+    function startDrag(e) { dragging = true; e.preventDefault(); svg.setPointerCapture?.(e.pointerId); }
+    svg.addEventListener("pointermove", e => { if (!dragging) return; const p = toSvg(e); file.x = Math.max(20, Math.min(740, p.x)); file.y = Math.max(20, Math.min(380, p.y)); draw(); });
+    svg.addEventListener("pointerup", () => { dragging = false; });
+    svg.addEventListener("pointerleave", () => { dragging = false; });
+    function place() { [file.x, file.y] = MAP.POS[state.sample]; draw(); }
+    onSample.push(place);
+    place();
+  })();
+
+  /* ---------- 10: grouping and few-shot ---------- */
+  (function () {
+    const svg = document.getElementById("s10"), cards = document.getElementById("s10cards"), read = document.getElementById("s10read");
+    const kSlider = document.getElementById("s10k"), kval = document.getElementById("s10kval"), nextBtn = document.getElementById("s10next");
+    let pts = [], grouped = false, confirmed = -1, arrivals = 0, timer = 0, extra = null;
+    const groups = [{ c: [130, 120], s: 22, n: 18, name: "group 1" }, { c: [300, 220], s: 26, n: 14, name: "group 2" }];
+    function reset() {
+      const r = rng(23);
+      pts = [];
+      groups.forEach((g, gi) => { for (let i = 0; i < g.n; i++) pts.push({ x: g.c[0] + gauss(r) * g.s, y: g.c[1] + gauss(r) * g.s, g: gi }); });
+      for (let i = 0; i < 9; i++) pts.push({ x: 40 + r() * 390, y: 40 + r() * 260, g: -1 });
+      for (let i = pts.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [pts[i], pts[j]] = [pts[j], pts[i]]; }
+      grouped = false; confirmed = -1; arrivals = 0; extra = null;
+      shared.fam = { confirmed: false, k: +kSlider.value }; changed();
+      kSlider.disabled = true; nextBtn.disabled = true;
+      cards.innerHTML = `<div class="card">Rejected files will be grouped here.</div>`;
+      read.textContent = "";
+      clearTimeout(timer);
+      const arrive = () => { arrivals = Math.min(pts.length, arrivals + 1); draw(); if (arrivals < pts.length) timer = setTimeout(arrive, reduced ? 0 : 110); };
+      arrive();
+    }
+    function members(gi) { return pts.filter(p => p.g === gi); }
+    function draw() {
+      svg.replaceChildren();
+      el("rect", { x: 10, y: 10, width: 450, height: 310, fill: "none", stroke: "var(--rule)", "stroke-dasharray": "4 4" }, svg);
+      txt(svg, 20, 30, "files set aside as unknown", "ts");
+      const cols = ["var(--plum)", "var(--gold)"];
+      pts.slice(0, arrivals).forEach(p => el("circle", { cx: p.x, cy: p.y, r: 5, fill: grouped ? (p.g >= 0 ? cols[p.g] : "var(--ink-3)") : "var(--red)", opacity: grouped && p.g < 0 ? 0.5 : 0.85 }, svg));
+      if (grouped) {
+        groups.forEach((g, gi) => {
+          const m = members(gi);
+          const med = m.reduce((b, p) => { const s = m.reduce((a, q) => a + Math.hypot(p.x - q.x, p.y - q.y), 0); return !b || s < b.s ? { p, s } : b; }, null).p;
+          el("circle", { cx: med.x, cy: med.y, r: 11, fill: "none", stroke: cols[gi], "stroke-width": 2 }, svg);
+          txt(svg, med.x + 14, med.y - 10, g.name + " · medoid", "ts", { style: `fill:${cols[gi]}` });
+        });
+      }
+      if (confirmed >= 0) {
+        const k = +kSlider.value, m = members(confirmed), sup = m.slice(0, Math.min(k, m.length));
+        const px = sup.reduce((a, p) => a + p.x, 0) / sup.length, py = sup.reduce((a, p) => a + p.y, 0) / sup.length;
+        const rad = 30 + 26 / Math.sqrt(sup.length);
+        el("circle", { cx: px, cy: py, r: rad, fill: tint("var(--accent)", 8), stroke: "var(--accent)", "stroke-dasharray": "4 4" }, svg);
+        sup.forEach(p => el("circle", { cx: p.x, cy: p.y, r: 7, fill: "none", stroke: "var(--accent)" }, svg));
+        el("path", { d: `M${px},${py - 9} L${px + 9},${py} L${px},${py + 9} L${px - 9},${py} Z`, fill: "var(--paper)", stroke: "var(--accent)", "stroke-width": 2.4 }, svg);
+        txt(svg, px + 12, py + rad + 14, `new family · prototype from ${sup.length} example${sup.length > 1 ? "s" : ""}`, "ts", { style: "fill:var(--accent)", "text-anchor": "middle" });
+        if (extra) {
+          const inside = Math.hypot(extra.x - px, extra.y - py) <= rad;
+          el("path", { d: `M${extra.x - 10},${extra.y - 13} h14 l6,6 v20 h-20 z`, fill: "var(--paper)", stroke: inside ? "var(--ink)" : "var(--red)", "stroke-width": 1.8 }, svg);
+          read.innerHTML = inside ? `The next file of this family lands inside the new prototype's boundary and is <b>named</b>. No training ran.` : `With so few examples the boundary is still rough; this file is still <b>outside</b>. Use more examples.`;
+        }
+      }
+    }
+    document.getElementById("s10group").addEventListener("click", () => {
+      arrivals = pts.length; grouped = true; draw();
+      cards.innerHTML = "";
+      groups.forEach((g, gi) => {
+        const d = document.createElement("div"); d.className = "card";
+        d.innerHTML = `<span><b>${g.name}</b> · ${members(gi).length} files</span>`;
+        const b = document.createElement("button"); b.className = "btn go"; b.type = "button"; b.textContent = "confirm as a new family";
+        b.addEventListener("click", () => { confirmed = gi; shared.fam = { confirmed: true, k: +kSlider.value }; kSlider.disabled = false; nextBtn.disabled = false; extra = null; [...cards.querySelectorAll("button")].forEach(x => x.disabled = x !== b); b.textContent = "confirmed"; read.textContent = "Move the slider: the prototype is the average of the examples used."; draw(); changed(); });
+        d.appendChild(b); cards.appendChild(d);
+      });
+      const noise = pts.filter(p => p.g < 0).length;
+      const n = document.createElement("div"); n.className = "card"; n.innerHTML = `<span>${noise} files in no group (left for later)</span>`; cards.appendChild(n);
+    });
+    kSlider.addEventListener("input", () => { kval.textContent = kSlider.value; draw(); shared.fam.k = +kSlider.value; if (shared.fam.confirmed) changed(); });
+    nextBtn.addEventListener("click", () => { const g = groups[confirmed], r = rng(Date.now() % 9999); extra = { x: g.c[0] + gauss(r) * g.s * 0.8, y: g.c[1] + gauss(r) * g.s * 0.8 }; draw(); });
+    document.getElementById("s10reset").addEventListener("click", reset);
+    let started = false;
+    whenVisible(svg, () => { if (!started) { started = true; reset(); } });
+    draw();
+  })();
+
+  /* ---------- 11: open the box ---------- */
+  (function () {
+    const svg = document.getElementById("s11"), slider = document.getElementById("s11t"), read = document.getElementById("s11read");
+    const NAMES = ["inbox", "regions", "measured", "bytes", "encoders", "128 numbers", "the map", "answer"];
+    const TITLES = ["the file goes in", "opened up along its own structure", "pipeline 1 measures it", "pipeline 2 reads its bytes", "two encoders, attention inside", "128 numbers: a fingerprint", "placed on the map of families", "the answer"];
+    const SX = i => 70 + i * 88.6;
+    const defs = el("defs", {}, svg);
+    const mk = el("marker", { id: "ar11", viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M2 1L8 5L2 9", fill: "none", stroke: "context-stroke", "stroke-width": 1.5 }, mk);
+    txt(svg, 16, 14, "the detector", "ts");
+    el("rect", { x: 16, y: 24, width: 728, height: 132, rx: 8, fill: "none", stroke: "var(--ink-2)", "stroke-width": 1.4 }, svg);
+    el("line", { x1: SX(0), y1: 76, x2: SX(7), y2: 76, stroke: "var(--rule)", "stroke-width": 2 }, svg);
+    const ICON = [
+      g => { el("rect", { x: 9, y: 10, width: 24, height: 16, fill: "none", stroke: "var(--ink-2)" }, g); el("path", { d: "M9,10 L21,20 L33,10", fill: "none", stroke: "var(--ink-2)" }, g); },
+      g => { ["header", "text", "rdata", "rsrc"].forEach((t, k) => el("rect", { x: 13, y: 5 + k * 7, width: 16, height: 6, fill: tint(tc(t), 45), stroke: tc(t), "stroke-width": 0.6 }, g)); },
+      g => { [10, 18, 7, 22, 14, 19].forEach((h, k) => el("rect", { x: 8 + k * 4.5, y: 30 - h, width: 3.4, height: h, fill: "var(--blue)" }, g)); },
+      g => { for (let k = 0; k < 12; k++) el("rect", { x: 8 + (k % 4) * 6.5, y: 7 + Math.floor(k / 4) * 8, width: 5.5, height: 6.5, fill: tint("var(--green)", 30 + (k * 17) % 50), stroke: "var(--green)", "stroke-width": 0.5 }, g); },
+      g => { [[10, 26], [21, 9], [32, 26]].forEach((p, k, a) => { a.forEach((q, j) => { if (j > k) el("line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], stroke: "var(--blue)" }, g); }); el("circle", { cx: p[0], cy: p[1], r: 3.5, fill: "var(--paper)", stroke: "var(--blue)" }, g); }); },
+      g => { for (let k = 0; k < 8; k++) el("rect", { x: 5 + k * 4, y: 13, width: 3.4, height: 10, fill: cellCol(Math.sin(k * 1.9) * 1.6) }, g); },
+      g => { el("ellipse", { cx: 18, cy: 17, rx: 11, ry: 7, fill: "none", stroke: "var(--plum)", "stroke-dasharray": "2 2" }, g); [[15, 16], [20, 19], [19, 14]].forEach(p => el("circle", { cx: p[0], cy: p[1], r: 1.6, fill: "var(--plum)" }, g)); el("circle", { cx: 33, cy: 27, r: 2.4, fill: "var(--red)" }, g); },
+      g => { el("path", { d: "M7,10 H28 L35,18 L28,26 H7 Z", fill: tint("var(--accent)", 15), stroke: "var(--accent)" }, g); el("circle", { cx: 12, cy: 18, r: 2, fill: "var(--accent)" }, g); },
+    ];
+    const icons = [], labs = [];
+    let clock = 0, raf = 0, last = 0, shown = -1, player = null;
+    NAMES.forEach((name, i) => {
+      const g = el("g", { transform: `translate(${SX(i) - 21},90)`, tabindex: 0, role: "button", "aria-label": "Go to: " + name }, svg);
+      g.style.cursor = "pointer";
+      icons.push(el("rect", { x: 0, y: 0, width: 42, height: 36, rx: 4, fill: "var(--paper)", stroke: "var(--rule)" }, g));
+      ICON[i](g);
+      labs.push(txt(svg, SX(i), 144, name, "ts", { "text-anchor": "middle" }));
+      const go = () => { player.pause(); clock = i; setT(i); };
+      g.addEventListener("click", go);
+      g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    });
+    // the lid: from outside the detector is a black box
+    const lid = el("g", {}, svg);
+    el("rect", { x: 16, y: 24, width: 728, height: 132, rx: 8, fill: "var(--ink)" }, lid);
+    txt(lid, 380, 92, "?", "serif", { "text-anchor": "middle", style: "fill:var(--paper);font-size:36px" });
+    txt(lid, 380, 122, "a black box: file in, answer out", "ts", { "text-anchor": "middle", style: "fill:var(--paper)" });
+    const file = el("g", {}, svg);
+    el("path", { d: "M0,0 H18 L25,7 V33 H0 Z", fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.5 }, file);
+    el("path", { d: "M18,0 V7 H25", fill: "none", stroke: "var(--ink)", "stroke-width": 1.5 }, file);
+    txt(file, 12.5, 23, "exe", "ts", { "text-anchor": "middle", style: "fill:var(--red)" });
+    el("line", { x1: 16, y1: 176, x2: 744, y2: 176, stroke: "var(--rule)" }, svg);
+    const title = txt(svg, 20, 200, "", "tb");
+    const panel = el("g", { class: "panel" }, svg);
+    const fileIcon = (g, x, y, s) => { const f = el("g", { transform: `translate(${x},${y}) scale(${s})` }, g); el("path", { d: "M0,0 H18 L25,7 V33 H0 Z", fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.4 / s }, f); el("path", { d: "M18,0 V7 H25", fill: "none", stroke: "var(--ink)", "stroke-width": 1.4 / s }, f); txt(f, 12.5, 23, "exe", "ts", { "text-anchor": "middle", style: "fill:var(--red);font-size:7px" }); return f; };
+
+    const P = [
+      (g, s) => {
+        const regs = FILES[s], kb = Math.round(regs.reduce((a, r) => a + r.bytes, 0) / 1024);
+        fileIcon(g, 40, 222, 2.6);
+        txt(g, 140, 240, "invoice.pdf.exe", "tb");
+        txt(g, 140, 262, `${kb.toLocaleString()} KB · a Windows program dressed up as a PDF`, "ts");
+        const line = el("text", { x: 140, y: 300, class: "t" }, g);
+        [["4D 5A", true], [" 90 00 03 00 00 00 04 00 00 00 FF FF 00 00 …", false]].forEach(([s2, hl]) => { const sp = el("tspan", hl ? { style: "fill:var(--accent);font-weight:500" } : {}, line); sp.textContent = s2; });
+        txt(g, 140, 322, "its first bytes: 4D 5A is “MZ”, how every Windows program starts", "ts");
+        txt(g, 140, 354, "everything from here on works on these bytes; the file is never run", "ts");
+      },
+      (g, s) => {
+        const regs = FILES[s], W = 700, ws = regs.map(r => Math.max(48, r.size * W)), sc = W / ws.reduce((a, b) => a + b, 0);
+        let x = 30;
+        regs.forEach((r, i) => {
+          const w = ws[i] * sc;
+          el("rect", { x, y: 220, width: w - 3, height: 56, fill: tint(tc(r.type), 28), stroke: tc(r.type) }, g);
+          txt(g, x + 6, 242, r.name, "ts", { style: `fill:${tc(r.type)}` });
+          txt(g, x + 6, 262, Math.round(r.size * 100) + "%", "ts");
+          el("rect", { x, y: 284, width: w - 3, height: 24, fill: heat(r.H) }, g);
+          txt(g, x + (w - 3) / 2, 300, r.H.toFixed(1), "ts", { "text-anchor": "middle", style: "fill:#fff" });
+          x += w;
+        });
+        txt(g, 30, 334, "top: the file's own regions and their share of it · bottom: entropy, from 0 (dull) to 8 (looks random)", "ts");
+        if (s === "packed") txt(g, 30, 356, "UPX1 is close to 8: its real contents are compressed, which is what a packer does", "ts", { style: "fill:var(--red)" });
+      },
+      g => {
+        const r = rng(21), X0 = 30, N = 120, bw = 700 / N;
+        el("line", { x1: X0, x2: X0 + 700, y1: 296, y2: 296, stroke: "var(--rule)" }, g);
+        for (let i = 0; i < N; i++) { if (r() < 0.25) continue; const v = Math.max(-66, Math.min(66, gauss(r) * 28)); el("rect", { x: X0 + i * bw + 0.5, y: v >= 0 ? 296 - v : 296, width: bw - 1, height: Math.max(1, Math.abs(v)), fill: "var(--blue)" }, g); }
+        [["byte statistics", 0, 0.28], ["strings", 0.28, 0.4], ["header", 0.4, 0.52], ["sections", 0.52, 0.66], ["imports and exports", 0.66, 0.92], ["other", 0.92, 1]].forEach(([n, a, b]) => { el("line", { x1: X0 + a * 700 + 2, x2: X0 + b * 700 - 2, y1: 378, y2: 378, stroke: "var(--ink-3)" }, g); txt(g, X0 + (a + b) / 2 * 700, 396, n, "ts", { "text-anchor": "middle" }); });
+      },
+      (g, s) => {
+        const regs = FILES[s];
+        for (let c = 0; c < 16; c++) {
+          const r = regs[c], nw = r ? windowsFor(r) : 0, x = 30 + c * 44;
+          for (let w = 0; w < 4; w++) {
+            const y = 214 + w * 38, ok = r && w < nw;
+            el("rect", { x, y, width: 40, height: 32, rx: 2, fill: ok ? tint(tc(r.type), 25) : "none", stroke: ok ? tc(r.type) : "var(--t-pad)", "stroke-dasharray": ok ? "" : "3 3" }, g);
+            if (ok) { const rr = rng(c * 13 + w); for (let b = 0; b < 5; b++) el("rect", { x: x + 4 + b * 7, y: y + 9, width: 5, height: 14, fill: heat(Math.max(0, Math.min(8, r.H + gauss(rr) * 0.8))) }, g); }
+          }
+          txt(g, x + 20, 384, r ? r.name.slice(0, 6) : "pad", "ts", { "text-anchor": "middle", style: `font-size:9.5px;${r ? `fill:${tc(r.type)}` : ""}` });
+        }
+        txt(g, 30, 406, "16 region slots × 4 windows of 512 bytes · dashed: empty", "ts");
+      },
+      g => {
+        const lane = (y, col, label, left) => {
+          txt(g, 30, y, label, "ts", { style: `fill:${col}` });
+          left(y);
+          el("line", { x1: 396, y1: y + 34, x2: 418, y2: y + 34, stroke: col, "stroke-width": 2, "marker-end": "url(#ar11)" }, g);
+          const r = rng(y);
+          for (let k = 0; k < 64; k++) el("rect", { x: 424 + k * 4.6, y: y + 27, width: 4, height: 14, fill: r() < 0.5 ? col : "var(--accent)", opacity: (0.25 + r() * 0.75).toFixed(2) }, g);
+          txt(g, 424, y + 60, "128 numbers (64 shown)", "ts");
+        };
+        lane(220, "var(--blue)", "pipeline 1: one token per feature, then 6 layers of attention", y => {
+          for (let i = 0; i < 6; i++) el("rect", { x: 30 + i * 26, y: y + 18, width: 22, height: 34, rx: 2, fill: i ? "var(--paper-2)" : tint("var(--accent)", 20), stroke: i ? "var(--rule)" : "var(--accent)" }, g);
+          for (let a = 0; a < 4; a++) { const xa = 41 + a * 26; el("path", { d: `M${xa},${y + 18} Q${xa + 26},${y + 4} ${xa + 52},${y + 18}`, fill: "none", stroke: "var(--blue)", opacity: 0.6 }, g); }
+          for (let l = 0; l < 6; l++) el("rect", { x: 200 + l * 30, y: y + 12, width: 20, height: 44, rx: 3, fill: "var(--paper-2)", stroke: "var(--blue)", "stroke-width": 0.8 }, g);
+        });
+        lane(314, "var(--green)", "pipeline 2: bytes in windows, then regions looking at each other", y => {
+          for (let w = 0; w < 4; w++) el("rect", { x: 30 + w * 30, y: y + 18, width: 24, height: 30, rx: 2, fill: tint("var(--green)", 18 + w * 8), stroke: "var(--green)", "stroke-width": 0.8 }, g);
+          el("line", { x1: 152, y1: y + 33, x2: 210, y2: y + 33, stroke: "var(--green)", "marker-end": "url(#ar11)" }, g);
+          const cs = [[232, y + 20], [272, y + 46], [312, y + 18], [350, y + 44], [380, y + 22]];
+          cs.forEach((p, i) => cs.forEach((q, j) => { if (j > i) el("line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], stroke: "var(--green)", opacity: 0.35 }, g); }));
+          cs.forEach(p => el("circle", { cx: p[0], cy: p[1], r: 8, fill: tint("var(--green)", 30), stroke: "var(--green)" }, g));
+        });
+      },
+      (g, s) => {
+        const pr = prints(s);
+        [["this file · pipeline 1", pr.p1, 222], ["this file · pipeline 2", pr.p2, 254], ["a file of the same family", pr.same, 300], ["a file of another family", pr.other, 332]].forEach(([lab, v, y]) => {
+          txt(g, 30, y + 14, lab, "ts");
+          v.forEach((x, i) => el("rect", { x: 230 + i * 3.9, y, width: 3.5, height: 20, fill: cellCol(x) }, g));
+        });
+        txt(g, 230, 380, s === "new" ? "a new family has its own pattern, close to nothing the system knows" : "files of one family come out alike", "ts");
+      },
+      () => {
+        const sc = 0.5, ox = 30, oy = 204, cur = MAP.current(), v = cur.v, p = cur.p;
+        el("rect", { x: ox, y: oy, width: 380, height: 200, fill: "none", stroke: "var(--rule)" }, panel);
+        MAP.fams.forEach(f => {
+          MAP.shape(panel, f, MAP.info(f, cur.pm, cur.dm), cur.dm, sc, ox, oy);
+          f.pts.forEach(q => el("circle", { cx: ox + q[0] * sc, cy: oy + q[1] * sc, r: 1.8, fill: `var(${f.col})`, opacity: 0.7 }, panel));
+        });
+        el("line", { x1: ox + p[0] * sc, y1: oy + p[1] * sc, x2: ox + v.q[0] * sc, y2: oy + v.q[1] * sc, stroke: "var(--ink)", "stroke-dasharray": "2 3" }, panel);
+        fileIcon(panel, ox + p[0] * sc - 8, oy + p[1] * sc - 11, 0.65);
+        txt(panel, 440, 236, `nearest family: ${v.name}`, "t");
+        txt(panel, 440, 260, `distance: ${v.d.toFixed(2)}`, "t");
+        txt(panel, 440, 284, `its threshold: ${v.thr.toFixed(2)}`, "t");
+        txt(panel, 440, 316, v.known ? "inside the boundary" : "outside every boundary", "tb", { style: `fill:${v.known ? "var(--accent)" : "var(--red)"}` });
+        txt(panel, 440, 346, "drag the file in section 10", "ts");
+        txt(panel, 440, 362, "and it moves here too", "ts");
+      },
+      () => {
+        const v = MAP.current().v;
+        if (v.known) {
+          el("rect", { x: 30, y: 222, width: 300, height: 88, rx: 8, fill: tint("var(--accent)", 10), stroke: "var(--accent)", "stroke-width": 2 }, panel);
+          txt(panel, 52, 262, v.name, "serif", { style: "font-size:30px" });
+          txt(panel, 52, 292, "a family the system already knows", "ts");
+          txt(panel, 364, 252, `${v.d.toFixed(2)} from its nearest prototype,`, "t");
+          txt(panel, 364, 274, `inside the family's threshold of ${v.thr.toFixed(2)}.`, "t");
+          txt(panel, 364, 306, "Nobody had to look at the file.", "ts");
+          return;
+        }
+        const steps = [["unknown", "set aside", "var(--red)"], ["grouped", "by HDBSCAN", "var(--plum)"], ["confirmed", "an analyst checks", "var(--ink-2)"], ["new family", "from 1 to 20 files", "var(--accent)"]];
+        steps.forEach(([a, b, col], i) => {
+          const x = 30 + i * 180;
+          el("rect", { x, y: 228, width: 156, height: 70, rx: 6, fill: tint(col, 10), stroke: col, "stroke-width": 1.6 }, panel);
+          txt(panel, x + 14, 256, a, "tb", { style: `fill:${col}` });
+          txt(panel, x + 14, 278, b, "ts");
+          if (i < 3) el("line", { x1: x + 160, y1: 263, x2: x + 176, y2: 263, stroke: "var(--ink-3)", "stroke-width": 1.5, "marker-end": "url(#ar11)" }, panel);
+        });
+        txt(panel, 30, 334, shared.fam.confirmed ? `You confirmed a group in section 11: it's now a family, learned from ${shared.fam.k} example${shared.fam.k > 1 ? "s" : ""}.` : "Nothing is retrained. The next file of that family gets its name.", "ts");
+      },
+    ];
+    function explain(i) {
+      const v = MAP.current().v;
+      return [
+        "The file goes in. To the person at the desk the detector is a black box. Drag the slider, or press play, and the lid comes off.",
+        "First the file is opened up along its own structure: a header, sections, maybe an overlay. The colour strip is entropy, and packed parts glow.",
+        "Pipeline 1 measures the file: 2,568 numbers about its header, sections, imports, strings and bytes, cleaned down to 1,862.",
+        "Pipeline 2 reads the bytes themselves: up to 16 regions, and from each one 4 windows of 512 bytes.",
+        "Each pipeline has a transformer encoder. The pieces of the file look at each other (that's attention) and get squeezed into 128 numbers.",
+        "Those 128 numbers are the file's fingerprint. Files of one family come out alike, without anyone telling the encoders what a family is.",
+        v.known ? `On the map of families the system knows, the file lands inside <b>${v.name}</b>'s boundary.` : `On the map, the file is outside every family's boundary. The nearest is ${v.name}, and it's still too far.`,
+        v.known ? `The answer: <b>${v.name}</b>.` : "The answer: <b>unknown</b>. The file is set aside, grouped with files like it, and once an analyst confirms the group it becomes a new family.",
+      ][i];
+    }
+    const ease = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    function paint() {
+      panel.style.opacity = 0;
+      panel.replaceChildren();
+      title.textContent = `${shown + 1} of 8 · ${TITLES[shown]}`;
+      P[shown](panel, state.sample);
+      read.innerHTML = explain(shown);
+      requestAnimationFrame(() => requestAnimationFrame(() => { panel.style.opacity = 1; }));
+    }
+    function setT(t) {
+      slider.value = t;
+      const o = Math.max(0, Math.min(1, 1 - t * 3));
+      lid.setAttribute("opacity", o.toFixed(2));
+      lid.setAttribute("transform", `translate(0,${(-(1 - o) * 16).toFixed(1)})`);
+      lid.style.pointerEvents = o > 0.5 ? "auto" : "none";
+      file.setAttribute("transform", `translate(${(SX(0) + t * (SX(7) - SX(0)) / 7 - 12.5).toFixed(1)},42)`);
+      const i = Math.round(t);
+      icons.forEach((b, k) => { b.setAttribute("stroke", k === i ? "var(--accent)" : k < i ? "var(--ink-3)" : "var(--rule)"); b.setAttribute("stroke-width", k === i ? 2 : 1); });
+      labs.forEach((l, k) => l.setAttribute("style", k === i ? "fill:var(--ink)" : ""));
+      if (i !== shown) { shown = i; paint(); }
+    }
+    function frame(now) {
+      const dt = Math.min(80, now - last); last = now;
+      clock = Math.min(7, clock + dt / (player.fast ? 1600 : 4200));
+      const whole = Math.floor(clock), f = clock - whole;
+      setT(Math.min(7, whole + ease(Math.max(0, (f - 0.45) / 0.55))));
+      if (clock >= 7) { raf = 0; player.pause(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    player = Player("p11", {
+      watch: svg,
+      start() { if (raf) return; if (clock >= 7) clock = 0; last = performance.now(); raf = requestAnimationFrame(frame); },
+      stop() { cancelAnimationFrame(raf); raf = 0; },
+      back() { clock = Math.max(0, Math.ceil(+slider.value) - 1); setT(clock); },
+      next() { clock = Math.min(7, Math.floor(+slider.value) + 1); setT(clock); },
+      nextText: "next step",
+    });
+    slider.addEventListener("input", () => { player.pause(); clock = +slider.value; setT(clock); });
+    onSample.push(() => { shown = -1; setT(+slider.value); });
+    onState.push(() => { if (shown >= 6) { shown = -1; setT(+slider.value); } });
+    setT(reduced ? 7 : 0);
+  })();
+
+  /* ---------- your file right now: a small card that follows the reader ---------- */
+  (function () {
+    const card = document.getElementById("now"), svg = document.getElementById("nowsvg"), text = document.getElementById("nowtext"), stepEl = document.getElementById("nowstep");
+    const hide = document.getElementById("nowhide"), show = document.getElementById("nowshow");
+    const secs = [...document.querySelectorAll("section[data-rail]")];
+    let cur = 0;
+    const strip = (g, x, y, v, n, w, h) => v.slice(0, n).forEach((val, i) => el("rect", { x: x + i * w, y, width: w - 0.6, height: h, fill: cellCol(val) }, g));
+    const icon = (g, x, y, s) => { const f = el("g", { transform: `translate(${x},${y}) scale(${s})` }, g); el("path", { d: "M0,0 H18 L25,7 V33 H0 Z", fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.3 / s }, f); el("path", { d: "M18,0 V7 H25", fill: "none", stroke: "var(--ink)", "stroke-width": 1.3 / s }, f); txt(f, 12.5, 23, "exe", "ts", { "text-anchor": "middle", style: "fill:var(--red);font-size:8px" }); };
+    const tagShape = (g, label, col) => { el("path", { d: "M14,34 H146 L164,55 L146,76 H14 Z", fill: tint(col, 12), stroke: col, "stroke-width": 1.6 }, g); el("circle", { cx: 28, cy: 55, r: 4, fill: col }, g); txt(g, 40, 59, label, "t", { style: "fill:var(--ink)" }); };
+    const D = [
+      g => icon(g, 70, 24, 1.6),
+      g => {
+        const regs = FILES[state.sample], raw = regs.map(r => Math.max(6, r.size * 94)), sc = 94 / raw.reduce((a, b) => a + b, 0);
+        let y = 8;
+        regs.forEach((r, i) => { const h = raw[i] * sc; el("rect", { x: 62, y, width: 46, height: h - 1, fill: tint(tc(r.type), 35), stroke: tc(r.type), "stroke-width": 0.8 }, g); el("rect", { x: 112, y, width: 8, height: h - 1, fill: heat(r.H) }, g); y += h; });
+      },
+      g => { icon(g, 6, 38, 1); el("path", { d: "M34,55 C58,55 62,26 88,26 L170,26", fill: "none", stroke: "var(--blue)", "stroke-width": 2 }, g); el("path", { d: "M34,55 C58,55 62,84 88,84 L170,84", fill: "none", stroke: "var(--green)", "stroke-width": 2 }, g); },
+      g => { const r = rng(21); el("line", { x1: 10, x2: 170, y1: 58, y2: 58, stroke: "var(--rule)" }, g); for (let i = 0; i < 40; i++) { const v = Math.max(-42, Math.min(42, gauss(r) * 18)); el("rect", { x: 10 + i * 4, y: v >= 0 ? 58 - v : 58, width: 3, height: Math.max(1, Math.abs(v)), fill: "var(--blue)" }, g); } },
+      g => {
+        for (let i = 0; i < 6; i++) el("rect", { x: 8, y: 8 + i * 16, width: 28, height: 11, fill: i ? "var(--paper-2)" : tint("var(--accent)", 25), stroke: i ? "var(--rule)" : "var(--accent)", "stroke-width": 0.8 }, g);
+        for (let l = 0; l < 4; l++) el("rect", { x: 46 + l * 14, y: 6, width: 9, height: 96, rx: 2, fill: "var(--paper-2)", stroke: "var(--blue)", "stroke-width": 0.8 }, g);
+        el("line", { x1: 104, y1: 13, x2: 116, y2: 13, stroke: "var(--accent)", "stroke-width": 1.5 }, g);
+        strip(g, 118, 7, prints(state.sample).p1, 16, 3.6, 12);
+      },
+      g => {
+        const regs = FILES[state.sample];
+        for (let c = 0; c < 16; c++) { const r = regs[c], nw = r ? windowsFor(r) : 0; for (let w = 0; w < 4; w++) { const ok = r && w < nw; el("rect", { x: 10 + c * 10, y: 16 + w * 20, width: 8.5, height: 17, fill: ok ? tint(tc(r.type), 45) : "none", stroke: ok ? tc(r.type) : "var(--t-pad)", "stroke-width": 0.7, "stroke-dasharray": ok ? "" : "2 2" }, g); } }
+      },
+      g => {
+        for (let w = 0; w < 4; w++) { el("rect", { x: 8, y: 10 + w * 24, width: 26, height: 16, fill: tint("var(--green)", 25 + w * 10), stroke: "var(--green)", "stroke-width": 0.8 }, g); el("line", { x1: 34, y1: 18 + w * 24, x2: 64, y2: 55, stroke: "var(--green)", opacity: 0.5 }, g); }
+        el("circle", { cx: 74, cy: 55, r: 10, fill: tint("var(--green)", 40), stroke: "var(--green)" }, g);
+        el("line", { x1: 84, y1: 55, x2: 112, y2: 55, stroke: "var(--green)", "stroke-width": 1.5 }, g);
+        strip(g, 116, 49, prints(state.sample).p2, 16, 3.6, 12);
+      },
+      g => { const v = prints(state.sample).p2; for (let row = 0; row < 4; row++) strip(g, 10, 12 + row * 23, v.slice(row * 32), 32, 5, 18); },
+      g => {
+        const r = rng(5);
+        [[40, 30], [120, 26], [60, 82], [140, 80]].forEach(c => { for (let i = 0; i < 10; i++) el("circle", { cx: c[0] + gauss(r) * 9, cy: c[1] + gauss(r) * 8, r: 2.2, fill: "var(--ink-3)" }, g); });
+        const p = { known: [62, 80], new: [95, 55], packed: [138, 78] }[state.sample];
+        el("circle", { cx: p[0], cy: p[1], r: 4.5, fill: "var(--red)", stroke: "var(--paper)", "stroke-width": 1.5 }, g);
+      },
+      g => {
+        const sx = 180 / 760, sy = 110 / 400, cur = MAP.current(), p = cur.p;
+        MAP.fams.forEach(f => f.pts.forEach(q => el("circle", { cx: q[0] * sx, cy: q[1] * sy, r: 1.3, fill: `var(${f.col})`, opacity: 0.7 }, g)));
+        el("line", { x1: p[0] * sx, y1: p[1] * sy, x2: cur.v.q[0] * sx, y2: cur.v.q[1] * sy, stroke: "var(--ink)", "stroke-dasharray": "2 2" }, g);
+        el("circle", { cx: p[0] * sx, cy: p[1] * sy, r: 4.5, fill: cur.v.known ? "var(--ink)" : "var(--red)", stroke: "var(--paper)", "stroke-width": 1.5 }, g);
+      },
+      g => {
+        const v = MAP.current().v;
+        if (v.known) { tagShape(g, v.name, "var(--accent)"); return; }
+        el("rect", { x: 8, y: 8, width: 164, height: 94, fill: "none", stroke: "var(--rule)", "stroke-dasharray": "3 3" }, g);
+        const r = rng(23);
+        for (let i = 0; i < 18; i++) el("circle", { cx: 20 + r() * 140, cy: 18 + r() * 74, r: 2.6, fill: shared.fam.confirmed ? "var(--plum)" : "var(--red)", opacity: 0.8 }, g);
+        if (shared.fam.confirmed) el("path", { d: "M90,44 L101,55 L90,66 L79,55 Z", fill: "var(--paper)", stroke: "var(--accent)", "stroke-width": 2 }, g);
+      },
+      g => { const v = MAP.current().v, ok = v.known || shared.fam.confirmed; tagShape(g, v.known ? v.name : shared.fam.confirmed ? "new family" : "unknown", ok ? "var(--accent)" : "var(--red)"); },
+    ];
+    function words(i) {
+      const regs = FILES[state.sample], kb = Math.round(regs.reduce((a, r) => a + r.bytes, 0) / 1024), v = MAP.current().v, nf = shared.fam;
+      return [
+        `invoice.pdf.exe, ${kb.toLocaleString()} KB of bytes`,
+        `${regs.length} regions, from the header to ${regs[regs.length - 1].name}`,
+        "about to be read two ways",
+        "pipeline 1: 1,862 numbers",
+        "pipeline 1: down to 128 numbers",
+        "pipeline 2: 16 × 4 windows of 512 bytes",
+        "pipeline 2: down to 128 numbers",
+        "a fingerprint of 128 numbers",
+        "a point on a map of files",
+        v.known ? `named: ${v.name}` : "unknown: set aside",
+        v.known ? `named: ${v.name}` : nf.confirmed ? `a new family, from ${nf.k} example${nf.k > 1 ? "s" : ""}` : "in the unknown pile, waiting",
+        v.known ? `named: ${v.name}` : nf.confirmed ? "a new family, learned from a few files" : "unknown, waiting for an analyst",
+      ][i];
+    }
+    function label() { text.textContent = words(cur); stepEl.textContent = `step ${cur + 1} of ${secs.length} · ${secs[cur].dataset.rail}`; }
+    function build() { svg.replaceChildren(); D.forEach((f, i) => { const g = el("g", { class: "form" + (i === cur ? " on" : "") }, svg); f(g); }); label(); }
+    function late() { [9, 10, 11].forEach(i => { const g = svg.children[i]; g.replaceChildren(); D[i](g); }); label(); }
+    function update() {
+      let k = 0;
+      secs.forEach((s, i) => { if (s.getBoundingClientRect().top < innerHeight * 0.5) k = i; });
+      if (k === cur) return;
+      cur = k;
+      [...svg.children].forEach((g, i) => g.classList.toggle("on", i === k));
+      label();
+    }
+    hide.addEventListener("click", () => { card.classList.add("closed"); store.set("thesis-card", "closed"); });
+    show.addEventListener("click", () => { card.classList.remove("closed"); store.set("thesis-card", "open"); });
+    if (store.get("thesis-card") === "closed") card.classList.add("closed");
+    onSample.push(build);
+    onState.push(late);
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    build();
+    update();
+  })();
+})();
+</script>
+</body>
+</html>
