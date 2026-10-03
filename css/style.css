@@ -108,27 +108,18 @@ footer .sep { margin: 0 6px; }
   .contact { grid-template-columns: 74px 1fr; }
 }
 
-/* intro, with a hex dump (or a photo) at the side */
-.intro { display: grid; grid-template-columns: 1fr auto; gap: 34px; align-items: start; margin-top: 26px; }
-.intro .lede { grid-column: 1; grid-row: 1; }
+/* intro, with my photo at the top left (images/me.jpg; hidden until the file exists) */
+.intro { display: grid; grid-template-columns: 150px 1fr; gap: 30px; align-items: start; margin-top: 26px; }
+.intro.no-photo { grid-template-columns: 1fr; }
 .intro .lede p:first-child { margin-top: 0; }
-.hexdump { grid-column: 2; grid-row: 1; margin: 8px 0 0; }
-.hexdump pre { margin: 0; font-family: var(--mono); font-size: 0.6rem; line-height: 1.75; color: var(--ink-3); }
-.hexdump .mz { color: var(--link); }
-.hexdump figcaption { font-family: var(--mono); font-size: 0.56rem; color: var(--ink-3); margin-top: 8px; font-style: italic; }
-.portrait { grid-column: 2; grid-row: 1; margin: 6px 0 0; }
-.portrait img { width: 180px; height: 180px; object-fit: cover; border-radius: 3px; filter: grayscale(0.15) contrast(1.05); }
-.portrait figcaption { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-3); margin-top: 6px; letter-spacing: 0.08em; text-align: center; }
+.portrait { margin: 4px 0 0; }
+.portrait img { width: 150px; height: 150px; object-fit: cover; border-radius: 3px; }
 h3 { font-size: 1.1rem; font-weight: 500; margin: 18px 0 6px; }
 h3:first-of-type { margin-top: 0; }
 h3 .when { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-3); font-weight: 400; margin-left: 8px; letter-spacing: 0.02em; }
 #research .go, .lede .go { font-family: var(--mono); font-size: 0.66rem; margin-left: 4px; }
 
 @media (max-width: 600px) {
-  .intro { grid-template-columns: 1fr; gap: 14px; }
-  .hexdump { display: none; }
-  .portrait { grid-column: 1; grid-row: 1; }
-  .portrait img { width: 120px; height: 120px; }
-  .portrait figcaption { text-align: left; }
-  .intro .lede { grid-row: 2; }
+  .intro { grid-template-columns: 1fr; gap: 16px; }
+  .portrait img { width: 110px; height: 110px; }
 }

@@ -14,6 +14,7 @@ whatever is on `main` is what's online.
 - `articles/`: the notes, in Markdown
 - `css/`, `js/`: styles, the light/dark toggle, note rendering
 - `cv_research.pdf`, `cv_industry.pdf`
+- `images/me.jpg`: my photo, shown at the top left of the home page once the file is there
 
 ## Notes
 

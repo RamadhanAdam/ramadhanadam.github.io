@@ -27,6 +27,11 @@
 
   <main>
     <div class="intro">
+      <!-- Photo slot: save a photo as images/me.jpg and it shows here. Until then the slot hides itself. -->
+      <figure class="portrait">
+        <img src="images/me.jpg" alt="Ramadhan Adam Zome" width="150" height="150"
+             onerror="this.closest('.intro').classList.add('no-photo'); this.parentNode.remove();" />
+      </figure>
       <div class="lede">
         <p>
           I'm a master's student in AI and Machine Learning at PAUSTI in Nairobi, and until January 2027
@@ -50,15 +55,6 @@
           <a href="mailto:ramadhanzome4@gmail.com">Email</a>
         </p>
       </div>
-      <!-- The first 32 bytes of a Windows executable. To show a photo instead, replace this
-           figure with <figure class="portrait"><img src="images/me.jpg" alt="Ramadhan Adam Zome"></figure>. -->
-      <figure class="hexdump" aria-hidden="true">
-<pre><span class="mz">4d 5a</span> 90 00 03 00 00 00  <span class="mz">MZ</span>......
-04 00 00 00 ff ff 00 00  ........
-b8 00 00 00 00 00 00 00  ........
-40 00 00 00 00 00 00 00  @.......</pre>
-        <figcaption>how every Windows program begins</figcaption>
-      </figure>
     </div>
 
     <section id="news">
