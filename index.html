@@ -100,12 +100,10 @@
           9.9 million binaries of SOREL-20M (208K steps, 140 A100-hours). Each known family is described by several
           prototypes, and a file far from all of them is rejected.
         </p>
-        <ul class="found reveal">
-          <li><b>0.81 AUROC</b> at spotting families it had never seen, and 0.83 on the 121 families first seen after the training period. I had set 0.70 as the target.</li>
-          <li><b>0.80 family recall</b> on 102 families, ahead of byte-statistics baselines on all ten splits.</li>
-          <li><b>A negative result, kept in:</b> a second encoder on 1,862 EMBER2024 features did not beat its own raw features.</li>
-          <li><b>The unglamorous part:</b> getting 9.9 million binaries out of S3 without crashes eating a week (peak 115K files an hour, under 0.7% retried or skipped).</li>
-        </ul>
+        <p class="reveal">
+          The unglamorous part was getting 9.9 million binaries out of S3 without crashes eating a week of the schedule.
+          I'll write the results up in the thesis and show them in the talk on 17 October.
+        </p>
         <p class="reveal">With Dr. Albert Njoroge Kahira and Dr. Mulang' Onando at PAUSTI, and Assoc. Prof. Junjun Zheng at Hiroshima University.</p>
 
         <h3 class="reveal">Federated intrusion detection for vehicles <span class="stack">(in progress)</span></h3>
