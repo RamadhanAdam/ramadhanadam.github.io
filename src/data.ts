@@ -46,9 +46,6 @@ export const rightNow = [
 export type Research = {
   tag: string;
   title: string;
-  line: string;
-  details: string[];
-  footnote?: string;
   areas: string[];
   links?: { label: string; href: string }[];
 };
@@ -57,22 +54,11 @@ export const research: Research[] = [
   {
     tag: "Thesis · in progress",
     title: "Malware detection that knows when it doesn't know",
-    line: "A detector that can say \"I haven't seen this before\", then learn the new family from a few examples.",
-    details: [
-      "A malware classifier gives every new family the name of an old one. I'm building detection that can also say \"unknown\", then learn the new family from a few examples.",
-      "The encoder reads a Windows program region by region, the way the PE format lays it out. I pretrained it without labels on the 9.9 million binaries of SOREL-20M.",
-      "The unglamorous part was getting 9.9 million binaries out of S3 without crashes eating a week of the schedule. I'll show the results in the talk on 17 October.",
-    ],
-    footnote: "With Dr. Albert Njoroge Kahira and Dr. Mulang' Onando at PAUSTI, and Assoc. Prof. Junjun Zheng at Hiroshima University.",
     areas: ["Self-supervised learning", "Open-set recognition", "Few-shot learning", "Malware analysis"],
   },
   {
     tag: "Research · in progress",
     title: "Intrusion detection for cars, learned across a fleet",
-    line: "Reads a car's network as graphs of messages, and trains across vehicles without sharing their data.",
-    details: [
-      "GraMa reads in-vehicle CAN traffic as a graph of message IDs with graph attention, follows it over time with a Mamba model, and trains across vehicles without sharing their data. The server clusters the vehicles' updates with HDBSCAN to keep poisoned ones out.",
-    ],
     areas: ["Graph neural networks", "Federated learning", "Vehicle security"],
     links: [{ label: "Code", href: "https://github.com/RamadhanAdam/grama" }],
   },

@@ -165,93 +165,44 @@ function About() {
 
 /* ================================================================== research */
 
-function ResearchCard({ r, onOpen }: { r: Research; onOpen: () => void }) {
+function ResearchCard({ r }: { r: Research }) {
   return (
-    <motion.button
-      layoutId={`r-${r.title}`}
-      type="button"
-      onClick={onOpen}
-      data-cursor="Read"
-      className="group relative flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-line bg-surface p-8 text-left transition-colors duration-500 hover:border-accent/50 sm:p-10"
-    >
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-line bg-surface p-8 transition-colors duration-500 hover:border-accent/50 sm:p-10">
       <span className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl transition duration-700 group-hover:scale-150 group-hover:bg-accent/20" />
       <span className="relative inline-flex w-fit items-center gap-2 rounded-full border border-line px-3 py-1 text-xs text-muted">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
         {r.tag}
       </span>
       <h3 className="display relative mt-8 text-3xl font-black sm:text-4xl">{r.title}</h3>
-      <p className="relative mt-5 text-lg leading-relaxed text-muted">{r.line}</p>
-      <div className="relative mt-auto flex flex-wrap gap-2 pt-10">
+      <div className="relative mt-auto flex flex-wrap items-center gap-2 pt-10">
         {r.areas.map((a) => (
           <span key={a} className="rounded-full bg-surface-2 px-3 py-1 text-sm text-muted">
             {a}
           </span>
         ))}
+        {r.links?.map((l) => (
+          <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="ml-auto inline-flex items-center gap-1.5 font-display text-sm font-bold text-accent">
+            {l.label} <Arrow />
+          </a>
+        ))}
       </div>
-    </motion.button>
-  );
-}
-
-function ResearchDetail({ r, onClose }: { r: Research; onClose: () => void }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-  return (
-    <motion.div className="fixed inset-0 z-[80] grid place-items-center p-4 sm:p-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} data-lenis-prevent>
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
-      <motion.article layoutId={`r-${r.title}`} role="dialog" aria-modal="true" aria-label={r.title} className="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] border border-line bg-surface p-8 sm:p-12">
-        <button type="button" onClick={onClose} className="absolute right-6 top-6 grid h-10 w-10 place-items-center rounded-full border border-line text-muted transition hover:text-ink" aria-label="Close">
-          ✕
-        </button>
-        <span className="text-sm text-accent">{r.tag}</span>
-        <h3 className="display mt-3 pr-12 text-3xl font-black sm:text-5xl">{r.title}</h3>
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-          <div className="mt-8 space-y-5 text-lg leading-relaxed text-muted">
-            {r.details.map((p, k) => (
-              <p key={k}>{p}</p>
-            ))}
-          </div>
-          {r.footnote && <p className="mt-8 border-t border-line pt-6 text-sm text-faint">{r.footnote}</p>}
-          {r.links && (
-            <div className="mt-8 flex gap-3">
-              {r.links.map((l) => (
-                <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-display text-sm font-bold text-accent-ink">
-                  {l.label} <Arrow />
-                </a>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </motion.article>
-    </motion.div>
+    </div>
   );
 }
 
 function ResearchSection() {
-  const [open, setOpen] = useState<Research | null>(null);
   return (
     <section id="research" className="border-t border-line">
       <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
-        <Heading
-          n="02"
-          title="Research"
-          aside={
-            <p className="max-w-xs text-muted" data-rise>
-              Two projects, both still going. Open one to read more.
-            </p>
-          }
-        />
+        <Heading n="02" title="Research" />
         <div className="grid gap-6 lg:grid-cols-2">
           {research.map((r, k) => (
             <div key={r.title} data-rise={k * 0.12}>
-              <ResearchCard r={r} onOpen={() => setOpen(r)} />
+              <ResearchCard r={r} />
             </div>
           ))}
         </div>
       </div>
-      <AnimatePresence>{open && <ResearchDetail r={open} onClose={() => setOpen(null)} />}</AnimatePresence>
     </section>
   );
 }
