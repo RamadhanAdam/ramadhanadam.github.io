@@ -1,5 +1,5 @@
 // Everything the site says lives here, so it can be edited without touching the layout.
-// The descriptions are Ramadhan's own words, from the previous version of the site.
+// Descriptions are Ramadhan's own words from the earlier versions of the site.
 
 export const links = {
   email: "ramadhanzome4@gmail.com",
@@ -11,302 +11,189 @@ export const links = {
   cvIndustry: "/cv_industry.pdf",
   source: "https://github.com/RamadhanAdam/ramadhanadam.github.io",
   talk: "https://rentai-chugoku.org/program/Ver0/",
+  linkedin: "", // paste the LinkedIn profile URL here and its row appears in "Say hi"
 };
 
-export type FloorId = "ideas" | "models" | "systems" | "binaries" | "memory";
+// The rows in "Say hi". A row with no address is left out.
+export const socials = [
+  { name: "GitHub", handle: "@RamadhanAdam", href: links.github },
+  { name: "LinkedIn", handle: "Ramadhan Adam Zome", href: links.linkedin },
+  { name: "Hugging Face", handle: "@RamadhanZome", href: links.huggingface },
+  { name: "Medium", handle: "@ramadhanzome4", href: links.medium },
+  { name: "CV", handle: "PDF, research version", href: links.cv },
+].filter((s) => s.href);
 
-// The chips that float around the greeting. Each one belongs to a floor of the stack.
-export const interests: { label: string; floor: FloorId }[] = [
-  { label: "Transformers", floor: "models" },
-  { label: "Malware", floor: "binaries" },
-  { label: "Rowhammer", floor: "memory" },
-  { label: "Swahili NLP", floor: "models" },
-  { label: "The PE format", floor: "binaries" },
-  { label: "Car networks", floor: "systems" },
-  { label: "GPU memory", floor: "memory" },
-  { label: "Deepfakes", floor: "models" },
-  { label: "Philosophy of mind", floor: "ideas" },
-  { label: "Assembly", floor: "binaries" },
-  { label: "Federated learning", floor: "systems" },
-  { label: "Kubernetes", floor: "systems" },
+// The greeting switches between English and Japanese.
+export const greetings = ["Hello", "こんにちは"];
+
+export const role = "Machine learning engineer and researcher, from Nairobi";
+
+export const intro =
+  "I build machine learning systems, and I like knowing how things work underneath them: the models, the programs they run on, the networks and the memory.";
+
+export const about = [
+  "I'm from Nairobi. I studied statistics and programming at Kenyatta University, spent two years on logs, anomalies and DDoS alerts at a toll operator, and went back for a master's in AI and machine learning at PAUSTI. This year I'm a research student at Hiroshima University.",
+  "I like going down the stack. I wrote a Windows .exe byte by byte to understand the loader, and I write about how GPU memory fails: Rowhammer, side-channel and fault attacks.",
 ];
 
-export type Item = {
-  kind: "Research" | "Project" | "Writing" | "Note" | "Work";
+export const rightNow = [
+  { label: "Research", value: "A malware detector that knows when it doesn't know" },
+  { label: "Talk", value: "Hiroshima, 17 October" },
+  { label: "Writing", value: "PE files and GPU memory, on Medium" },
+];
+
+export type Research = {
+  tag: string;
   title: string;
-  line: string; // one line on the card
-  status?: string;
-  details?: string[]; // shown when the card is opened
+  line: string;
+  details: string[];
   footnote?: string;
-  image?: string;
-  tags?: string[];
+  areas: string[];
   links?: { label: string; href: string }[];
-  href?: string; // a card that is only a link (writing) goes straight there
-  wide?: boolean;
 };
 
-export type Floor = { id: FloorId; n: number; name: string; tagline: string; items: Item[] };
-
-export const floors: Floor[] = [
+export const research: Research[] = [
   {
-    id: "ideas",
-    n: 1,
-    name: "Ideas",
-    tagline: "How learning works, and what it would mean for a machine to understand.",
-    items: [
-      {
-        kind: "Note",
-        title: "The Consciousness Paradox in Large Language Models",
-        line: "Should a perfect simulation of consciousness change how we talk about understanding?",
-        href: "/writing/ai-consciousness-paradox",
-      },
-      {
-        kind: "Note",
-        title: "Hebbian Learning and the Road to Backpropagation",
-        line: "What Hebb's local rule still explains, and the problem backpropagation solved instead.",
-        href: "/writing/hebbian-learning-backprop",
-      },
-      {
-        kind: "Note",
-        title: "Reducing the Dimensionality of Data with Neural Networks",
-        line: "Hinton and Salakhutdinov, 2006: the trick that made deep autoencoders trainable.",
-        href: "/writing/hinton-2006-dimensionality",
-      },
+    tag: "Thesis · in progress",
+    title: "Malware detection that knows when it doesn't know",
+    line: "A detector that can say \"I haven't seen this before\", then learn the new family from a few examples.",
+    details: [
+      "A malware classifier gives every new family the name of an old one. I'm building detection that can also say \"unknown\", then learn the new family from a few examples.",
+      "The encoder reads a Windows program region by region, the way the PE format lays it out. I pretrained it without labels on the 9.9 million binaries of SOREL-20M.",
+      "The unglamorous part was getting 9.9 million binaries out of S3 without crashes eating a week of the schedule. I'll show the results in the talk on 17 October.",
     ],
+    footnote: "With Dr. Albert Njoroge Kahira and Dr. Mulang' Onando at PAUSTI, and Assoc. Prof. Junjun Zheng at Hiroshima University.",
+    areas: ["Self-supervised learning", "Open-set recognition", "Few-shot learning", "Malware analysis"],
   },
   {
-    id: "models",
-    n: 2,
-    name: "Models",
-    tagline: "Networks that see, read and judge, and say why.",
-    items: [
-      {
-        kind: "Project",
-        title: "Explainable deepfake detection",
-        line: "Spots GAN faces, then explains each verdict from the forensics literature.",
-        status: "Live demo",
-        image: "/images/projects/deepfake.jpg",
-        wide: true,
-        details: [
-          "An Xception classifier trained on 140K real and GAN faces (about 97% on 20K held-out images) that explains each verdict by retrieving passages from the deepfake-forensics literature.",
-        ],
-        tags: ["PyTorch", "FAISS", "FastAPI", "React"],
-        links: [
-          { label: "Try the demo", href: "https://deepfake-rag.vercel.app" },
-          { label: "Code", href: "https://github.com/RamadhanAdam/deepfake-rag" },
-        ],
-      },
-      {
-        kind: "Project",
-        title: "Swahili GPT",
-        line: "A GPT trained from scratch on 65M characters of Swahili news.",
-        details: [
-          "A character-level GPT trained from scratch on 65M characters of Swahili news (29,544 articles), a small study of language modelling for a low-resource African language.",
-        ],
-        tags: ["PyTorch", "A100"],
-        links: [{ label: "Model", href: "https://huggingface.co/RamadhanZome/swahili-gpt" }],
-      },
-      {
-        kind: "Project",
-        title: "Phish-Transformer",
-        line: "A 45K-parameter transformer that warns you before you click a phishing link.",
-        details: [
-          "A 45K-parameter character-level transformer for phishing URLs (test AUC about 0.98), served to a Chrome extension that warns you before you click.",
-        ],
-        tags: ["PyTorch", "Flask", "Chrome MV3"],
-        links: [
-          { label: "Code", href: "https://github.com/RamadhanAdam/phish-transformer" },
-          { label: "Model", href: "https://huggingface.co/RamadhanZome/phish-transformer" },
-        ],
-      },
-      {
-        kind: "Writing",
-        title: "Beyond the Chatbot: How Self-Attention Learns Structure by Accident",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4/beyond-the-chatbot-how-self-attention-learns-structure-by-accident-a63baf7fdc1f",
-      },
-      {
-        kind: "Writing",
-        title: "Convolutional Neural Networks: How Machines Learn to See",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4/convolutional-neural-networks-how-machines-learn-to-see-a8f98209680e",
-      },
+    tag: "Research · in progress",
+    title: "Intrusion detection for cars, learned across a fleet",
+    line: "Reads a car's network as graphs of messages, and trains across vehicles without sharing their data.",
+    details: [
+      "GraMa reads in-vehicle CAN traffic as a graph of message IDs with graph attention, follows it over time with a Mamba model, and trains across vehicles without sharing their data. The server clusters the vehicles' updates with HDBSCAN to keep poisoned ones out.",
     ],
-  },
-  {
-    id: "systems",
-    n: 3,
-    name: "Systems",
-    tagline: "Models out in the world: fleets of cars, clusters, pipelines.",
-    items: [
-      {
-        kind: "Research",
-        title: "GraMa: intrusion detection for cars",
-        line: "Reads a car's network as graphs of messages, and learns across a fleet without sharing data.",
-        status: "In progress",
-        wide: true,
-        details: [
-          "GraMa reads in-vehicle CAN traffic as a graph of message IDs with graph attention, follows it over time with a Mamba model, and trains across vehicles without sharing their data. The server clusters the vehicles' updates with HDBSCAN to keep poisoned ones out.",
-        ],
-        tags: ["Graph attention", "Mamba", "Federated learning", "HDBSCAN"],
-        links: [{ label: "Code", href: "https://github.com/RamadhanAdam/grama" }],
-      },
-      {
-        kind: "Project",
-        title: "ML on Kubernetes",
-        line: "A prediction API on GKE with CI/CD, secrets and monitoring done properly.",
-        details: [
-          "A prediction API deployed to GKE through GitHub Actions CI/CD, with a PostgreSQL StatefulSet for prediction logs, SOPS-encrypted secrets, and Prometheus, Grafana and Loki monitoring.",
-        ],
-        tags: ["FastAPI", "GKE", "Helm"],
-        links: [{ label: "Code", href: "https://github.com/RamadhanAdam/ml_deployment_project" }],
-      },
-      {
-        kind: "Work",
-        title: "Logs, anomalies and DDoS at a toll operator",
-        line: "Data analyst and cybersecurity associate, Nairobi, 2023 to 2025.",
-        details: [
-          "Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
-        ],
-        footnote: "Innovative Toll Solutions, Nairobi, Dec 2023 – Jul 2025.",
-      },
-    ],
-  },
-  {
-    id: "binaries",
-    n: 4,
-    name: "Binaries",
-    tagline: "What a program really is, byte by byte.",
-    items: [
-      {
-        kind: "Research",
-        title: "Malware detection that knows when it doesn't know",
-        line: "My thesis: a detector that can say \"I haven't seen this before\", then learn the new family from a few examples.",
-        status: "Thesis, in progress",
-        wide: true,
-        details: [
-          "A malware classifier gives every new family the name of an old one. I'm building detection that can also say \"unknown\", then learn the new family from a few examples.",
-          "The encoder reads a Windows program region by region, the way the PE format lays it out. I pretrained it without labels on the 9.9 million binaries of SOREL-20M.",
-          "The unglamorous part was getting 9.9 million binaries out of S3 without crashes eating a week of the schedule. I'll show the results in the talk on 17 October.",
-        ],
-        footnote: "With Dr. Albert Njoroge Kahira and Dr. Mulang' Onando at PAUSTI, and Assoc. Prof. Junjun Zheng at Hiroshima University.",
-        tags: ["Self-supervised learning", "Open-set recognition", "Few-shot learning"],
-      },
-      {
-        kind: "Project",
-        title: "raw-pe",
-        line: "A working Windows .exe, 2,560 bytes, every header written by hand.",
-        details: [
-          "A working 2,560-byte Win64 executable, hand-assembled in NASM. Every header and import entry written by hand, no linker. I wanted to know what the Windows loader actually asks for.",
-        ],
-        tags: ["NASM", "x86-64"],
-        links: [
-          { label: "Code", href: "https://github.com/RamadhanAdam/raw-pe" },
-          { label: "Write-up", href: "https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb" },
-        ],
-      },
-      {
-        kind: "Project",
-        title: "sco-pe",
-        line: "A PE parser in C that survives malformed files. The other side of raw-pe.",
-        details: [
-          "A PE parser in C with bounds checks for malformed files: headers, sections, imports, exports and overlays. The other side of raw-pe.",
-        ],
-        tags: ["C"],
-        links: [{ label: "Code", href: "https://github.com/RamadhanAdam/sco-pe" }],
-      },
-      {
-        kind: "Writing",
-        title: "Authenticode Checks Who Signed a PE File. Nothing Checks Whether It's True.",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4/authenticode-checks-who-signed-a-pe-file-nothing-checks-whether-its-true-6ad4ccc8fbe6",
-      },
-      {
-        kind: "Writing",
-        title: "PE Overlays: A Small Thing Worth Writing About",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4/pe-overlays-a-small-thing-worth-writing-about-056c39ce3774",
-      },
-      {
-        kind: "Writing",
-        title: "RWX Memory in Windows: What Read, Write, and Execute Really Mean",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4/rwx-memory-in-windows-what-read-write-and-execute-really-mean-4897c49d3b76",
-      },
-    ],
-  },
-  {
-    id: "memory",
-    n: 5,
-    name: "Memory",
-    tagline: "Where the bits physically live, and how they flip.",
-    items: [
-      {
-        kind: "Writing",
-        title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4",
-        wide: true,
-      },
-      {
-        kind: "Writing",
-        title: "GPU DRAM Architecture, Explained Simply",
-        line: "On Medium.",
-        href: "https://medium.com/genaitrail/gpu-dram-architecture-explained-simply-a4eb4c4d8dcb",
-      },
-      {
-        kind: "Writing",
-        title: "The NVIDIA A100: When GPU Architecture Becomes Part of the Research Method",
-        line: "On Medium.",
-        href: "https://medium.com/@ramadhanzome4/the-nvidia-a100-when-gpu-architecture-becomes-part-of-the-research-method-4474c5ada123",
-      },
-      {
-        kind: "Work",
-        title: "Putting A100s through their paces for PAUSTI",
-        line: "Student evaluator, Kinesis Network GPU pilot, August 2026.",
-        details: [
-          "Benchmarked training and inference with a custom language-model workload and wrote the decision report on performance, reliability and data persistence.",
-        ],
-      },
-    ],
+    areas: ["Graph neural networks", "Federated learning", "Vehicle security"],
+    links: [{ label: "Code", href: "https://github.com/RamadhanAdam/grama" }],
   },
 ];
 
-// How I got here, oldest first.
-export const path: { when: string; place: string; city: string; role: string; body: string }[] = [
-  {
-    when: "2019 – 2023",
-    place: "Kenyatta University",
-    city: "Nairobi",
-    role: "B.Sc. Statistics and Programming",
-    body: "First Class Honours, on a county government scholarship.",
-  },
-  {
-    when: "2023 – 2025",
-    place: "Innovative Toll Solutions",
-    city: "Nairobi",
-    role: "Data Analyst and Cybersecurity Associate",
-    body: "Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
-  },
-  {
-    when: "2025 – 2027",
-    place: "PAUSTI, Pan African University",
-    city: "Nairobi",
-    role: "M.Sc. Artificial Intelligence and Machine Learning",
-    body: "On a Pan African University scholarship from the African Union. Thesis supervised by Dr. Albert Njoroge Kahira and Dr. Mulang' Onando.",
-  },
+export const interests = [
+  "Machine learning",
+  "Malware analysis",
+  "Graph neural networks",
+  "Systems security",
+  "Language models",
+  "GPU memory",
+  "Federated learning",
+  "Reverse engineering",
+];
+
+export type Stop = { when: string; title: string; org: string; body: string };
+
+export const experience: Stop[] = [
   {
     when: "Aug 2026 – Jan 2027",
-    place: "Hiroshima University",
-    city: "Higashi-Hiroshima",
-    role: "Special research student, Dependable Systems Laboratory",
-    body: "An exchange hosted by Assoc. Prof. Junjun Zheng. Pretraining my encoder on the lab's GPUs, and presenting the work at the Chugoku-section joint conference on 17 October.",
+    title: "Special research student",
+    org: "Hiroshima University, Dependable Systems Laboratory",
+    body: "An exchange hosted by Assoc. Prof. Junjun Zheng. Pretraining my encoder on the lab's GPUs, and presenting the work at the Chugoku-section joint conference.",
   },
+  {
+    when: "Aug 2026",
+    title: "Student evaluator, GPU pilot",
+    org: "PAUSTI and Kinesis Network",
+    body: "Benchmarked training and inference on A100s with a custom language-model workload and wrote the decision report on performance, reliability and data persistence.",
+  },
+  {
+    when: "Dec 2023 – Jul 2025",
+    title: "Data Analyst and Cybersecurity Associate",
+    org: "Innovative Toll Solutions, Nairobi",
+    body: "Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
+  },
+];
+
+export const education: Stop[] = [
+  {
+    when: "2025 – 2027",
+    title: "M.Sc. Artificial Intelligence and Machine Learning",
+    org: "PAUSTI, Pan African University, Nairobi",
+    body: "On a Pan African University scholarship from the African Union.",
+  },
+  {
+    when: "2019 – 2023",
+    title: "B.Sc. Statistics and Programming",
+    org: "Kenyatta University, Nairobi",
+    body: "First Class Honours, on a county government scholarship.",
+  },
+];
+
+export type Project = {
+  title: string;
+  what: string;
+  stack: string;
+  preview: "image" | "hex" | "swahili" | "phish";
+  image?: string;
+  href: string;
+  links: { label: string; href: string }[];
+};
+
+// Four, not all of them: the rest are on GitHub.
+export const projects: Project[] = [
+  {
+    title: "Explainable deepfake detection",
+    what: "Spots GAN faces (about 97% on 20K held-out images) and explains each verdict from the forensics literature.",
+    stack: "PyTorch · FAISS · FastAPI · React",
+    preview: "image",
+    image: "/images/projects/deepfake.jpg",
+    href: "https://deepfake-rag.vercel.app",
+    links: [
+      { label: "Demo", href: "https://deepfake-rag.vercel.app" },
+      { label: "Code", href: "https://github.com/RamadhanAdam/deepfake-rag" },
+    ],
+  },
+  {
+    title: "raw-pe",
+    what: "A working 2,560-byte Windows executable, every header and import written by hand, no linker.",
+    stack: "NASM · x86-64",
+    preview: "hex",
+    href: "https://github.com/RamadhanAdam/raw-pe",
+    links: [
+      { label: "Code", href: "https://github.com/RamadhanAdam/raw-pe" },
+      { label: "Write-up", href: "https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb" },
+    ],
+  },
+  {
+    title: "Swahili GPT",
+    what: "A character-level GPT trained from scratch on 65M characters of Swahili news.",
+    stack: "PyTorch · A100",
+    preview: "swahili",
+    href: "https://huggingface.co/RamadhanZome/swahili-gpt",
+    links: [{ label: "Model", href: "https://huggingface.co/RamadhanZome/swahili-gpt" }],
+  },
+  {
+    title: "Phish-Transformer",
+    what: "A 45K-parameter transformer behind a Chrome extension that warns you before you click a phishing link.",
+    stack: "PyTorch · Flask · Chrome MV3",
+    preview: "phish",
+    href: "https://github.com/RamadhanAdam/phish-transformer",
+    links: [
+      { label: "Code", href: "https://github.com/RamadhanAdam/phish-transformer" },
+      { label: "Model", href: "https://huggingface.co/RamadhanZome/phish-transformer" },
+    ],
+  },
+];
+
+export type Piece = { kind: "Writing" | "Talk"; when: string; title: string; where: string; href: string };
+
+export const writing: Piece[] = [
+  { kind: "Talk", when: "17 Oct 2026", title: "Open-world malware detection, at the Chugoku-section joint conference", where: "Hiroshima", href: "https://rentai-chugoku.org/program/Ver0/" },
+  { kind: "Writing", when: "Jul 2026", title: "I Wrote a Windows PE File From Scratch, in Assembly", where: "Medium", href: "https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb" },
+  { kind: "Writing", when: "Sep 2026", title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched", where: "Medium", href: "https://medium.com/@ramadhanzome4" },
+  { kind: "Writing", when: "Jul 2026", title: "Authenticode Checks Who Signed a PE File. Nothing Checks Whether It's True.", where: "Medium", href: "https://medium.com/@ramadhanzome4/authenticode-checks-who-signed-a-pe-file-nothing-checks-whether-its-true-6ad4ccc8fbe6" },
 ];
 
 export type Post = { date: string; title: string; href: string };
 
-// The Medium list on the writing page.
+// The Medium list on the /writing page (kept for anyone who goes there).
 export const medium: Post[] = [
   { date: "2026-09-28", title: "GPU DRAM Architecture, Explained Simply", href: "https://medium.com/genaitrail/gpu-dram-architecture-explained-simply-a4eb4c4d8dcb" },
   { date: "2026-09-27", title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched", href: "https://medium.com/@ramadhanzome4" },

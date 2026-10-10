@@ -1,373 +1,216 @@
-import { useEffect, useRef, useState, type MouseEvent as RMouseEvent } from "react";
-import { Link } from "react-router-dom";
-import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { floors, interests, links, path, type Floor, type FloorId, type Item } from "../data";
-import { FloorMotif } from "../components/Motifs";
-import { Arrow, Glide, JstClock, Reveal, RiseWords, ease } from "../components/ui";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { about, education, experience, greetings, interests, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
+import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
+import { Magnetic, Marquee, scramble } from "../components/fx";
+import { Arrow } from "../components/ui";
+
+const NetworkScene = lazy(() => import("../components/NetworkScene"));
 
 export default function Home() {
+  const root = useRef<HTMLElement>(null);
+  useReveals(root);
   return (
-    <main>
+    <main ref={root}>
       <Hero />
-      <Stack />
-      <Journey />
+      <Marquee items={interests} />
+      <About />
+      <ResearchSection />
+      <Path />
+      <Projects />
+      <Writing />
       <Contact />
     </main>
   );
 }
 
-function goToFloor(id: FloorId) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-  el.animate([{ boxShadow: `inset 4px 0 0 var(--${id})` }, { boxShadow: "inset 0 0 0 transparent" }], { duration: 1800, easing: "ease-out" });
-}
-
-/* ================================================================== hero */
-
-// Where each chip floats on a wide screen (left %, top %). On a phone they sit in a cloud under the text.
-const SPOTS: [number, number][] = [
-  [52, 14], [74, 9], [91, 36], [91, 57], [86, 84], [68, 91], [52, 88], [35, 93], [12, 92], [54, 71], [36, 8], [14, 9],
-];
-
-function Chip({ label, floor, i, spot }: { label: string; floor: FloorId; i: number; spot?: [number, number] }) {
-  const drag = useRef(false);
+function Heading({ n, title, aside }: { n: string; title: string; aside?: React.ReactNode }) {
   return (
-    <motion.button
-      type="button"
-      drag={!!spot}
-      dragMomentum={false}
-      dragElastic={0.15}
-      onDragStart={() => (drag.current = true)}
-      onDragEnd={() => setTimeout(() => (drag.current = false), 0)}
-      onClick={() => !drag.current && goToFloor(floor)}
-      initial={{ opacity: 0, scale: 0.6 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, ease, delay: 0.6 + i * 0.06 }}
-      whileHover={{ scale: 1.08 }}
-      whileDrag={{ scale: 1.12, cursor: "grabbing" }}
-      className={`${spot ? "absolute" : ""} z-10 cursor-grab touch-none select-none`}
-      style={spot ? { left: `${spot[0]}%`, top: `${spot[1]}%` } : undefined}
-      title={`See it on the ${floor} floor`}
-    >
-      <span
-        className="bob flex items-center gap-2 whitespace-nowrap rounded-full border bg-surface/80 px-3.5 py-1.5 font-display text-sm font-medium shadow-lg backdrop-blur-md"
-        style={{ borderColor: `color-mix(in srgb, var(--${floor}) 45%, transparent)`, animationDelay: `${(i * 0.7) % 6}s` }}
-      >
-        <span className="h-2 w-2 rounded-full" style={{ background: `var(--${floor})` }} />
-        {label}
-      </span>
-    </motion.button>
-  );
-}
-
-function TiltPhoto() {
-  const reduce = useReducedMotion();
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [7, -7]), { stiffness: 150, damping: 18 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-9, 9]), { stiffness: 150, damping: 18 });
-  const onMove = (e: RMouseEvent<HTMLDivElement>) => {
-    if (reduce) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  };
-  return (
-    <div className="relative mx-auto w-full max-w-[22rem] [perspective:1000px]" onMouseMove={onMove} onMouseLeave={() => (mx.set(0), my.set(0))}>
-      <motion.div style={{ rotateX: rx, rotateY: ry }} className="relative">
-        <motion.img
-          src="/images/me.jpg"
-          alt="Ramadhan Adam Zome"
-          initial={{ opacity: 0, scale: 0.94, y: 24 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1.1, ease, delay: 0.25 }}
-          className="aspect-[3/4] w-full rounded-[2.2rem] border border-line object-cover object-top shadow-2xl"
-        />
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease, delay: 1.0 }}
-          className="absolute -left-6 bottom-10 sm:-left-10"
-        >
-          <div className="bob rounded-2xl border border-line bg-surface/85 px-4 py-3 text-sm shadow-xl backdrop-blur-md" style={{ animationDelay: "1s" }}>
-            <span className="flex items-center gap-2 font-display font-bold">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-              </span>
-              Higashi-Hiroshima · <JstClock />
-            </span>
-            <span className="mt-0.5 block text-xs text-muted">10,632 km from home in Nairobi</span>
-          </div>
-        </motion.div>
-        <motion.a
-          href={links.talk}
-          target="_blank"
-          rel="noreferrer"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease, delay: 1.15 }}
-          className="absolute -right-4 top-8 sm:-right-8"
-        >
-          <span className="bob block rounded-2xl border border-line bg-surface/85 px-4 py-3 text-sm shadow-xl backdrop-blur-md transition hover:border-accent" style={{ animationDelay: "2.5s" }}>
-            <span className="block text-xs text-muted">Next up</span>
-            <span className="font-display font-bold">My talk in Hiroshima, 17 Oct ↗</span>
-          </span>
-        </motion.a>
-      </motion.div>
+    <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
+      <div>
+        <p className="serif text-2xl text-accent sm:text-3xl" data-rise>
+          ({n})
+        </p>
+        <h2 data-split className="display mt-1 text-5xl font-black sm:text-7xl lg:text-8xl">
+          {title}
+        </h2>
+      </div>
+      {aside}
     </div>
   );
 }
 
-function Hero() {
+/* ================================================================== hero */
+
+function Greeting() {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (reducedMotion()) return;
+    let i = 0;
+    let stop = () => {};
+    const id = setInterval(() => {
+      i = (i + 1) % greetings.length;
+      if (ref.current) stop = scramble(ref.current, greetings[i], 650);
+    }, 2600);
+    return () => {
+      clearInterval(id);
+      stop();
+    };
+  }, []);
   return (
-    <section className="relative isolate overflow-hidden">
-      <div
-        className="absolute inset-0 -z-10 opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 75% 35%, color-mix(in srgb, var(--models) 10%, transparent), transparent), radial-gradient(40% 40% at 15% 80%, color-mix(in srgb, var(--binaries) 8%, transparent), transparent)",
-        }}
-      />
-      {/* the chips float over the whole hero on wide screens */}
-      <div className="pointer-events-none absolute inset-0 hidden lg:block">
-        <div className="relative mx-auto h-full max-w-6xl px-8">
-          <div className="pointer-events-auto relative h-full">
-            {interests.map((c, i) => (
-              <Chip key={c.label} {...c} i={i} spot={SPOTS[i]} />
+    <span ref={ref} className="serif font-normal text-accent">
+      {greetings[0]}
+    </span>
+  );
+}
+
+function Hero() {
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (reducedMotion() || !box.current) return;
+    const ctx = gsap.context(() => {
+      gsap.from(".hero-word", { yPercent: 115, duration: 1.3, ease: "expo.out", stagger: 0.08, delay: 0.15 });
+      gsap.from(".hero-fade", { opacity: 0, y: 24, duration: 1.1, ease: "expo.out", stagger: 0.1, delay: 0.6 });
+    }, box);
+    return () => ctx.revert();
+  }, []);
+  return (
+    <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden">
+      <Suspense fallback={null}>
+        <NetworkScene className="absolute inset-y-0 right-[-10%] -z-10 w-[85%] opacity-90 max-lg:inset-x-0 max-lg:right-0 max-lg:w-full max-lg:opacity-40" />
+      </Suspense>
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_20%_60%,var(--bg)_30%,transparent)]" />
+      <div ref={box} className="relative mx-auto w-full max-w-7xl px-5 pt-28 pb-24 sm:px-8">
+        <p className="hero-fade font-display text-base font-medium text-muted">{role}</p>
+        <h1 className="display mt-6 text-[3.6rem] font-black sm:text-8xl lg:text-[8.5rem]">
+          <span className="block overflow-hidden pb-2">
+            <span className="hero-word inline-block">
+              <Greeting />,
+            </span>
+          </span>
+          <span className="block overflow-hidden pb-3">
+            {["I'm", "Ramadhan."].map((w) => (
+              <span key={w} className="hero-word mr-[0.22em] inline-block">
+                {w}
+              </span>
             ))}
-          </div>
+          </span>
+        </h1>
+        <p className="hero-fade mt-8 max-w-xl text-xl leading-relaxed text-muted">{intro}</p>
+        <div className="hero-fade mt-10 flex flex-wrap items-center gap-4">
+          <Magnetic>
+            <button
+              type="button"
+              onClick={() => scrollToTarget("#research")}
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 font-display text-sm font-bold text-accent-ink transition hover:brightness-110"
+            >
+              See my research <span>↓</span>
+            </button>
+          </Magnetic>
+          <Magnetic>
+            <a href={links.cv} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-line bg-bg/40 px-7 py-3.5 font-display text-sm font-bold backdrop-blur transition hover:border-accent">
+              CV <Arrow />
+            </a>
+          </Magnetic>
         </div>
       </div>
-
-      <div className="mx-auto grid min-h-[100svh] max-w-6xl items-center gap-14 px-5 pt-28 pb-20 sm:px-8 lg:grid-cols-[1.25fr_0.75fr]">
-        <div>
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="font-display text-base font-medium text-muted">
-            Ramadhan Adam Zome · machine learning for security
-          </motion.p>
-          <h1 className="display mt-5 text-[3.4rem] font-black sm:text-7xl lg:text-[5.6rem]">
-            <RiseWords text="I like going" delay={0.1} />
-            <br />
-            <span className="inline-flex items-baseline" aria-hidden="true">
-              {"down".split("").map((ch, k) => (
-                <motion.span
-                  key={k}
-                  initial={{ y: "-60%", opacity: 0 }}
-                  animate={{ y: `${k * 0.07}em`, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.5 + k * 0.12 }}
-                  className="inline-block text-accent"
-                >
-                  {ch}
-                </motion.span>
-              ))}
-            </span>
-            <span className="sr-only">down</span> <RiseWords text="the stack." delay={0.9} />
-          </h1>
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease, delay: 1.1 }} className="mt-8 max-w-xl text-lg leading-relaxed text-muted">
-            I build machine learning for security, and I like knowing what sits underneath it: from transformers, down through Windows programs
-            read byte by byte, to the cells of GPU memory. I'm a master's student at PAUSTI in Nairobi, on exchange at Hiroshima University until
-            January.
-          </motion.p>
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease, delay: 1.25 }} className="mt-9 flex flex-wrap items-center gap-3">
-            <a href="#stack" className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-display text-sm font-bold text-accent-ink transition hover:brightness-110">
-              Take the stairs down
-              <motion.span animate={{ y: [0, 4, 0] }} transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}>
-                ↓
-              </motion.span>
-            </a>
-            <a href={links.cv} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-line px-6 py-3 font-display text-sm font-bold transition hover:border-accent">
-              My CV <Arrow />
-            </a>
-            <a href="#contact" className="inline-flex items-center gap-2 rounded-full px-4 py-3 font-display text-sm font-bold text-muted transition hover:text-ink">
-              Say hi
-            </a>
-          </motion.div>
-          {/* on smaller screens the chips sit here */}
-          <div className="mt-10 flex flex-wrap gap-2.5 lg:hidden">
-            {interests.map((c, i) => (
-              <Chip key={c.label} {...c} i={i} />
-            ))}
-          </div>
-        </div>
-        <TiltPhoto />
+      <div className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-xs text-faint sm:flex">
+        <span>Scroll</span>
+        <span className="scroll-cue block h-10 w-px bg-faint" />
       </div>
     </section>
   );
 }
 
-/* ================================================================== the stack */
+/* ================================================================== about */
 
-function useActiveFloor() {
-  const [active, setActive] = useState<FloorId | null>(null);
-  useEffect(() => {
-    const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id as FloorId)), {
-      rootMargin: "-45% 0px -50% 0px",
-    });
-    floors.forEach((f) => {
-      const el = document.getElementById(f.id);
-      if (el) io.observe(el);
-    });
-    return () => io.disconnect();
-  }, []);
-  return active;
-}
-
-function Rail({ active }: { active: FloorId | null }) {
+function About() {
   return (
-    <nav className="sticky top-28 hidden self-start xl:block" aria-label="Floors">
-      <p className="font-display text-sm font-bold text-muted">Floors</p>
-      <ol className="relative mt-4 border-l border-line">
-        {floors.map((f) => {
-          const on = active === f.id;
-          return (
-            <li key={f.id}>
-              <button type="button" onClick={() => goToFloor(f.id)} className="group relative flex w-full items-center gap-3 py-2.5 pl-5 text-left">
-                {on && <motion.span layoutId="rail" className="absolute -left-px top-0 h-full w-0.5" style={{ background: `var(--${f.id})` }} transition={{ duration: 0.4, ease }} />}
-                <span className="font-display text-sm font-bold tabular-nums" style={{ color: on ? `var(--${f.id})` : "var(--faint)" }}>
-                  {f.n}
-                </span>
-                <span className={`font-display text-sm font-medium transition ${on ? "text-ink" : "text-muted group-hover:text-ink"}`}>{f.name}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-      <p className="mt-4 max-w-[10rem] text-xs leading-relaxed text-faint">From the top, where ideas live, down to the silicon.</p>
-    </nav>
-  );
-}
-
-function Card({ item, floor, onOpen }: { item: Item; floor: FloorId; onOpen: (i: Item) => void }) {
-  const opens = !item.href;
-  const body = (
-    <>
-      {item.image && (
-        <div className="overflow-hidden rounded-2xl border border-line">
-          <img src={item.image} alt="" className="h-44 w-full object-cover object-top transition duration-700 group-hover:scale-[1.04] sm:h-52" />
-        </div>
-      )}
-      <div className="flex items-center gap-2 text-xs font-medium">
-        <span style={{ color: `var(--${floor})` }} className="font-display font-bold">
-          {item.kind}
-        </span>
-        {item.status && <span className="rounded-full border border-line px-2 py-0.5 text-muted">{item.status}</span>}
-      </div>
-      <h4 className={`font-display font-bold leading-snug tracking-tight ${item.wide ? "text-2xl" : "text-lg"}`}>{item.title}</h4>
-      <p className="text-[0.95rem] leading-relaxed text-muted">{item.line}</p>
-      <span className="mt-auto inline-flex items-center gap-1.5 pt-1 font-display text-sm font-bold" style={{ color: `var(--${floor})` }}>
-        {opens ? "Open" : item.kind === "Writing" ? "Read on Medium" : "Read"}
-        <Arrow className="transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-      </span>
-    </>
-  );
-  const cls = "group relative flex h-full w-full flex-col gap-3 rounded-3xl border border-line bg-surface p-6 text-left transition duration-300 hover:-translate-y-1";
-  const hover = { boxShadow: `0 18px 50px -24px var(--${floor})` };
-  if (opens)
-    return (
-      <motion.button layoutId={`card-${item.title}`} type="button" onClick={() => onOpen(item)} className={cls} whileHover={hover}>
-        {body}
-      </motion.button>
-    );
-  if (item.href!.startsWith("/"))
-    return (
-      <motion.div whileHover={hover} className="h-full rounded-3xl">
-        <Link to={item.href!} className={cls}>
-          {body}
-        </Link>
-      </motion.div>
-    );
-  return (
-    <motion.a href={item.href} target="_blank" rel="noreferrer" className={cls} whileHover={hover}>
-      {body}
-    </motion.a>
-  );
-}
-
-function FloorSection({ floor, onOpen }: { floor: Floor; onOpen: (i: Item, f: FloorId) => void }) {
-  return (
-    <section id={floor.id} className="relative scroll-mt-24 rounded-[2rem] py-14">
-      <div className="relative mb-10 md:min-h-[15rem]">
-        <FloorMotif id={floor.id} />
-        <Reveal className="relative max-w-md">
-          <p className="font-display text-sm font-bold" style={{ color: `var(--${floor.id})` }}>
-            Floor {floor.n} of {floors.length}
+    <section id="about" className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
+      <Heading n="01" title="About" />
+      <div className="grid gap-16 lg:grid-cols-[1.35fr_0.65fr] lg:gap-24">
+        <div>
+          <p data-split className="text-3xl leading-snug text-ink sm:text-4xl">
+            {about[0]}
           </p>
-          <h3 className="display mt-3 text-6xl font-black sm:text-7xl">{floor.name}</h3>
-          <p className="mt-4 text-lg leading-relaxed text-muted">{floor.tagline}</p>
-        </Reveal>
+          <p data-split className="mt-10 max-w-2xl text-lg leading-relaxed text-muted">
+            {about[1]}
+          </p>
+        </div>
+        <div className="lg:pt-3">
+          <p className="serif text-2xl text-accent" data-rise>
+            Right now
+          </p>
+          <div data-line className="mt-4 h-px bg-line" />
+          <dl>
+            {rightNow.map((o, k) => (
+              <div key={o.label} data-rise={k * 0.06} className="border-b border-line py-5">
+                <dt className="text-sm text-faint">{o.label}</dt>
+                <dd className="mt-1 font-display text-lg font-bold leading-snug">{o.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {floor.items.map((it, k) => (
-          <Reveal key={it.title} delay={(k % 3) * 0.06} className={it.wide ? "sm:col-span-2" : ""}>
-            <Card item={it} floor={floor.id} onOpen={(i) => onOpen(i, floor.id)} />
-          </Reveal>
+    </section>
+  );
+}
+
+/* ================================================================== research */
+
+function ResearchCard({ r, onOpen }: { r: Research; onOpen: () => void }) {
+  return (
+    <motion.button
+      layoutId={`r-${r.title}`}
+      type="button"
+      onClick={onOpen}
+      data-cursor="Read"
+      className="group relative flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-line bg-surface p-8 text-left transition-colors duration-500 hover:border-accent/50 sm:p-10"
+    >
+      <span className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl transition duration-700 group-hover:scale-150 group-hover:bg-accent/20" />
+      <span className="relative inline-flex w-fit items-center gap-2 rounded-full border border-line px-3 py-1 text-xs text-muted">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+        {r.tag}
+      </span>
+      <h3 className="display relative mt-8 text-3xl font-black sm:text-4xl">{r.title}</h3>
+      <p className="relative mt-5 text-lg leading-relaxed text-muted">{r.line}</p>
+      <div className="relative mt-auto flex flex-wrap gap-2 pt-10">
+        {r.areas.map((a) => (
+          <span key={a} className="rounded-full bg-surface-2 px-3 py-1 text-sm text-muted">
+            {a}
+          </span>
         ))}
       </div>
-    </section>
+    </motion.button>
   );
 }
 
-function Detail({ item, floor, onClose }: { item: Item; floor: FloorId; onClose: () => void }) {
+function ResearchDetail({ r, onClose }: { r: Research; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
   return (
-    <motion.div className="fixed inset-0 z-[70] grid place-items-center p-4 sm:p-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <motion.article
-        layoutId={`card-${item.title}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={item.title}
-        className="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] border border-line bg-surface p-7 sm:p-10"
-        style={{ boxShadow: `0 40px 120px -40px var(--${floor})` }}
-      >
-        <button type="button" onClick={onClose} className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full border border-line text-muted transition hover:text-ink" aria-label="Close">
+    <motion.div className="fixed inset-0 z-[80] grid place-items-center p-4 sm:p-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} data-lenis-prevent>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
+      <motion.article layoutId={`r-${r.title}`} role="dialog" aria-modal="true" aria-label={r.title} className="relative max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-[2rem] border border-line bg-surface p-8 sm:p-12">
+        <button type="button" onClick={onClose} className="absolute right-6 top-6 grid h-10 w-10 place-items-center rounded-full border border-line text-muted transition hover:text-ink" aria-label="Close">
           ✕
         </button>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-display font-bold" style={{ color: `var(--${floor})` }}>
-            {item.kind}
-          </span>
-          {item.status && <span className="rounded-full border border-line px-2.5 py-0.5 text-muted">{item.status}</span>}
-        </div>
-        <h3 className="display mt-3 pr-10 text-3xl font-black sm:text-4xl">{item.title}</h3>
-        {item.image && <img src={item.image} alt="" className="mt-6 rounded-2xl border border-line" />}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5, ease }}>
-          <div className="mt-6 space-y-4 text-[1.05rem] leading-relaxed text-muted">
-            {item.details?.map((p) => (
-              <p key={p.slice(0, 24)}>{p}</p>
+        <span className="text-sm text-accent">{r.tag}</span>
+        <h3 className="display mt-3 pr-12 text-3xl font-black sm:text-5xl">{r.title}</h3>
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
+          <div className="mt-8 space-y-5 text-lg leading-relaxed text-muted">
+            {r.details.map((p, k) => (
+              <p key={k}>{p}</p>
             ))}
           </div>
-          {item.footnote && <p className="mt-6 border-t border-line pt-5 text-sm text-faint">{item.footnote}</p>}
-          {item.tags && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {item.tags.map((t) => (
-                <span key={t} className="rounded-full bg-surface-2 px-3 py-1 text-sm text-muted">
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
-          {item.links && (
-            <div className="mt-7 flex flex-wrap gap-3">
-              {item.links.map((l, k) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-display text-sm font-bold transition ${k === 0 ? "text-accent-ink hover:brightness-110" : "border border-line hover:border-accent"}`}
-                  style={k === 0 ? { background: `var(--${floor})` } : undefined}
-                >
+          {r.footnote && <p className="mt-8 border-t border-line pt-6 text-sm text-faint">{r.footnote}</p>}
+          {r.links && (
+            <div className="mt-8 flex gap-3">
+              {r.links.map((l) => (
+                <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-display text-sm font-bold text-accent-ink">
                   {l.label} <Arrow />
                 </a>
               ))}
@@ -379,89 +222,223 @@ function Detail({ item, floor, onClose }: { item: Item; floor: FloorId; onClose:
   );
 }
 
-function Stack() {
-  const active = useActiveFloor();
-  const [open, setOpen] = useState<{ item: Item; floor: FloorId } | null>(null);
+function ResearchSection() {
+  const [open, setOpen] = useState<Research | null>(null);
   return (
-    <section id="stack" className="relative border-t border-line">
-      <div className="mx-auto max-w-6xl px-5 pt-24 sm:px-8 xl:max-w-7xl">
-        <Reveal className="max-w-2xl xl:ml-[13.5rem]">
-          <h2 className="display text-6xl font-black sm:text-8xl">The stack</h2>
-          <p className="mt-6 text-xl leading-relaxed text-muted">
-            Five floors, from ideas down to silicon. Everything I've built or written lives on one of them. Open anything to read more, or just keep
-            going down.
-          </p>
-        </Reveal>
-      </div>
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 pb-16 sm:px-8 xl:max-w-7xl xl:grid-cols-[11rem_1fr]">
-        <Rail active={active} />
-        <div>
-          {floors.map((f) => (
-            <FloorSection key={f.id} floor={f} onOpen={(item, floor) => setOpen({ item, floor })} />
+    <section id="research" className="border-t border-line">
+      <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
+        <Heading
+          n="02"
+          title="Research"
+          aside={
+            <p className="max-w-xs text-muted" data-rise>
+              Two projects, both still going. Open one to read more.
+            </p>
+          }
+        />
+        <div className="grid gap-6 lg:grid-cols-2">
+          {research.map((r, k) => (
+            <div key={r.title} data-rise={k * 0.12}>
+              <ResearchCard r={r} onOpen={() => setOpen(r)} />
+            </div>
           ))}
         </div>
       </div>
-      <AnimatePresence>{open && <Detail item={open.item} floor={open.floor} onClose={() => setOpen(null)} />}</AnimatePresence>
+      <AnimatePresence>{open && <ResearchDetail r={open} onClose={() => setOpen(null)} />}</AnimatePresence>
     </section>
   );
 }
 
-/* ================================================================== journey */
+/* ================================================================== experience and education */
 
-function Journey() {
-  const [sel, setSel] = useState(path.length - 1);
-  const stop = path[sel];
+function Timeline({ title, stops }: { title: string; stops: Stop[] }) {
+  const line = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (reducedMotion() || !line.current) return;
+    const t = gsap.fromTo(line.current, { scaleY: 0 }, { scaleY: 1, ease: "none", scrollTrigger: { trigger: line.current.parentElement, start: "top 75%", end: "bottom 60%", scrub: true } });
+    return () => {
+      t.scrollTrigger?.kill();
+      t.kill();
+    };
+  }, []);
   return (
-    <section id="path" className="border-t border-line">
-      <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
-        <Reveal className="max-w-2xl">
-          <h2 className="display text-5xl font-black sm:text-7xl">How I got here</h2>
-          <p className="mt-5 text-xl text-muted">Nairobi to Higashi-Hiroshima, by way of statistics, toll booths and a lot of GPUs.</p>
-        </Reveal>
+    <div>
+      <p className="serif text-3xl text-accent" data-rise>
+        {title}
+      </p>
+      <div className="relative mt-8 pl-8">
+        <div className="absolute left-0 top-0 h-full w-px bg-line" />
+        <div ref={line} className="absolute left-0 top-0 h-full w-px origin-top bg-accent" />
+        <ol className="space-y-12">
+          {stops.map((s, k) => (
+            <li key={s.title} className="relative" data-rise={k * 0.05}>
+              <span className="absolute -left-[2.3rem] top-1.5 h-3 w-3 rounded-full border-2 border-bg bg-accent" />
+              <p className="text-sm text-faint">{s.when}</p>
+              <h3 className="display mt-2 text-2xl font-black leading-tight">{s.title}</h3>
+              <p className="mt-1 text-muted">{s.org}</p>
+              <p className="mt-3 leading-relaxed text-muted">{s.body}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  );
+}
 
-        <div className="relative mt-16">
-          <div className="absolute left-[1.1rem] right-[calc(25%-1.1rem)] top-[1.15rem] hidden h-px bg-line sm:block" />
-          <motion.div
-            className="absolute left-[1.1rem] top-[1.15rem] hidden h-px bg-accent sm:block"
-            initial={false}
-            animate={{ width: `${(sel / (path.length - 1)) * 75}%` }}
-            transition={{ duration: 0.7, ease }}
-          />
-          <ol className="relative grid gap-4 sm:grid-cols-4">
-            {path.map((p, k) => (
-              <li key={p.place}>
-                <button type="button" onClick={() => setSel(k)} className="group flex w-full flex-col items-start text-left">
-                  <span
-                    className={`relative grid h-9 w-9 place-items-center rounded-full border-2 transition ${k <= sel ? "border-accent bg-accent text-accent-ink" : "border-line bg-bg text-faint group-hover:border-accent"}`}
-                  >
-                    <span className="font-display text-sm font-bold">{k + 1}</span>
-                  </span>
-                  <span className="mt-4 text-sm text-faint">{p.when}</span>
-                  <span className={`font-display text-lg font-bold transition ${k === sel ? "text-ink" : "text-muted group-hover:text-ink"}`}>{p.place}</span>
-                  <span className="text-sm text-faint">{p.city}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
+function Path() {
+  return (
+    <section id="experience" className="border-t border-line">
+      <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
+        <Heading n="03" title="Experience" />
+        <div className="grid gap-20 lg:grid-cols-2">
+          <Timeline title="Work" stops={experience} />
+          <Timeline title="Education" stops={education} />
         </div>
+      </div>
+    </section>
+  );
+}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={sel}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.4, ease }}
-            className="mt-10 max-w-3xl rounded-3xl border border-line bg-surface p-7 sm:p-9"
-          >
-            <p className="font-display text-sm font-bold text-accent">{stop.when}</p>
-            <h3 className="display mt-2 text-3xl font-black">{stop.role}</h3>
-            <p className="mt-1 text-muted">
-              {stop.place}, {stop.city}
-            </p>
-            <p className="mt-4 text-lg leading-relaxed text-muted">{stop.body}</p>
-          </motion.div>
+/* ================================================================== projects */
+
+function Preview({ p }: { p: Project }) {
+  if (p.preview === "image") return <img src={p.image} alt="" className="h-full w-full object-cover object-top" />;
+  if (p.preview === "hex")
+    return (
+      <div className="grid h-full grid-cols-8 content-center gap-x-2 gap-y-1 bg-[#0b0d0a] p-5 font-mono text-[13px] text-[#9be36d]/50">
+        {"4D 5A 90 00 03 00 00 00 04 00 00 00 FF FF 00 00 B8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00 50 45 00 00 64 86 02 00".split(" ").map((b, i) => (
+          <span key={i} className={i < 2 || (i >= 32 && i < 34) ? "font-medium text-[#9be36d]" : ""}>
+            {b}
+          </span>
+        ))}
+        <span className="col-span-8 mt-3 font-sans text-xs text-white/50">MZ … PE: the first bytes, written by hand</span>
+      </div>
+    );
+  if (p.preview === "swahili")
+    return (
+      <div className="flex h-full flex-col justify-center bg-[#0d0f14] p-6 font-mono text-sm leading-relaxed text-white/80">
+        <span className="text-white/40">prompt ›</span>
+        <span>Habari za leo. Serikali imetangaza</span>
+        <span className="text-[#7fb3ff]">
+          mpango mpya wa elimu kwa vijana<span className="animate-pulse">▍</span>
+        </span>
+      </div>
+    );
+  return (
+    <div className="flex h-full flex-col justify-center gap-4 bg-[#140d0d] p-6">
+      <div className="truncate rounded-full bg-white/10 px-4 py-2 font-mono text-xs text-white/70">https://paypa1-secure-login.co/verify</div>
+      <div className="rounded-xl border border-[#ff8e8e]/40 bg-[#ff8e8e]/10 p-4 text-sm text-[#ffb3b3]">⚠ This link looks like phishing. Think before you click.</div>
+    </div>
+  );
+}
+
+function Projects() {
+  const [hover, setHover] = useState<number | null>(null);
+  const card = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!card.current || !window.matchMedia("(pointer: fine)").matches) return;
+    const x = gsap.quickTo(card.current, "x", { duration: 0.6, ease: "power3.out" });
+    const y = gsap.quickTo(card.current, "y", { duration: 0.6, ease: "power3.out" });
+    const move = (e: PointerEvent) => {
+      x(e.clientX + 28);
+      y(e.clientY - 120);
+    };
+    window.addEventListener("pointermove", move);
+    return () => window.removeEventListener("pointermove", move);
+  }, []);
+  return (
+    <section id="projects" className="border-t border-line">
+      <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
+        <Heading
+          n="04"
+          title="Selected projects"
+          aside={
+            <a href={links.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-display font-bold text-accent" data-rise>
+              More on GitHub <Arrow />
+            </a>
+          }
+        />
+        <div data-line className="h-px bg-line" />
+        <ul onMouseLeave={() => setHover(null)}>
+          {projects.map((p, k) => (
+            <li key={p.title} data-rise={k * 0.06}>
+              <a
+                href={p.href}
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="Open"
+                onMouseEnter={() => setHover(k)}
+                className="group grid grid-cols-[2.5rem_1fr] items-baseline gap-x-6 gap-y-2 border-b border-line py-9 lg:grid-cols-[3rem_1.1fr_1.4fr_0.9fr]"
+              >
+                <span className="serif text-xl text-faint">0{k + 1}</span>
+                <span className="display text-3xl font-black transition duration-500 group-hover:translate-x-3 group-hover:text-accent sm:text-4xl">{p.title}</span>
+                <span className="col-start-2 text-muted lg:col-start-auto">{p.what}</span>
+                <span className="col-start-2 text-sm text-faint lg:col-start-auto lg:text-right">{p.stack}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      {/* the preview that follows the pointer over a row */}
+      <div ref={card} className="pointer-events-none fixed left-0 top-0 z-[60] hidden h-56 w-80 lg:block">
+        <AnimatePresence>
+          {hover !== null && (
+            <motion.div
+              key={hover}
+              initial={{ opacity: 0, scale: 0.85, rotate: -4 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.85 }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
+              className="absolute inset-0 overflow-hidden rounded-2xl border border-line shadow-2xl"
+            >
+              <Preview p={projects[hover]} />
+            </motion.div>
+          )}
         </AnimatePresence>
+      </div>
+    </section>
+  );
+}
+
+/* ================================================================== writing and talks */
+
+function Writing() {
+  return (
+    <section id="writing" className="border-t border-line">
+      <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
+        <Heading
+          n="05"
+          title="Writing & talks"
+          aside={
+            <a href={links.medium} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-display font-bold text-accent" data-rise>
+              All of it on Medium <Arrow />
+            </a>
+          }
+        />
+        <div className="grid gap-5 md:grid-cols-2">
+          {writing.map((w, k) => (
+            <a
+              key={w.title}
+              href={w.href}
+              target="_blank"
+              rel="noreferrer"
+              data-rise={k * 0.08}
+              data-cursor={w.kind === "Talk" ? "Details" : "Read"}
+              className={`group relative flex min-h-56 flex-col justify-between overflow-hidden rounded-[2rem] border p-8 transition-colors duration-500 ${
+                w.kind === "Talk" ? "border-transparent bg-accent text-accent-ink md:row-span-2" : "border-line bg-surface hover:border-accent/50"
+              }`}
+            >
+              <div className="flex items-center justify-between text-sm">
+                <span className={w.kind === "Talk" ? "font-bold" : "text-accent"}>{w.kind}</span>
+                <span className={w.kind === "Talk" ? "" : "text-faint"}>
+                  {w.when} · {w.where}
+                </span>
+              </div>
+              <h3 className={`display mt-10 font-black leading-tight ${w.kind === "Talk" ? "text-4xl sm:text-5xl" : "text-2xl"}`}>{w.title}</h3>
+              <Arrow className="mt-6 h-6 w-6 transition duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -471,6 +448,15 @@ function Journey() {
 
 function Contact() {
   const [copied, setCopied] = useState(false);
+  const big = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (reducedMotion() || !big.current) return;
+    const t = gsap.fromTo(big.current, { xPercent: 10 }, { xPercent: -8, ease: "none", scrollTrigger: { trigger: big.current, start: "top bottom", end: "bottom top", scrub: true } });
+    return () => {
+      t.scrollTrigger?.kill();
+      t.kill();
+    };
+  }, []);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(links.email);
@@ -481,37 +467,51 @@ function Contact() {
     }
   };
   return (
-    <section id="contact" className="relative isolate overflow-hidden border-t border-line">
-      <div className="absolute inset-0 -z-10" style={{ background: "radial-gradient(50% 60% at 50% 100%, color-mix(in srgb, var(--accent) 12%, transparent), transparent)" }} />
-      <div className="mx-auto max-w-6xl px-5 py-32 text-center sm:px-8">
-        <Reveal>
-          <h2 className="display text-7xl font-black sm:text-9xl">Say hi.</h2>
-          <p className="mx-auto mt-6 max-w-lg text-lg text-muted">
-            About security, models, PE files, Swahili, or the next floor down. I'm in Higashi-Hiroshima until January 2027, then back in Nairobi.
-          </p>
-        </Reveal>
-        <Reveal delay={0.1} className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <a href={`mailto:${links.email}`} className="display text-2xl font-bold underline decoration-line decoration-2 underline-offset-8 transition hover:decoration-accent sm:text-4xl">
-            {links.email}
-          </a>
-          <button type="button" onClick={copy} className="rounded-full border border-line px-5 py-2.5 font-display text-sm font-bold transition hover:border-accent">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span key={copied ? "y" : "n"} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }} transition={{ duration: 0.25 }} className="block">
-                {copied ? "Copied" : "Copy"}
-              </motion.span>
-            </AnimatePresence>
-          </button>
-        </Reveal>
-        <Reveal delay={0.2}>
-          <p className="mt-6 text-sm text-faint">Or {links.emailHiroshima} while I'm at Hiroshima University.</p>
-          <div className="mt-10 flex flex-wrap justify-center gap-7 font-display text-sm font-bold text-muted">
-            <Glide href={links.github} className="hover:text-ink">GitHub</Glide>
-            <Glide href={links.huggingface} className="hover:text-ink">Hugging Face</Glide>
-            <Glide href={links.medium} className="hover:text-ink">Medium</Glide>
-            <Glide href={links.cv} className="hover:text-ink">CV (research)</Glide>
-            <Glide href={links.cvIndustry} className="hover:text-ink">CV (industry)</Glide>
-          </div>
-        </Reveal>
+    <section id="contact" className="relative overflow-hidden border-t border-line pt-32">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <p className="serif text-3xl text-accent">(06) Say hi</p>
+      </div>
+      <h2 ref={big} className="display mt-6 whitespace-nowrap pb-[4vw] text-[19vw] font-black leading-none">
+        Let's talk<span className="text-accent">.</span>
+      </h2>
+      <div className="mx-auto max-w-7xl px-5 pb-28 sm:px-8">
+        <p className="mt-2 text-lg text-muted">About models, malware, memory, or anything else. Write, or find me here.</p>
+        <div className="mt-12">
+          <Magnetic strength={0.25}>
+            <button
+              type="button"
+              onClick={copy}
+              data-cursor={copied ? "Copied" : "Copy"}
+              className="rounded-full border border-line px-8 py-5 font-display text-xl font-bold transition hover:border-accent hover:bg-accent hover:text-accent-ink sm:text-3xl"
+            >
+              {copied ? "Copied to clipboard" : links.email}
+            </button>
+          </Magnetic>
+        </div>
+        <ul className="mt-16 border-t border-line">
+          {socials.map((l, k) => (
+            <li key={l.name} data-rise={k * 0.05}>
+              <a
+                href={l.href}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative flex items-center justify-between gap-6 overflow-hidden border-b border-line px-2 py-7 sm:px-4"
+              >
+                <span className="absolute inset-0 origin-left scale-x-0 bg-accent transition-transform duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-x-100" />
+                <span className="relative flex items-baseline gap-5">
+                  <span className="serif text-lg text-faint transition-colors duration-500 group-hover:text-accent-ink">0{k + 1}</span>
+                  <span className="display text-4xl font-black transition-[color,transform] duration-500 group-hover:translate-x-2 group-hover:text-accent-ink sm:text-6xl">{l.name}</span>
+                </span>
+                <span className="relative flex items-center gap-5">
+                  <span className="hidden text-muted transition-colors duration-500 group-hover:text-accent-ink sm:inline">{l.handle}</span>
+                  <span className="grid h-12 w-12 place-items-center rounded-full border border-line transition-all duration-500 group-hover:rotate-45 group-hover:border-accent-ink group-hover:text-accent-ink">
+                    <Arrow className="h-5 w-5" />
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
