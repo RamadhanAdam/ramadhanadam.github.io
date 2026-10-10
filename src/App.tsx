@@ -24,8 +24,8 @@ function ScrollManager() {
 function NotFound() {
   return (
     <main className="mx-auto max-w-3xl px-5 pt-40 pb-32 sm:px-8">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">404</p>
-      <h1 className="display mt-4 text-5xl font-extrabold">Nothing here.</h1>
+      <p className="font-display text-sm font-bold text-faint">404</p>
+      <h1 className="display mt-4 text-6xl font-black">Nothing here.</h1>
       <p className="mt-5 text-muted">That page doesn't exist, or it moved.</p>
       <Link to="/" className="mt-8 inline-block font-semibold text-accent">
         Go home →
@@ -38,7 +38,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <ScrollManager />
-      <a href="#work" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink">
+      <a href="#stack" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-ink">
         Skip to the content
       </a>
       <Nav />

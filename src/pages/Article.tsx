@@ -37,17 +37,17 @@ export default function Article() {
 
   return (
     <main className="mx-auto max-w-3xl px-5 pt-32 pb-24 sm:px-8 sm:pt-40">
-      <Link to="/writing" className="font-mono text-xs uppercase tracking-[0.18em] text-faint hover:text-accent">
+      <Link to="/writing" className="font-display text-sm font-bold text-muted hover:text-accent">
         ← all writing
       </Link>
       {state.status === "loading" && <p className="mt-10 text-muted">Loading…</p>}
       {state.status === "missing" && <p className="mt-10 text-muted">I couldn't find that note.</p>}
       {state.status === "ok" && (
         <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }}>
-          <p className="mt-10 font-mono text-xs text-faint">
+          <p className="mt-10 text-sm text-faint">
             {[state.meta.date && niceDate(state.meta.date), state.meta.category].filter(Boolean).join(" · ")}
           </p>
-          <h1 className="display mt-3 text-4xl font-extrabold sm:text-5xl">{state.meta.title}</h1>
+          <h1 className="display mt-3 text-4xl font-black sm:text-6xl">{state.meta.title}</h1>
           {state.meta.image && /^[\w.-]+$/.test(state.meta.image) && (
             <img src={`/images/${state.meta.image}`} alt={state.meta.title || ""} className="mt-8 rounded-2xl border border-line" />
           )}

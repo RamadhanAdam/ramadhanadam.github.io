@@ -4,11 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Glide, ThemeToggle, ease } from "./ui";
 
 const sections = [
-  { id: "work", label: "Work" },
-  { id: "projects", label: "Projects" },
-  { id: "experience", label: "Experience" },
-  { id: "writing", label: "Writing" },
-  { id: "contact", label: "Contact" },
+  { id: "stack", label: "The stack" },
+  { id: "path", label: "How I got here" },
+  { id: "contact", label: "Say hi" },
 ];
 
 export default function Nav() {
@@ -36,15 +34,19 @@ export default function Nav() {
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8" aria-label="Main">
         <Link to="/" className="group flex items-center gap-3" aria-label="Ramadhan Adam Zome, home">
           <img src="/images/me.jpg" alt="" className="h-8 w-8 rounded-full object-cover object-top ring-1 ring-line transition group-hover:ring-accent" />
-          <span className="font-display text-sm font-semibold tracking-tight">Ramadhan Adam Zome</span>
+          <span className="font-display text-[0.95rem] font-bold tracking-tight">Ramadhan Adam Zome</span>
         </Link>
 
-        <div className="hidden items-center gap-7 text-sm text-muted md:flex">
+        <div className="hidden items-center gap-7 font-display text-sm font-medium text-muted md:flex">
           {sections.map((s) => (
             <Glide key={s.id} href={href(s.id)} className="hover:text-ink">
               {s.label}
             </Glide>
           ))}
+          <Link to="/writing" className="glide hover:text-ink">
+            <span>Writing</span>
+            <span aria-hidden="true">Writing</span>
+          </Link>
           <ThemeToggle />
         </div>
 
@@ -76,10 +78,13 @@ export default function Nav() {
           >
             <div className="mx-auto flex max-w-6xl flex-col px-5 py-4">
               {sections.map((s) => (
-                <a key={s.id} href={href(s.id)} onClick={() => setOpen(false)} className="py-2.5 font-display text-lg font-semibold">
+                <a key={s.id} href={href(s.id)} onClick={() => setOpen(false)} className="py-2.5 font-display text-lg font-bold">
                   {s.label}
                 </a>
               ))}
+              <Link to="/writing" className="py-2.5 font-display text-lg font-bold">
+                Writing
+              </Link>
             </div>
           </motion.div>
         )}
