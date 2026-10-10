@@ -127,6 +127,14 @@ export const education: Stop[] = [
   },
 ];
 
+export const certificates = [
+  { name: "AI Security & Governance", by: "Securiti", year: "2025" },
+  { name: "PrivacyOps", by: "Securiti", year: "2025" },
+  { name: "DSPM Fundamentals", by: "Securiti", year: "2025" },
+  { name: "Cyber security job simulation", by: "Deloitte", year: "2025" },
+  { name: "Automation Developer Professional", by: "UiPath", year: "2024" },
+];
+
 export type Project = {
   title: string;
   what: string;

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { about, education, experience, greetings, interests, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
+import { about, certificates, education, experience, greetings, interests, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
 import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
 import { Magnetic, Marquee, scramble } from "../components/fx";
 import { Arrow } from "../components/ui";
@@ -294,7 +294,22 @@ function Path() {
         <Heading n="03" title="Experience" />
         <div className="grid gap-20 lg:grid-cols-2">
           <Timeline title="Work" stops={experience} />
-          <Timeline title="Education" stops={education} />
+          <div>
+            <Timeline title="Education" stops={education} />
+            <p className="serif mt-20 text-3xl text-accent" data-rise>
+              Certificates
+            </p>
+            <ul className="mt-6 border-t border-line">
+              {certificates.map((c, k) => (
+                <li key={c.name} data-rise={k * 0.05} className="flex items-baseline justify-between gap-6 border-b border-line py-4">
+                  <span className="font-display font-bold">{c.name}</span>
+                  <span className="shrink-0 text-sm text-faint">
+                    {c.by}, {c.year}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
