@@ -7,12 +7,12 @@ on GitHub Pages. A GitHub Action builds the site on every push to `main` and pub
 
 ## Layout
 
-- `src/data.ts`: everything the site says (intro, work, projects, experience, writing, skills). Edit
+- `src/data.ts`: everything the site says (interests, the five floors and their cards, the path). Edit
   the words here; the layout doesn't need to change.
-- `src/pages/Home.tsx`: the home page (intro, facts, work, projects, experience, writing, a bit more, contact)
+- `src/pages/Home.tsx`: the home page (the greeting, the stack, how I got here, contact)
 - `src/pages/Writing.tsx`: my notes and Medium articles
 - `src/pages/Article.tsx`: shows one note from `public/articles/`
-- `src/components/`: the top bar, the footer, and small pieces (gliding links, reveal on scroll, the clock)
+- `src/components/`: the top bar, the footer, the floors' drawings (`Motifs.tsx`), and small pieces (gliding links, reveal on scroll, the clock)
 - `src/index.css`: colours for light and dark, fonts, and the reading style for notes
 - `public/`: copied as it is: `images/`, the CVs, the notes, and `thesis/` (the thesis explainer, a
   separate page with its own styles); `write.html` opens a new note in GitHub's editor (not linked)
@@ -26,12 +26,17 @@ the upper half: the picture is cropped from the top.
 
 ## Look
 
-Dark by default, light if your system asks for it, and a switch in the top bar. Green for the accent,
-a nod to home. Plus Jakarta Sans for headings, Inter for text and JetBrains Mono for the small labels,
-from Google Fonts. The things that move: the greeting rises word by word, the line under it cycles
-through what I build, links glide to a green copy of themselves on hover, sections rise into place as
-you scroll, the numbers count up, and the project filter rearranges the cards. Visitors who ask for
-reduced motion get none of it.
+The page is built on a line of mine: I like going down the stack. My interests float around the
+greeting as chips you can drag; clicking one takes you to its floor. Below is the stack itself, five
+floors from ideas down to memory (Ideas, Models, Systems, Binaries, Memory), each with its own colour
+and a small moving drawing taken from the work on it: a constellation, attention between Swahili
+words, a window of CAN traffic, the first bytes of a Windows program, and DRAM cells flipping. Every
+card shows one line, and opens to the rest. Then the path from Nairobi to Higashi-Hiroshima, and a
+way to say hi.
+
+Dark by default, light if your system asks for it, and a switch in the top bar. Satoshi for headings
+and Inter for text; Geist Mono only for the bytes. Visitors who ask for reduced motion get none of the
+movement.
 
 ## Notes
 
