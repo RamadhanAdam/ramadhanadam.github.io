@@ -11,13 +11,13 @@ export const links = {
   cvIndustry: "/cv_industry.pdf",
   source: "https://github.com/RamadhanAdam/ramadhanadam.github.io",
   talk: "https://rentai-chugoku.org/program/Ver0/",
-  linkedin: "", // paste the LinkedIn profile URL here and its row appears in "Say hi"
+  linkedin: "https://www.linkedin.com/in/ramadhan-zome-191619353/",
 };
 
-// The rows in "Say hi". A row with no address is left out.
+// The links in "Say hi". A link with no address is left out.
 export const socials = [
   { name: "GitHub", handle: "@RamadhanAdam", href: links.github },
-  { name: "LinkedIn", handle: "Ramadhan Adam Zome", href: links.linkedin },
+  { name: "LinkedIn", handle: "Ramadhan Zome", href: links.linkedin },
   { name: "Hugging Face", handle: "@RamadhanZome", href: links.huggingface },
   { name: "Medium", handle: "@ramadhanzome4", href: links.medium },
   { name: "CV", handle: "PDF, research version", href: links.cv },
