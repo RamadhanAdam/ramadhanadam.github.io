@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { animate, motion, useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useState, type ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 const EASE = [0.25, 1, 0.5, 1] as const;
 
@@ -52,57 +52,25 @@ export function RiseWords({ text, className = "", delay = 0 }: { text: string; c
   );
 }
 
-/** Section heading with a small numbered label: "02 / work". */
-export function SectionHead({ n, label, title, aside }: { n: string; label: string; title: string; aside?: ReactNode }) {
-  return (
-    <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
-          <span className="text-accent">{n}</span> / {label}
-        </p>
-        <h2 className="display mt-3 text-3xl font-bold sm:text-4xl">{title}</h2>
-      </div>
-      {aside}
-    </Reveal>
-  );
-}
-
-/** A number that counts up from zero when it first scrolls into view. */
-export function CountUp({ to, decimals = 0, suffix = "" }: { to: number; decimals?: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-  const reduce = useReducedMotion();
-  const [shown, setShown] = useState(reduce ? to : 0);
-  useEffect(() => {
-    if (!inView || reduce) return;
-    const controls = animate(0, to, { duration: 1.6, ease: EASE, onUpdate: setShown });
-    return () => controls.stop();
-  }, [inView, reduce, to]);
-  const text = shown.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-  return (
-    <span ref={ref}>
-      {text}
-      {suffix}
-    </span>
-  );
-}
-
 /** Light and dark, remembered between visits. */
 export function ThemeToggle() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || "dark");
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
+  const dark = theme === "dark";
+  // The system's preference is followed until the visitor picks a theme; only a click is remembered.
+  const pick = () => {
+    const next = dark ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
     try {
-      localStorage.setItem("theme", theme);
+      localStorage.setItem("theme", next);
     } catch {
       /* private mode: the choice lasts for this visit only */
     }
-  }, [theme]);
-  const dark = theme === "dark";
+  };
   return (
     <button
       type="button"
-      onClick={() => setTheme(dark ? "light" : "dark")}
+      onClick={pick}
       className="grid h-9 w-9 place-items-center rounded-full border border-line text-muted transition hover:border-accent hover:text-ink"
       aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
     >
