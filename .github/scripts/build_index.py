@@ -29,7 +29,7 @@ def extract_frontmatter(content):
     return {}, content
 
 def main():
-    articles_dir = Path('articles')
+    articles_dir = Path('public/articles')
     output_file = articles_dir / 'index.json'
 
     # Build internal articles from .md files
@@ -52,7 +52,7 @@ def main():
             'summary': frontmatter.get('summary', ''),
             'featured': frontmatter.get('featured', False),
             'external': False,
-            'url': f'article.html?slug={md_file.stem}'
+            'url': f'/writing/{md_file.stem}'
         }
         internal_articles.append(article)
 

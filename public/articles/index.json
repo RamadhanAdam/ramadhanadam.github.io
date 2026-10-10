@@ -15,7 +15,7 @@
     "summary": "A reading note on Hinton and Salakhutdinov's 2006 autoencoder paper, why greedy RBM pretraining mattered, and how it helped reopen deep learning.",
     "featured": true,
     "external": false,
-    "url": "article.html?slug=hinton-2006-dimensionality"
+    "url": "/writing/hinton-2006-dimensionality"
   },
   {
     "file": "ai-consciousness-paradox.md",
@@ -31,7 +31,7 @@
     "summary": "A short essay on whether a perfect simulation of consciousness should change how we talk about understanding, experience, and machine minds.",
     "featured": false,
     "external": false,
-    "url": "article.html?slug=ai-consciousness-paradox"
+    "url": "/writing/ai-consciousness-paradox"
   },
   {
     "file": "hebbian-learning-backprop.md",
@@ -47,6 +47,6 @@
     "summary": "A concise look at Hebb's local learning rule, what it still explains well, and why backpropagation solved a different credit-assignment problem.",
     "featured": false,
     "external": false,
-    "url": "article.html?slug=hebbian-learning-backprop"
+    "url": "/writing/hebbian-learning-backprop"
   }
 ]

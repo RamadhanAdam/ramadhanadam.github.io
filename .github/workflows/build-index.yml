@@ -3,7 +3,7 @@ name: Build Article Index
 on:
   push:
     paths:
-      - 'articles/*.md'
+      - 'public/articles/*.md'
       - '.github/scripts/build_index.py'
 
 permissions:
