@@ -64,38 +64,41 @@ export const research: Research[] = [
   },
 ];
 
-export type Stop = { when: string; title: string; org: string; body: string };
+export type Stop = { when: string; kind: "Work" | "Study" | "Exchange"; title: string; org: string; body: string };
 
-export const experience: Stop[] = [
+// Work and study in one line, newest first: the exchange in Japan is both.
+export const path: Stop[] = [
   {
     when: "Aug 2026 – Jan 2027",
-    title: "Special research student",
+    kind: "Exchange",
+    title: "Master's exchange",
     org: "Hiroshima University, Dependable Systems Laboratory",
-    body: "An exchange hosted by Assoc. Prof. Junjun Zheng. Pretraining my encoder on the lab's GPUs, and presenting the work at the Chugoku-section joint conference.",
+    body: "Carrying on my master's here, hosted by Assoc. Prof. Junjun Zheng.",
   },
   {
     when: "Aug 2026",
+    kind: "Work",
     title: "Student evaluator, GPU pilot",
     org: "PAUSTI and Kinesis Network",
     body: "Benchmarked training and inference on A100s with a custom language-model workload and wrote the decision report on performance, reliability and data persistence.",
   },
   {
-    when: "Dec 2023 – Jul 2025",
-    title: "Data Analyst and Cybersecurity Associate",
-    org: "Innovative Toll Solutions",
-    body: "Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
-  },
-];
-
-export const education: Stop[] = [
-  {
     when: "2025 – 2027",
+    kind: "Study",
     title: "M.Sc. Artificial Intelligence and Machine Learning",
     org: "PAUSTI, Pan African University",
     body: "On a Pan African University scholarship from the African Union.",
   },
   {
+    when: "Dec 2023 – Jul 2025",
+    kind: "Work",
+    title: "Data Analyst and Cybersecurity Associate",
+    org: "Innovative Toll Solutions",
+    body: "Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
+  },
+  {
     when: "2019 – 2023",
+    kind: "Study",
     title: "B.Sc. Statistics and Programming",
     org: "Kenyatta University",
     body: "First Class Honours, on a county government scholarship.",

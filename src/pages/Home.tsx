@@ -5,7 +5,7 @@ import { FaLinkedinIn } from "react-icons/fa6";
 import { LuFileText } from "react-icons/lu";
 import { FaMediumM } from "react-icons/fa";
 import { SiGithub, SiHuggingface } from "react-icons/si";
-import { about, certificates, education, experience, greetings, intro, links, projects, research, rightNow, role, skills, socials, writing, type Project, type Research, type Stop } from "../data";
+import { about, certificates, greetings, intro, links, path, projects, research, rightNow, role, skills, socials, writing, type Project, type Research, type Stop } from "../data";
 import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
 import { Magnetic, scramble } from "../components/fx";
 import { Arrow } from "../components/ui";
@@ -209,7 +209,7 @@ function ResearchSection() {
 
 /* ================================================================== experience and education */
 
-function Timeline({ title, stops }: { title: string; stops: Stop[] }) {
+function Timeline({ stops }: { stops: Stop[] }) {
   const line = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (reducedMotion() || !line.current) return;
@@ -220,25 +220,23 @@ function Timeline({ title, stops }: { title: string; stops: Stop[] }) {
     };
   }, []);
   return (
-    <div>
-      <p className="serif text-3xl text-accent" data-rise>
-        {title}
-      </p>
-      <div className="relative mt-8 pl-8">
-        <div className="absolute left-0 top-0 h-full w-px bg-line" />
-        <div ref={line} className="absolute left-0 top-0 h-full w-px origin-top bg-accent" />
-        <ol className="space-y-12">
-          {stops.map((s, k) => (
-            <li key={s.title} className="relative" data-rise={k * 0.05}>
-              <span className="absolute -left-[2.3rem] top-1.5 h-3 w-3 rounded-full border-2 border-bg bg-accent" />
-              <p className="text-sm text-faint">{s.when}</p>
-              <h3 className="display mt-2 text-2xl font-black leading-tight">{s.title}</h3>
-              <p className="mt-1 text-muted">{s.org}</p>
-              <p className="mt-3 leading-relaxed text-muted">{s.body}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
+    <div className="relative pl-8">
+      <div className="absolute left-0 top-0 h-full w-px bg-line" />
+      <div ref={line} className="absolute left-0 top-0 h-full w-px origin-top bg-accent" />
+      <ol className="space-y-12">
+        {stops.map((s, k) => (
+          <li key={s.title} className="relative" data-rise={k * 0.05}>
+            <span className={`absolute -left-[2.3rem] top-1.5 h-3 w-3 rounded-full border-2 border-bg ${s.kind === "Work" ? "bg-ink" : "bg-accent"}`} />
+            <p className="flex flex-wrap items-center gap-3 text-sm text-faint">
+              {s.when}
+              <span className={`rounded-full border px-2.5 py-0.5 text-xs ${s.kind === "Exchange" ? "border-accent/60 text-accent" : "border-line text-muted"}`}>{s.kind}</span>
+            </p>
+            <h3 className="display mt-2 text-2xl font-black leading-tight">{s.title}</h3>
+            <p className="mt-1 text-muted">{s.org}</p>
+            <p className="mt-3 max-w-2xl leading-relaxed text-muted">{s.body}</p>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
@@ -247,12 +245,11 @@ function Path() {
   return (
     <section id="experience" className="border-t border-line">
       <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
-        <Heading n="03" title="Experience" />
-        <div className="grid gap-20 lg:grid-cols-2">
-          <Timeline title="Work" stops={experience} />
-          <div>
-            <Timeline title="Education" stops={education} />
-            <p className="serif mt-20 text-3xl text-accent" data-rise>
+        <Heading n="03" title="Experience & education" />
+        <div className="grid gap-20 lg:grid-cols-[1.5fr_1fr] lg:gap-24">
+          <Timeline stops={path} />
+          <div className="self-start lg:sticky lg:top-28">
+            <p className="serif text-3xl text-accent" data-rise>
               Certificates
             </p>
             <ul className="mt-6 border-t border-line">
