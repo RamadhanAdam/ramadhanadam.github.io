@@ -1,229 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ramadhan Adam Zome</title>
-  <meta name="description" content="Ramadhan Adam Zome. Master's student in AI and machine learning at PAUSTI, Nairobi, working on malware detection that knows when it has never seen a file's family. Visiting Hiroshima University until January 2027." />
-  <meta name="theme-color" content="#f2ecdf" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Ramadhan Adam Zome" />
-  <meta property="og:description" content="Malware detection that admits when it doesn't know. AI and machine learning at PAUSTI, Nairobi, and Hiroshima University." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%235d6b32'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='38' font-style='italic' fill='%23fbf7ec' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E" />
-  <script>
-    document.documentElement.classList.add("js");
-    try { if (localStorage.getItem("theme") === "dark") document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-<a class="skip" href="#main">Skip to the content</a>
-<div class="progress" aria-hidden="true"></div>
-
-<header class="nav" id="top">
-  <div class="nav-in">
-    <a class="brand" href="#top" aria-label="Ramadhan Adam Zome, back to the top">
-      <span class="avatar" data-photo><img src="images/me.jpg" alt="" width="40" height="40" /></span>
-      <span>Ramadhan Adam Zome</span>
-    </a>
-    <nav class="nav-links" aria-label="Sections">
-      <a href="#work">Work</a>
-      <a href="#built">Projects</a>
-      <a href="#been">Experience</a>
-      <a href="#written">Writing</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <button class="theme" id="theme" type="button" aria-label="Switch to the dark theme">
-      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-    </button>
-    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false">Menu</button>
-  </div>
-</header>
-
-<main id="main">
-
-  <section class="hero" id="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <h1>Hi, I'm <span class="name">Ramadhan<svg class="scribble" viewBox="0 0 300 16" preserveAspectRatio="none" aria-hidden="true"><path d="M3 11 C 55 3, 110 14, 170 7 S 262 9, 297 4"/></svg></span>.</h1>
-        <p class="first">
-          I'm doing my master's in AI and machine learning at PAUSTI in Nairobi, and until January I'm in
-          Hiroshima, working with Assoc. Prof. Junjun Zheng in his Dependable Systems Laboratory.
-        </p>
-        <p>
-          My thesis is about malware detection that <em>admits when it doesn't know</em>. Most classifiers will call a
-          brand-new malware family by the name of one they've already seen. I'm building one that reads a Windows
-          executable the way the PE format lays it out, says "I haven't seen this before", and then learns the new
-          family from a handful of examples.
-        </p>
-        <div class="cta">
-          <a class="btn solid" href="#work">What I'm working on</a>
-          <a class="btn" href="cv_research.pdf">My CV</a>
-        </div>
-        <div class="linkrow">
-          <a href="https://github.com/RamadhanAdam">GitHub</a>
-          <a href="https://huggingface.co/RamadhanZome">Hugging Face</a>
-          <a href="https://medium.com/@ramadhanzome4">Medium</a>
-          <a href="mailto:ramadhanzome4@gmail.com">Email</a>
-        </div>
-        <div class="next" id="talk" data-date="2026-10-17">
-          <b>Next up:</b> on 17 October I'm giving a talk on this at the Chugoku-section joint conference of electrical
-          and information engineers, in Hiroshima (<a href="https://rentai-chugoku.org/program/Ver0/">programme</a>).
-        </div>
-      </div>
-
-      <!-- Photo: images/me.jpg. Swap the file and the picture here and in the top bar changes. -->
-      <figure class="photo" data-photo>
-        <div class="photo-frame"><img src="images/me.jpg" alt="Ramadhan Adam Zome" width="720" height="960" /></div>
-        <figcaption>Higashi-Hiroshima, <b data-tz="Asia/Tokyo">--:--</b> JST</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="sec" id="work">
-    <div class="wrap split">
-      <h2 class="reveal">What I work on<small>my thesis, and one project on the side</small></h2>
-      <div class="body">
-        <h3 class="reveal">Open-world malware detection</h3>
-        <p class="sub reveal">Open-World Windows Malware Detection with PE-Aware Hierarchical Embeddings and Few-Shot Adaptation</p>
-        <p class="big reveal">
-          A malware classifier gives every new family the name of an old one. I'm building detection that can also say
-          "unknown", then learn the new family from a few examples.
-        </p>
-        <p class="reveal">
-          The encoder reads a Windows program region by region, the way the PE format lays it out: header, sections, overlay,
-          with a learned bias that lets it compare sections by type, entropy and size. I pretrained it without labels on the
-          9.9 million binaries of SOREL-20M (208K steps, 140 A100-hours). Each known family is described by several
-          prototypes, and a file far from all of them is rejected.
-        </p>
-        <p class="reveal">
-          The unglamorous part was getting 9.9 million binaries out of S3 without crashes eating a week of the schedule.
-          I'll write the results up in the thesis and show them in the talk on 17 October.
-        </p>
-        <p class="reveal">With Dr. Albert Njoroge Kahira and Dr. Mulang' Onando at PAUSTI, and Assoc. Prof. Junjun Zheng at Hiroshima University.</p>
-
-        <h3 class="reveal">Federated intrusion detection for vehicles <span class="stack">(in progress)</span></h3>
-        <p class="reveal">
-          GraMa reads in-vehicle CAN traffic as a graph of message IDs with graph attention, follows it over time with a
-          Mamba model, and trains across vehicles without sharing their data. The server clusters the vehicles' updates
-          with HDBSCAN to keep poisoned ones out. <a href="https://github.com/RamadhanAdam/grama">Code</a>.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="built">
-    <div class="wrap split">
-      <h2 class="reveal">Things I've built<small>mostly to understand something</small></h2>
-      <div class="body">
-        <div class="feature reveal">
-          <div>
-            <h3 style="margin-top:0">Explainable deepfake detection</h3>
-            <p>An Xception classifier trained on 140K real and GAN faces (about 97% on 20K held-out images) that explains each verdict by retrieving passages from the deepfake-forensics literature.</p>
-            <p class="stack">PyTorch, FAISS, FastAPI, React</p>
-            <div class="go"><a href="https://deepfake-rag.vercel.app">Try the demo</a><a href="https://github.com/RamadhanAdam/deepfake-rag">Code</a></div>
-          </div>
-          <a class="shot" href="https://deepfake-rag.vercel.app" aria-label="Open the deepfake detector demo"><img src="images/projects/deepfake.jpg" alt="The deepfake detector: a page with an upload box and a Detect button" width="1000" height="500" loading="lazy" /></a>
-        </div>
-
-        <div class="proj reveal"><h3>raw-pe</h3>
-          <p>A working 2,560-byte Win64 executable, hand-assembled in NASM. Every header and import entry written by hand, no linker. I wanted to know what the Windows loader actually asks for.</p>
-          <div class="stack">NASM, x86-64</div>
-          <div class="go"><a href="https://github.com/RamadhanAdam/raw-pe">Code</a><a href="https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb">Write-up</a></div></div>
-        <div class="proj reveal"><h3>sco-pe</h3>
-          <p>A PE parser in C with bounds checks for malformed files: headers, sections, imports, exports and overlays. The other side of raw-pe.</p>
-          <div class="stack">C</div>
-          <div class="go"><a href="https://github.com/RamadhanAdam/sco-pe">Code</a></div></div>
-        <div class="proj reveal"><h3>Swahili GPT</h3>
-          <p>A character-level GPT trained from scratch on 65M characters of Swahili news (29,544 articles), a small study of language modelling for a low-resource African language.</p>
-          <div class="stack">PyTorch, A100</div>
-          <div class="go"><a href="https://huggingface.co/RamadhanZome/swahili-gpt">Model</a></div></div>
-        <div class="proj reveal"><h3>Phish-Transformer</h3>
-          <p>A 45K-parameter character-level transformer for phishing URLs (test AUC about 0.98), served to a Chrome extension that warns you before you click.</p>
-          <div class="stack">PyTorch, Flask, Chrome MV3</div>
-          <div class="go"><a href="https://github.com/RamadhanAdam/phish-transformer">Code</a><a href="https://huggingface.co/RamadhanZome/phish-transformer">Model</a></div></div>
-        <div class="proj reveal"><h3>ML on Kubernetes</h3>
-          <p>A prediction API deployed to GKE through GitHub Actions CI/CD, with a PostgreSQL StatefulSet for prediction logs, SOPS-encrypted secrets, and Prometheus, Grafana and Loki monitoring.</p>
-          <div class="stack">FastAPI, GKE, Helm</div>
-          <div class="go"><a href="https://github.com/RamadhanAdam/ml_deployment_project">Code</a></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="been">
-    <div class="wrap split">
-      <h2 class="reveal">Where I've been<small>work and study, newest first</small></h2>
-      <div class="body ledger">
-        <div class="row reveal"><div class="when">Aug 2026</div><div>
-          <h3>GPU pilot for PAUSTI</h3><p class="where">Student evaluator, Kinesis Network A100 pilot</p>
-          <p>Benchmarked training and inference with a custom language-model workload and wrote the decision report on performance, reliability and data persistence.</p></div></div>
-        <div class="row reveal"><div class="when">Aug 2026 – Jan 2027</div><div>
-          <h3>Hiroshima University</h3><p class="where">Dependable Systems Laboratory, Higashi-Hiroshima</p>
-          <p>Special research student on an exchange, hosted by Assoc. Prof. Junjun Zheng. Pretraining the byte encoder on SOREL-20M with the lab's GPUs, testing open-set rejection on BODMAS, and presenting the work at the Chugoku-section conference.</p></div></div>
-        <div class="row reveal"><div class="when">2025 – 2027</div><div>
-          <h3>PAUSTI, Pan African University</h3><p class="where">M.Sc. Artificial Intelligence and Machine Learning, Nairobi</p>
-          <p>On a Pan African University scholarship from the African Union. Thesis supervised by Dr. Albert Njoroge Kahira and Dr. Mulang' Onando.</p></div></div>
-        <div class="row reveal"><div class="when">Dec 2023 – Jul 2025</div><div>
-          <h3>Innovative Toll Solutions</h3><p class="where">Data Analyst and Cybersecurity Associate, Nairobi</p>
-          <p>Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.</p></div></div>
-        <div class="row reveal"><div class="when">2019 – 2023</div><div>
-          <h3>Kenyatta University</h3><p class="where">B.Sc. Statistics and Programming, Nairobi</p>
-          <p>First Class Honours, on a county government scholarship.</p></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="written">
-    <div class="wrap split">
-      <h2 class="reveal">Things I've written<small>about PE files, GPU memory and transformers</small></h2>
-      <div class="body">
-        <ul class="posts reveal">
-          <li><span class="d">Sep 2026</span><a class="t" href="https://medium.com/genaitrail/gpu-dram-architecture-explained-simply-a4eb4c4d8dcb">GPU DRAM Architecture, Explained Simply</a></li>
-          <li><span class="d">Aug 2026</span><a class="t" href="https://medium.com/@ramadhanzome4/rwx-memory-in-windows-what-read-write-and-execute-really-mean-4897c49d3b76">RWX Memory in Windows: What Read, Write, and Execute Really Mean</a></li>
-          <li><span class="d">Jul 2026</span><a class="t" href="https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb">I Wrote a Windows PE File From Scratch, in Assembly</a></li>
-        </ul>
-        <p class="reveal"><a href="writing.html">Everything I've written</a>, including reading notes.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec" id="more">
-    <div class="wrap split">
-      <h2 class="reveal">A bit more</h2>
-      <div class="body">
-        <p class="big reveal">I like going down the stack. I wrote a Windows .exe byte by byte to understand the loader, and I write about how GPU memory fails: Rowhammer, side-channel and fault attacks. Further out, I care about keeping a model's weights and inputs from leaking.</p>
-        <dl class="toolbox reveal">
-          <div><dt>Languages</dt><dd>Python, C, SQL, Bash, x86-64 assembly (NASM), JavaScript</dd></div>
-          <div><dt>ML</dt><dd>PyTorch, TensorFlow, scikit-learn, Hugging Face, FAISS, HDBSCAN, contrastive and self-supervised learning</dd></div>
-          <div><dt>Systems</dt><dd>Docker, Kubernetes, Helm, GitHub Actions, GKE, FastAPI, PostgreSQL, Prometheus, Grafana, Linux</dd></div>
-          <div><dt>Security</dt><dd>PE format, static and dynamic malware analysis, reverse engineering, REMnux, FLARE-VM</dd></div>
-        </dl>
-        <ul class="honours reveal">
-          <li><b>First Class Honours</b>, B.Sc. Statistics and Programming, Kenyatta University, 2023</li>
-          <li><b>Pan African University scholarship</b> (African Union), M.Sc. at PAUSTI, 2025–2027</li>
-          <li><b>County government scholarship</b>, Kenya, for secondary school and for the B.Sc., 2019–2023</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="contact" id="contact">
-    <div class="wrap">
-      <h2 class="reveal">Say <em>hi.</em></h2>
-      <a class="mail reveal" href="mailto:ramadhanzome4@gmail.com">ramadhanzome4@gmail.com</a>
-      <p class="reveal">Or <a href="mailto:k260152@hiroshima-u.ac.jp">k260152@hiroshima-u.ac.jp</a> while I'm at Hiroshima University. I'm in Higashi-Hiroshima until January 2027, then back in Nairobi.</p>
-      <footer class="foot">
-        <span>© <span id="year">2026</span> Ramadhan Adam Zome</span>
-        <span><a href="writing.html">Writing</a> · <a href="https://github.com/RamadhanAdam/ramadhanadam.github.io">Source</a></span>
-      </footer>
-    </div>
-  </section>
-</main>
-
-<script src="js/main.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ramadhan Adam Zome</title>
+    <meta name="description" content="Ramadhan Adam Zome: machine learning for security. Master's student at PAUSTI, Nairobi, on exchange at Hiroshima University." />
+    <meta property="og:title" content="Ramadhan Adam Zome" />
+    <meta property="og:description" content="Machine learning for security. Nairobi and Hiroshima." />
+    <meta property="og:image" content="/images/me.jpg" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317211b'/%3E%3Ctext x='32' y='43' font-family='Arial' font-weight='700' font-size='34' text-anchor='middle' fill='%235cc38a'%3ER%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+      try {
+        var t = localStorage.getItem("theme");
+        if (!t) t = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = "dark"; }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
