@@ -133,9 +133,11 @@ function About() {
           <p data-split className="text-3xl leading-snug text-ink sm:text-4xl">
             {about[0]}
           </p>
-          <p data-split className="mt-10 max-w-2xl text-lg leading-relaxed text-muted">
-            {about[1]}
-          </p>
+          {about.slice(1).map((t) => (
+            <p key={t} data-split className="mt-8 max-w-2xl text-lg leading-relaxed text-muted">
+              {t}
+            </p>
+          ))}
         </div>
         <div className="lg:pt-3">
           <p className="serif text-2xl text-accent" data-rise>

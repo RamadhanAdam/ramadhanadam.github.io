@@ -26,19 +26,20 @@ export const socials = [
 // The greeting switches between English and Japanese.
 export const greetings = ["Hello", "こんにちは"];
 
-export const role = "Machine learning engineer and researcher, from Nairobi";
+export const role = "Machine learning engineer and researcher";
 
 export const intro =
   "I build machine learning systems, and I like knowing how things work underneath them: the models, the programs they run on, the networks and the memory.";
 
 export const about = [
-  "I'm from Nairobi. I studied statistics and programming at Kenyatta University, spent two years on logs, anomalies and DDoS alerts at a toll operator, and went back for a master's in AI and machine learning at PAUSTI. This year I'm a research student at Hiroshima University.",
-  "I like going down the stack. I wrote a Windows .exe byte by byte to understand the loader, and I write about how GPU memory fails: Rowhammer, side-channel and fault attacks.",
+  "I'm a student at PAUSTI, and this year I'm doing my research at Hiroshima University, in the Dependable Systems Lab.",
+  "What pulls me in is the low level: opening a program up to see what it really does. Reverse engineering, malware, and how you keep a system safe from it. Machine learning is the tool I reach for most.",
+  "Off the screen, it's football, or a comic.",
 ];
 
 export const rightNow = [
   { label: "Research", value: "A malware detector that knows when it doesn't know" },
-  { label: "Talk", value: "Hiroshima, 17 October" },
+  { label: "Talk", value: "Chugoku-section conference, 17 October" },
   { label: "Writing", value: "PE files and GPU memory, on Medium" },
 ];
 
@@ -106,7 +107,7 @@ export const experience: Stop[] = [
   {
     when: "Dec 2023 – Jul 2025",
     title: "Data Analyst and Cybersecurity Associate",
-    org: "Innovative Toll Solutions, Nairobi",
+    org: "Innovative Toll Solutions",
     body: "Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
   },
 ];
@@ -115,13 +116,13 @@ export const education: Stop[] = [
   {
     when: "2025 – 2027",
     title: "M.Sc. Artificial Intelligence and Machine Learning",
-    org: "PAUSTI, Pan African University, Nairobi",
+    org: "PAUSTI, Pan African University",
     body: "On a Pan African University scholarship from the African Union.",
   },
   {
     when: "2019 – 2023",
     title: "B.Sc. Statistics and Programming",
-    org: "Kenyatta University, Nairobi",
+    org: "Kenyatta University",
     body: "First Class Honours, on a county government scholarship.",
   },
 ];
@@ -185,7 +186,7 @@ export const projects: Project[] = [
 export type Piece = { kind: "Writing" | "Talk"; when: string; title: string; where: string; href: string };
 
 export const writing: Piece[] = [
-  { kind: "Talk", when: "17 Oct 2026", title: "Open-world malware detection, at the Chugoku-section joint conference", where: "Hiroshima", href: "https://rentai-chugoku.org/program/Ver0/" },
+  { kind: "Talk", when: "17 Oct 2026", title: "Open-world malware detection, at the Chugoku-section joint conference", where: "Conference", href: "https://rentai-chugoku.org/program/Ver0/" },
   { kind: "Writing", when: "Jul 2026", title: "I Wrote a Windows PE File From Scratch, in Assembly", where: "Medium", href: "https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb" },
   { kind: "Writing", when: "Sep 2026", title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched", where: "Medium", href: "https://medium.com/@ramadhanzome4" },
   { kind: "Writing", when: "Jul 2026", title: "Authenticode Checks Who Signed a PE File. Nothing Checks Whether It's True.", where: "Medium", href: "https://medium.com/@ramadhanzome4/authenticode-checks-who-signed-a-pe-file-nothing-checks-whether-its-true-6ad4ccc8fbe6" },
