@@ -32,7 +32,7 @@ export const intro =
   "I build machine learning systems, and I like knowing how things work underneath them: the models, the programs they run on, the networks and the memory.";
 
 export const about = [
-  "I'm a student at PAUSTI, and this year I'm doing my research at Hiroshima University, in the Dependable Systems Lab.",
+  "I'm a student at PAUSTI, and this year I'm on exchange at Hiroshima University, in the Dependable Systems Lab.",
   "What pulls me in is the low level: opening a program up to see what it really does. Reverse engineering, malware, and how you keep a system safe from it. Machine learning is the tool I reach for most.",
   "Off the screen, it's football, or a comic.",
 ];
