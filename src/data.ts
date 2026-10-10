@@ -78,17 +78,6 @@ export const research: Research[] = [
   },
 ];
 
-export const interests = [
-  "Machine learning",
-  "Malware analysis",
-  "Graph neural networks",
-  "Systems security",
-  "Language models",
-  "GPU memory",
-  "Federated learning",
-  "Reverse engineering",
-];
-
 export type Stop = { when: string; title: string; org: string; body: string };
 
 export const experience: Stop[] = [

@@ -5,9 +5,9 @@ import { FaLinkedinIn } from "react-icons/fa6";
 import { LuFileText } from "react-icons/lu";
 import { FaMediumM } from "react-icons/fa";
 import { SiGithub, SiHuggingface } from "react-icons/si";
-import { about, certificates, education, experience, greetings, interests, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
+import { about, certificates, education, experience, greetings, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
 import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
-import { Magnetic, Marquee, scramble } from "../components/fx";
+import { Magnetic, scramble } from "../components/fx";
 import { Arrow } from "../components/ui";
 
 const NetworkScene = lazy(() => import("../components/NetworkScene"));
@@ -18,7 +18,6 @@ export default function Home() {
   return (
     <main ref={root}>
       <Hero />
-      <Marquee items={interests} />
       <About />
       <ResearchSection />
       <Path />

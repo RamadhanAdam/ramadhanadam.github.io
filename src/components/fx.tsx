@@ -182,25 +182,3 @@ export function Loader() {
     </div>
   );
 }
-
-/** Words drifting sideways in a band, endlessly. */
-export function Marquee({ items }: { items: string[] }) {
-  const row = (
-    <div className="flex shrink-0 items-center gap-10 pr-10">
-      {items.map((t) => (
-        <span key={t} className="flex items-center gap-10 whitespace-nowrap">
-          <span className="display text-4xl font-bold sm:text-6xl">{t}</span>
-          <span className="serif text-4xl text-accent sm:text-6xl">✳</span>
-        </span>
-      ))}
-    </div>
-  );
-  return (
-    <div className="marquee flex overflow-hidden border-y border-line py-7" aria-label={items.join(", ")}>
-      <div className="marquee-track flex" aria-hidden="true">
-        {row}
-        {row}
-      </div>
-    </div>
-  );
-}
