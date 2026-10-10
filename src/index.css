@@ -42,6 +42,7 @@
   --font-display: "Satoshi", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -54,9 +55,11 @@
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 5rem;
 }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 body {
   background: var(--bg);
@@ -106,20 +109,46 @@ body {
   transform: translateY(0);
 }
 
-/* A slow drift for the floating chips and cards. */
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+/* An italic serif for small personal accents: the greeting, section numbers, "Off the clock". */
+.serif {
+  font-family: var(--font-serif);
+  font-style: italic;
+  letter-spacing: 0;
 }
-.bob { animation: bob 6s ease-in-out infinite; }
 
-/* The floors' backgrounds. */
-@keyframes rise-hex { from { transform: translateY(0); } to { transform: translateY(-50%); } }
-.hex-col { animation: rise-hex 26s linear infinite; }
-@keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
-.twinkle { animation: twinkle 4s ease-in-out infinite; }
-@keyframes dash { to { stroke-dashoffset: -40; } }
-.dash { stroke-dasharray: 4 6; animation: dash 2.4s linear infinite; }
+/* SplitText wraps lines in masks; this keeps descenders from being clipped. */
+.split-line { padding-bottom: 0.08em; }
+
+/* Film grain over everything, very faint. */
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 95;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 1.2s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* The custom cursor replaces the arrow only where a fine pointer exists. */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+html.has-cursor .cursor-layer { display: block; }
+
+/* The band of interests drifting sideways. */
+.marquee-track { animation: marquee 38s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.scroll-cue { transform-origin: top; animation: cue 2s ease-in-out infinite; }
+@keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(0); transform-origin: bottom; } }
 
 /* Reading pages (notes rendered from Markdown). */
 .prose-note {
@@ -146,5 +175,5 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .glide > span, .bob, .hex-col, .twinkle, .dash { animation: none; transition: none; }
+  .glide > span, .grain, .marquee-track, .scroll-cue { animation: none; transition: none; }
 }
