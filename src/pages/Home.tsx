@@ -526,10 +526,7 @@ function Contact() {
                   >
                     <span className="absolute inset-0 translate-y-full rounded-full bg-accent transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:translate-y-0" />
                     {Icon && <Icon className="relative h-[1.1em] w-[1.1em] transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110" />}
-                    <span className="relative grid h-[1.5em] overflow-hidden leading-[1.5em]">
-                      <span className="col-start-1 row-start-1 transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:-translate-y-full">{l.name}</span>
-                      <span className="col-start-1 row-start-1 translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:translate-y-0">{l.name}</span>
-                    </span>
+                    <span className="relative">{l.name}</span>
                   </a>
                 </Magnetic>
               </li>
