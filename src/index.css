@@ -1,41 +1,47 @@
 @import "tailwindcss";
 
-/* Colours live in CSS variables so the theme switch only swaps them. Green is a nod to home (Kenya). */
+/* Colours are variables, so the theme switch only swaps them. Each floor of the stack has its own colour. */
 :root,
 [data-theme="dark"] {
-  --bg: #0f1110;
-  --surface: #161917;
-  --surface-2: #1c201d;
-  --line: #262b28;
-  --text: #e9ece9;
-  --muted: #9ba39d;
-  --faint: #6c746e;
-  --accent: #5cc38a;
-  --accent-ink: #0f1110;
-  --sand: #e3c99a;
-  --dot: rgba(233, 236, 233, 0.07);
+  --bg: #0a0b0d;
+  --surface: #121418;
+  --surface-2: #191c21;
+  --line: #23272e;
+  --text: #eceef1;
+  --muted: #a3a9b3;
+  --faint: #6b727d;
+  --accent: #9be36d;
+  --accent-ink: #0a0b0d;
+  --ideas: #e8c07d;
+  --models: #7fb3ff;
+  --systems: #5fd3b3;
+  --binaries: #9be36d;
+  --memory: #ff8e8e;
   color-scheme: dark;
 }
 
 [data-theme="light"] {
-  --bg: #f7f6f2;
+  --bg: #f6f5f1;
   --surface: #ffffff;
-  --surface-2: #f0eee8;
-  --line: #e3e1da;
-  --text: #151816;
-  --muted: #5e6660;
-  --faint: #8a918b;
-  --accent: #1f7a4d;
+  --surface-2: #efede7;
+  --line: #e1ded6;
+  --text: #121418;
+  --muted: #555c66;
+  --faint: #8b919a;
+  --accent: #3f8f1f;
   --accent-ink: #ffffff;
-  --sand: #9a6b2f;
-  --dot: rgba(21, 24, 22, 0.07);
+  --ideas: #a8741c;
+  --models: #2f6fd6;
+  --systems: #148a6c;
+  --binaries: #3f8f1f;
+  --memory: #d0453f;
   color-scheme: light;
 }
 
 @theme {
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Satoshi", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -45,7 +51,6 @@
   --color-faint: var(--faint);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
-  --color-sand: var(--sand);
 }
 
 html {
@@ -68,24 +73,14 @@ body {
   color: var(--accent-ink);
 }
 
-/* Big headings: tighter tracking, so a word moves as one block when it glides in. */
+/* Big headings in Satoshi: tight tracking, so a word moves as one block when it rises in. */
 .display {
   font-family: var(--font-display);
-  letter-spacing: -0.025em;
-  line-height: 1.04;
+  letter-spacing: -0.035em;
+  line-height: 1;
 }
 
-/* A faint grid of dots behind the page, with a soft light that follows the pointer (set from JS). */
-.dots {
-  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-.spotlight {
-  background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 30%), color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
-}
-
-/* Gliding link: the label slides up out of a mask and a copy slides in from below. */
+/* Gliding link: the label slides up out of a mask and a coloured copy slides in from below. */
 .glide {
   display: inline-flex;
   position: relative;
@@ -111,14 +106,29 @@ body {
   transform: translateY(0);
 }
 
+/* A slow drift for the floating chips and cards. */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.bob { animation: bob 6s ease-in-out infinite; }
+
+/* The floors' backgrounds. */
+@keyframes rise-hex { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+.hex-col { animation: rise-hex 26s linear infinite; }
+@keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.twinkle { animation: twinkle 4s ease-in-out infinite; }
+@keyframes dash { to { stroke-dashoffset: -40; } }
+.dash { stroke-dasharray: 4 6; animation: dash 2.4s linear infinite; }
+
 /* Reading pages (notes rendered from Markdown). */
 .prose-note {
   font-size: 1.075rem;
   line-height: 1.75;
   color: var(--text);
 }
-.prose-note h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; letter-spacing: -0.02em; margin: 2.4rem 0 0.8rem; }
-.prose-note h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 2rem 0 0.6rem; }
+.prose-note h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.7rem; letter-spacing: -0.02em; margin: 2.4rem 0 0.8rem; }
+.prose-note h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; margin: 2rem 0 0.6rem; }
 .prose-note p { margin: 1rem 0; }
 .prose-note a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .prose-note ul, .prose-note ol { margin: 1rem 0; padding-left: 1.4rem; }
@@ -136,5 +146,5 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .glide > span { transition: none; }
+  .glide > span, .bob, .hex-col, .twinkle, .dash { animation: none; transition: none; }
 }
