@@ -1,5 +1,10 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import type { IconType } from "react-icons";
+import { FaLinkedinIn } from "react-icons/fa6";
+import { LuFileText } from "react-icons/lu";
+import { FaMediumM } from "react-icons/fa";
+import { SiGithub, SiHuggingface } from "react-icons/si";
 import { about, certificates, education, experience, greetings, interests, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
 import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
 import { Magnetic, Marquee, scramble } from "../components/fx";
@@ -463,6 +468,8 @@ function Writing() {
 
 /* ================================================================== contact */
 
+const icons: Record<string, IconType> = { GitHub: SiGithub, LinkedIn: FaLinkedinIn, "Hugging Face": SiHuggingface, Medium: FaMediumM, CV: LuFileText };
+
 function Contact() {
   const [copied, setCopied] = useState(false);
   const big = useRef<HTMLHeadingElement>(null);
@@ -505,29 +512,30 @@ function Contact() {
             </button>
           </Magnetic>
         </div>
-        <ul className="mt-16 border-t border-line">
-          {socials.map((l, k) => (
-            <li key={l.name} data-rise={k * 0.05}>
-              <a
-                href={l.href}
-                target="_blank"
-                rel="noreferrer"
-                className="group relative flex items-center justify-between gap-6 overflow-hidden border-b border-line px-2 py-7 sm:px-4"
-              >
-                <span className="absolute inset-0 origin-left scale-x-0 bg-accent transition-transform duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:scale-x-100" />
-                <span className="relative flex items-baseline gap-5">
-                  <span className="serif text-lg text-faint transition-colors duration-500 group-hover:text-accent-ink">0{k + 1}</span>
-                  <span className="display text-4xl font-black transition-[color,transform] duration-500 group-hover:translate-x-2 group-hover:text-accent-ink sm:text-6xl">{l.name}</span>
-                </span>
-                <span className="relative flex items-center gap-5">
-                  <span className="hidden text-muted transition-colors duration-500 group-hover:text-accent-ink sm:inline">{l.handle}</span>
-                  <span className="grid h-12 w-12 place-items-center rounded-full border border-line transition-all duration-500 group-hover:rotate-45 group-hover:border-accent-ink group-hover:text-accent-ink">
-                    <Arrow className="h-5 w-5" />
-                  </span>
-                </span>
-              </a>
-            </li>
-          ))}
+        <ul className="mt-10 flex flex-wrap gap-3">
+          {socials.map((l, k) => {
+            const Icon = icons[l.name];
+            return (
+              <li key={l.name} data-rise={k * 0.05}>
+                <Magnetic strength={0.4}>
+                  <a
+                    href={l.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={l.handle}
+                    className="group relative flex items-center gap-2.5 overflow-hidden rounded-full border border-line px-5 py-3 font-display font-bold transition-colors duration-500 hover:border-accent hover:text-accent-ink"
+                  >
+                    <span className="absolute inset-0 translate-y-full rounded-full bg-accent transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:translate-y-0" />
+                    {Icon && <Icon className="relative h-[1.1em] w-[1.1em] transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110" />}
+                    <span className="relative grid h-[1.5em] overflow-hidden leading-[1.5em]">
+                      <span className="col-start-1 row-start-1 transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:-translate-y-full">{l.name}</span>
+                      <span className="col-start-1 row-start-1 translate-y-full transition-transform duration-500 ease-[cubic-bezier(0.7,0,0.2,1)] group-hover:translate-y-0">{l.name}</span>
+                    </span>
+                  </a>
+                </Magnetic>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </section>
