@@ -2,42 +2,40 @@
 
 Source of my website, [ramadhanadam.github.io](https://ramadhanadam.github.io).
 
-Plain HTML, CSS and JavaScript, hosted on GitHub Pages. There is no build step and no
-dependency: whatever is on `main` is what's online.
+React and TypeScript, built with Vite, styled with Tailwind, animated with Framer Motion, and hosted
+on GitHub Pages. A GitHub Action builds the site on every push to `main` and publishes it.
 
 ## Layout
 
-- `index.html`: the home page (intro, thesis, projects, experience, writing, a bit more, contact)
-- `writing.html`: my notes and Medium articles
-- `article.html`: shows one note from `articles/`
-- `write.html`: opens a new note in GitHub's editor (not linked from the site)
-- `thesis/`: the thesis explainer, a separate page with its own styles
-- `articles/`: the notes, in Markdown
-- `css/style.css`: the whole design (colours, type, layout, light and dark)
-- `js/main.js`: theme, top bar, scroll progress, reveal on scroll, the photo, the clock
-- `js/md-render.js`: loads the notes and renders one as an article
-- `images/me.jpg`: my photo (top bar and the home page); `images/projects/`: screenshots of my work
-- `cv_research.pdf`, `cv_industry.pdf`
+- `src/data.ts`: everything the site says (intro, work, projects, experience, writing, skills). Edit
+  the words here; the layout doesn't need to change.
+- `src/pages/Home.tsx`: the home page (intro, facts, work, projects, experience, writing, a bit more, contact)
+- `src/pages/Writing.tsx`: my notes and Medium articles
+- `src/pages/Article.tsx`: shows one note from `public/articles/`
+- `src/components/`: the top bar, the footer, and small pieces (gliding links, reveal on scroll, the clock)
+- `src/index.css`: colours for light and dark, fonts, and the reading style for notes
+- `public/`: copied as it is: `images/`, the CVs, the notes, and `thesis/` (the thesis explainer, a
+  separate page with its own styles); `write.html` opens a new note in GitHub's editor (not linked)
+- `public/article.html` and `public/writing.html` send old links to the new pages
 
 ## My photo
 
-`images/me.jpg` is shown in the top bar of every page and next to the intro. To change it, replace
-the file with a portrait (3:4, at least 720 x 960 pixels, a JPEG under about 300 KB). The face
-should sit in the upper half: the picture is cropped from the top. If the file is missing, a plain
-"R" is shown instead.
+`public/images/me.jpg` is shown in the top bar and next to the intro. To change it, replace the file
+with a portrait (3:4, at least 720 x 960 pixels, a JPEG under about 300 KB). The face should sit in
+the upper half: the picture is cropped from the top.
 
 ## Look
 
-Colours come from the photo: sand for the page, olive for links and the accent, dark brown for text,
-a little terracotta for the underline. The dark theme is the same colours turned down. They are the
-variables at the top of `css/style.css`. Fonts are Fraunces for headings and Source Sans 3 for
-text, loaded from Google Fonts. The things that move are small: the underline under my name draws
-itself, sections rise into place as you scroll, the photo leans a little toward the pointer, and the
-top bar follows where you are. Visitors who ask for reduced motion get none of it.
+Dark by default, light if your system asks for it, and a switch in the top bar. Green for the accent,
+a nod to home. Plus Jakarta Sans for headings, Inter for text and JetBrains Mono for the small labels,
+from Google Fonts. The things that move: the greeting rises word by word, the line under it cycles
+through what I build, links glide to a green copy of themselves on hover, sections rise into place as
+you scroll, the numbers count up, and the project filter rearranges the cards. Visitors who ask for
+reduced motion get none of it.
 
 ## Notes
 
-A note is a Markdown file in `articles/` that starts with a short header:
+A note is a Markdown file in `public/articles/` that starts with a short header:
 
 ```markdown
 ---
@@ -47,13 +45,19 @@ summary: One line for the writing page.
 ---
 ```
 
-A GitHub Action rebuilds `articles/index.json` on every push, so a new note shows up on the
+A GitHub Action rebuilds `public/articles/index.json` on every push, so a new note shows up on the
 writing page by itself.
 
 ## Running it locally
 
 ```bash
-python3 -m http.server
+npm install
+npm run dev
 ```
 
-Then open http://localhost:8000.
+Then open http://localhost:5173. `npm run build` writes the site to `dist/`.
+
+## Publishing
+
+The workflow in `.github/workflows/deploy.yml` builds and publishes on every push to `main`. It needs
+one setting, once: Settings, Pages, Build and deployment, Source: GitHub Actions.
