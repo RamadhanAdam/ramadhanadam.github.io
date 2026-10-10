@@ -116,6 +116,13 @@ export const education: Stop[] = [
   },
 ];
 
+export const skills = [
+  { group: "Languages", items: ["Python", "C", "x86-64 assembly", "SQL", "Bash", "JavaScript"] },
+  { group: "Machine learning", items: ["PyTorch", "TensorFlow", "scikit-learn", "Hugging Face", "FAISS", "Self-supervised learning"] },
+  { group: "Security", items: ["PE internals", "Malware analysis", "Reverse engineering", "LIEF", "REMnux", "FLARE-VM"] },
+  { group: "Systems", items: ["Linux", "Docker", "Kubernetes", "GitHub Actions", "FastAPI", "PostgreSQL"] },
+];
+
 export const certificates = [
   { name: "AI Security & Governance", by: "Securiti", year: "2025" },
   { name: "PrivacyOps", by: "Securiti", year: "2025" },

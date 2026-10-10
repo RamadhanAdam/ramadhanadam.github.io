@@ -5,7 +5,7 @@ import { FaLinkedinIn } from "react-icons/fa6";
 import { LuFileText } from "react-icons/lu";
 import { FaMediumM } from "react-icons/fa";
 import { SiGithub, SiHuggingface } from "react-icons/si";
-import { about, certificates, education, experience, greetings, intro, links, projects, research, rightNow, role, socials, writing, type Project, type Research, type Stop } from "../data";
+import { about, certificates, education, experience, greetings, intro, links, projects, research, rightNow, role, skills, socials, writing, type Project, type Research, type Stop } from "../data";
 import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
 import { Magnetic, scramble } from "../components/fx";
 import { Arrow } from "../components/ui";
@@ -21,6 +21,7 @@ export default function Home() {
       <About />
       <ResearchSection />
       <Path />
+      <Skills />
       <Projects />
       <Writing />
       <Contact />
@@ -320,6 +321,55 @@ function Path() {
   );
 }
 
+/* ================================================================== skills */
+
+/** A card with a soft light that follows the pointer across it. */
+function Spotlight({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const move = (e: React.PointerEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--x", `${e.clientX - r.left}px`);
+    el.style.setProperty("--y", `${e.clientY - r.top}px`);
+  };
+  return (
+    <div ref={ref} onPointerMove={move} className="group relative h-full overflow-hidden rounded-[1.5rem] border border-line bg-surface p-7 transition-colors duration-500 hover:border-accent/40">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: "radial-gradient(360px circle at var(--x) var(--y), color-mix(in srgb, var(--accent) 13%, transparent), transparent 70%)" }}
+      />
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
+
+function Skills() {
+  return (
+    <section id="skills" className="border-t border-line">
+      <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
+        <Heading n="04" title="Skills" />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {skills.map((g, k) => (
+            <div key={g.group} data-rise={k * 0.06}>
+              <Spotlight>
+                <p className="serif text-2xl text-accent">{g.group}</p>
+                <ul className="mt-6 flex flex-wrap gap-2">
+                  {g.items.map((t) => (
+                    <li key={t} className="rounded-full border border-line bg-bg/40 px-3 py-1.5 text-sm text-muted transition duration-300 hover:-translate-y-0.5 hover:border-accent hover:text-ink">
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </Spotlight>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ================================================================== projects */
 
 function Preview({ p }: { p: Project }) {
@@ -371,7 +421,7 @@ function Projects() {
     <section id="projects" className="border-t border-line">
       <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
         <Heading
-          n="04"
+          n="05"
           title="Selected projects"
           aside={
             <a href={links.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-display font-bold text-accent" data-rise>
@@ -428,7 +478,7 @@ function Writing() {
     <section id="writing" className="border-t border-line">
       <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
         <Heading
-          n="05"
+          n="06"
           title="Writing & talks"
           aside={
             <a href={links.medium} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-display font-bold text-accent" data-rise>
@@ -492,7 +542,7 @@ function Contact() {
   return (
     <section id="contact" className="relative overflow-hidden border-t border-line pt-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <p className="serif text-3xl text-accent">(06) Say hi</p>
+        <p className="serif text-3xl text-accent">(07) Say hi</p>
       </div>
       <h2 ref={big} className="display mt-6 whitespace-nowrap pb-[4vw] text-[19vw] font-black leading-none">
         Let's talk<span className="text-accent">.</span>
