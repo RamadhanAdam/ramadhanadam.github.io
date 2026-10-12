@@ -90,7 +90,7 @@ export const path: Stop[] = [
     body: "On a Pan African University scholarship from the African Union.",
   },
   {
-    when: "Dec 2023 – Jul 2025",
+    when: "Dec 2023 – Aug 2025",
     kind: "Work",
     title: "Data Analyst and Cybersecurity Associate",
     org: "Innovative Toll Solutions",
