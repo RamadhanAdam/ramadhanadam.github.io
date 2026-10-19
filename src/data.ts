@@ -10,7 +10,7 @@ export const links = {
   cv: "/cv_research.pdf",
   cvIndustry: "/cv_industry.pdf",
   source: "https://github.com/RamadhanAdam/ramadhanadam.github.io",
-  talk: "https://rentai-chugoku.org/program/Ver0/",
+  talk: "https://rentai-chugoku.org/program/R26-program-all.pdf",
   linkedin: "https://www.linkedin.com/in/ramadhan-zome-191619353/",
 };
 
@@ -39,8 +39,8 @@ export const about = [
 
 export const rightNow = [
   { label: "Research", value: "A malware detector that knows when it doesn't know" },
-  { label: "Talk", value: "Chugoku-section conference, 17 October" },
-  { label: "Writing", value: "PE files and GPU memory, on Medium" },
+  { label: "Talk", value: "Gave my first conference talk, Chugoku section, 17 October" },
+  { label: "Writing", value: "The pioneers are betting against LLMs, on Medium" },
 ];
 
 export type Research = {
@@ -55,6 +55,7 @@ export const research: Research[] = [
     tag: "Thesis · in progress",
     title: "Malware detection that knows when it doesn't know",
     areas: ["Self-supervised learning", "Open-set recognition", "Few-shot learning", "Malware analysis"],
+    links: [{ label: "Talk, 17 Oct 2026", href: links.talk }],
   },
   {
     tag: "Research · in progress",
@@ -92,7 +93,7 @@ export const path: Stop[] = [
   {
     when: "Dec 2023 – Aug 2025",
     kind: "Work",
-    title: "Data Analyst and Cybersecurity Associate",
+    title: "Software Engineer",
     org: "Innovative Toll Solutions",
     body: "Modelling and reporting on operational logs and transaction data. Log-level anomaly detection, alert triage and traffic-pattern analysis, and resilience work after DDoS incidents.",
   },
@@ -179,7 +180,8 @@ export const projects: Project[] = [
 export type Piece = { kind: "Writing" | "Talk"; when: string; title: string; where: string; href: string };
 
 export const writing: Piece[] = [
-  { kind: "Talk", when: "17 Oct 2026", title: "Open-world malware detection, at the Chugoku-section joint conference", where: "Conference", href: "https://rentai-chugoku.org/program/Ver0/" },
+  { kind: "Talk", when: "17 Oct 2026", title: "Open-world malware detection, at the Chugoku-section joint conference", where: "Conference", href: links.talk },
+  { kind: "Writing", when: "Oct 2026", title: "The Pioneers Are Betting Against LLMs", where: "Medium", href: "https://medium.com/@ramadhanzome4/the-pioneers-are-betting-against-llms-0be8c29c5de2" },
   { kind: "Writing", when: "Jul 2026", title: "I Wrote a Windows PE File From Scratch, in Assembly", where: "Medium", href: "https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb" },
   { kind: "Writing", when: "Sep 2026", title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched", where: "Medium", href: "https://medium.com/@ramadhanzome4" },
   { kind: "Writing", when: "Jul 2026", title: "Authenticode Checks Who Signed a PE File. Nothing Checks Whether It's True.", where: "Medium", href: "https://medium.com/@ramadhanzome4/authenticode-checks-who-signed-a-pe-file-nothing-checks-whether-its-true-6ad4ccc8fbe6" },
@@ -189,6 +191,7 @@ export type Post = { date: string; title: string; href: string };
 
 // The Medium list on the /writing page (kept for anyone who goes there).
 export const medium: Post[] = [
+  { date: "2026-10-19", title: "The Pioneers Are Betting Against LLMs", href: "https://medium.com/@ramadhanzome4/the-pioneers-are-betting-against-llms-0be8c29c5de2" },
   { date: "2026-09-28", title: "GPU DRAM Architecture, Explained Simply", href: "https://medium.com/genaitrail/gpu-dram-architecture-explained-simply-a4eb4c4d8dcb" },
   { date: "2026-09-27", title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched", href: "https://medium.com/@ramadhanzome4" },
   { date: "2026-09-14", title: "The NVIDIA A100: When GPU Architecture Becomes Part of the Research Method", href: "https://medium.com/@ramadhanzome4/the-nvidia-a100-when-gpu-architecture-becomes-part-of-the-research-method-4474c5ada123" },
