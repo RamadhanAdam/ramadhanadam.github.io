@@ -67,7 +67,7 @@ export const research: Research[] = [
 
 export type Stop = { when: string; kind: "Work" | "Study" | "Exchange"; title: string; org: string; body: string };
 
-// Work and study in one line, newest first: the exchange in Japan is both.
+// Newest first. The home page shows work and the exchange under Experience, and study under Education.
 export const path: Stop[] = [
   {
     when: "Aug 2026 – Jan 2027",

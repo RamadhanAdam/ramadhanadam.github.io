@@ -247,7 +247,20 @@ function Path() {
       <div className="mx-auto max-w-7xl px-5 py-32 sm:px-8">
         <Heading n="03" title="Experience & education" />
         <div className="grid gap-20 lg:grid-cols-[1.5fr_1fr] lg:gap-24">
-          <Timeline stops={path} />
+          <div className="space-y-20">
+            <div>
+              <p className="serif mb-10 text-3xl text-accent" data-rise>
+                Experience
+              </p>
+              <Timeline stops={path.filter((s) => s.kind !== "Study")} />
+            </div>
+            <div>
+              <p className="serif mb-10 text-3xl text-accent" data-rise>
+                Education
+              </p>
+              <Timeline stops={path.filter((s) => s.kind === "Study")} />
+            </div>
+          </div>
           <div className="self-start lg:sticky lg:top-28">
             <p className="serif text-3xl text-accent" data-rise>
               Certificates
