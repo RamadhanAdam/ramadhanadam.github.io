@@ -128,10 +128,12 @@ export type Project = {
   stack: string;
   preview: "image" | "hex" | "swahili" | "phish";
   image?: string;
-  images?: string[]; // several photos, shown one after another in the preview
+  shots?: Shot[]; // photos shown under the row, with captions
   href: string;
   links: { label: string; href: string }[];
 };
+
+export type Shot = { src: string; caption: string };
 
 // Five, not all of them: the rest are on GitHub.
 export const projects: Project[] = [
@@ -141,7 +143,12 @@ export const projects: Project[] = [
     stack: "C · PSOC Edge E84 · Python · React",
     preview: "image",
     image: "/images/projects/ibuki-board.jpg",
-    images: ["/images/projects/ibuki-board.jpg", "/images/projects/ibuki-team.jpg", "/images/projects/ibuki-award.jpg"],
+    shots: [
+      { src: "/images/projects/ibuki-board.jpg", caption: "The board: Infineon's PSOC Edge E84 with a 60 GHz radar, running our firmware in C" },
+      { src: "/images/projects/ibuki-alert.jpg", caption: "Breathing stops, the wave goes flat, and the alert reaches the dashboard and the phone" },
+      { src: "/images/projects/ibuki-team.jpg", caption: "Two days of building, as a team of three" },
+      { src: "/images/projects/ibuki-award.jpg", caption: "Hack Day Audience Award, JPHACKS 2026" },
+    ],
     href: "https://github.com/jphacks/hs_2605",
     links: [
       { label: "Code", href: "https://github.com/jphacks/hs_2605" },

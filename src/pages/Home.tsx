@@ -5,7 +5,7 @@ import { FaLinkedinIn } from "react-icons/fa6";
 import { LuFileText } from "react-icons/lu";
 import { FaMediumM } from "react-icons/fa";
 import { SiGithub, SiHuggingface } from "react-icons/si";
-import { about, certificates, greetings, intro, links, path, projects, research, rightNow, role, skills, socials, writing, type Project, type Research, type Stop } from "../data";
+import { about, certificates, greetings, intro, links, path, projects, research, rightNow, role, skills, socials, writing, type Project, type Research, type Shot, type Stop } from "../data";
 import { gsap, reducedMotion, scrollToTarget, useReveals } from "../lib/motion";
 import { Magnetic, scramble } from "../components/fx";
 import { Arrow } from "../components/ui";
@@ -333,32 +333,52 @@ function Skills() {
 
 /* ================================================================== projects */
 
-// Several photos fade from one to the next while the row is hovered.
-function Slides({ images }: { images: string[] }) {
+// Photos under a project's row: one after another with a caption, paused while the pointer is on them.
+function Gallery({ shots }: { shots: Shot[] }) {
   const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
   useEffect(() => {
-    if (reducedMotion()) return;
-    const t = setInterval(() => setI((n) => (n + 1) % images.length), 1600);
+    if (reducedMotion() || paused) return;
+    const t = setInterval(() => setI((n) => (n + 1) % shots.length), 4000);
     return () => clearInterval(t);
-  }, [images.length]);
+  }, [shots.length, paused]);
   return (
-    <AnimatePresence initial={false}>
-      <motion.img
-        key={images[i]}
-        src={images[i]}
-        alt=""
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5 }}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-    </AnimatePresence>
+    <div
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      className="relative aspect-[10/7] max-w-2xl overflow-hidden rounded-2xl border border-line bg-black"
+    >
+      <AnimatePresence initial={false}>
+        <motion.img
+          key={shots[i].src}
+          src={shots[i].src}
+          alt={shots[i].caption}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </AnimatePresence>
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-linear-to-t from-black/80 to-transparent p-4 pt-16 sm:p-5 sm:pt-20">
+        <p className="text-sm leading-snug text-white sm:text-base">{shots[i].caption}</p>
+        <div className="flex shrink-0 gap-2 pb-1">
+          {shots.map((s, k) => (
+            <button
+              key={s.src}
+              type="button"
+              aria-label={`Photo ${k + 1}: ${s.caption}`}
+              onClick={() => setI(k)}
+              className={`h-2 rounded-full transition-all duration-300 ${k === i ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/70"}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
 function Preview({ p }: { p: Project }) {
-  if (p.preview === "image" && p.images) return <Slides images={p.images} />;
   if (p.preview === "image") return <img src={p.image} alt="" className="h-full w-full object-cover object-top" />;
   if (p.preview === "hex")
     return (
@@ -424,14 +444,19 @@ function Projects() {
                 target="_blank"
                 rel="noreferrer"
                 data-cursor="Open"
-                onMouseEnter={() => setHover(k)}
-                className="group grid grid-cols-[2.5rem_1fr] items-baseline gap-x-6 gap-y-2 border-b border-line py-9 lg:grid-cols-[3rem_1.1fr_1.4fr_0.9fr]"
+                onMouseEnter={() => setHover(p.shots ? null : k)}
+                className={`group grid grid-cols-[2.5rem_1fr] items-baseline gap-x-6 gap-y-2 py-9 lg:grid-cols-[3rem_1.1fr_1.4fr_0.9fr] ${p.shots ? "" : "border-b border-line"}`}
               >
                 <span className="serif text-xl text-faint">0{k + 1}</span>
                 <span className="display text-3xl font-black transition duration-500 group-hover:translate-x-3 group-hover:text-accent sm:text-4xl">{p.title}</span>
                 <span className="col-start-2 text-muted lg:col-start-auto">{p.what}</span>
                 <span className="col-start-2 text-sm text-faint lg:col-start-auto lg:text-right">{p.stack}</span>
               </a>
+              {p.shots && (
+                <div className="border-b border-line pb-9 lg:pl-[4.5rem]">
+                  <Gallery shots={p.shots} />
+                </div>
+              )}
             </li>
           ))}
         </ul>
