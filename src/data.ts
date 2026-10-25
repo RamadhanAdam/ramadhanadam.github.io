@@ -38,6 +38,7 @@ export const about = [
 ];
 
 export const rightNow = [
+  { label: "Hackathon", value: "IBUKI won the Hack Day Audience Award at JPHACKS 2026" },
   { label: "Research", value: "A malware detector that knows when it doesn't know" },
   { label: "Talk", value: "Gave my first conference talk, Chugoku section, 17 October" },
   { label: "Writing", value: "The pioneers are betting against LLMs, on Medium" },
