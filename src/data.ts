@@ -127,12 +127,26 @@ export type Project = {
   stack: string;
   preview: "image" | "hex" | "swahili" | "phish";
   image?: string;
+  images?: string[]; // several photos, shown one after another in the preview
   href: string;
   links: { label: string; href: string }[];
 };
 
-// Four, not all of them: the rest are on GitHub.
+// Five, not all of them: the rest are on GitHub.
 export const projects: Project[] = [
+  {
+    title: "IBUKI (息吹)",
+    what: "A 60 GHz radar that watches a sleeping baby's breathing, no camera, nothing on the body. Built with two teammates in two days; Hack Day Audience Award, JPHACKS 2026.",
+    stack: "C · PSOC Edge E84 · Python · React",
+    preview: "image",
+    image: "/images/projects/ibuki-board.jpg",
+    images: ["/images/projects/ibuki-board.jpg", "/images/projects/ibuki-team.jpg", "/images/projects/ibuki-award.jpg"],
+    href: "https://github.com/jphacks/hs_2605",
+    links: [
+      { label: "Code", href: "https://github.com/jphacks/hs_2605" },
+      { label: "Demo", href: "https://jphacks.github.io/hs_2605/videos/demo_1_no_breathing.mp4" },
+    ],
+  },
   {
     title: "Explainable deepfake detection",
     what: "Spots GAN faces (about 97% on 20K held-out images) and explains each verdict from the forensics literature.",

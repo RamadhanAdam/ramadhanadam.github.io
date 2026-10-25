@@ -333,7 +333,32 @@ function Skills() {
 
 /* ================================================================== projects */
 
+// Several photos fade from one to the next while the row is hovered.
+function Slides({ images }: { images: string[] }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (reducedMotion()) return;
+    const t = setInterval(() => setI((n) => (n + 1) % images.length), 1600);
+    return () => clearInterval(t);
+  }, [images.length]);
+  return (
+    <AnimatePresence initial={false}>
+      <motion.img
+        key={images[i]}
+        src={images[i]}
+        alt=""
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    </AnimatePresence>
+  );
+}
+
 function Preview({ p }: { p: Project }) {
+  if (p.preview === "image" && p.images) return <Slides images={p.images} />;
   if (p.preview === "image") return <img src={p.image} alt="" className="h-full w-full object-cover object-top" />;
   if (p.preview === "hex")
     return (
