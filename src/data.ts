@@ -142,12 +142,13 @@ export const projects: Project[] = [
     what: "A 60 GHz radar that watches a sleeping baby's breathing, no camera, nothing on the body. Built with two teammates in two days; Hack Day Audience Award, JPHACKS 2026.",
     stack: "C · PSOC Edge E84 · Python · React",
     preview: "image",
-    image: "/images/projects/ibuki-board.jpg",
+    image: "/images/projects/ibuki-award.jpg",
     shots: [
-      { src: "/images/projects/ibuki-board.jpg", caption: "The board: Infineon's PSOC Edge E84 with a 60 GHz radar, running our firmware in C" },
-      { src: "/images/projects/ibuki-alert.jpg", caption: "Breathing stops, the wave goes flat, and the alert reaches the dashboard and the phone" },
-      { src: "/images/projects/ibuki-team.jpg", caption: "Two days of building, as a team of three" },
       { src: "/images/projects/ibuki-award.jpg", caption: "Hack Day Audience Award, JPHACKS 2026" },
+      { src: "/images/projects/ibuki-team.jpg", caption: "Two days of building, as a team of three" },
+      { src: "/images/projects/ibuki-coding.jpg", caption: "Heads down, side by side" },
+      { src: "/images/projects/ibuki-certificate.jpg", caption: "The certificate and our Hack Day badges" },
+      { src: "/images/projects/ibuki-everyone.jpg", caption: "Everyone at the venue at the end of Hack Day" },
     ],
     href: "https://github.com/jphacks/hs_2605",
     links: [
