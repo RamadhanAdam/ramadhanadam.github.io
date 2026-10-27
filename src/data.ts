@@ -200,10 +200,21 @@ export const projects: Project[] = [
   },
 ];
 
-export type Piece = { kind: "Writing" | "Talk"; when: string; title: string; where: string; href: string };
+export type Piece = { kind: "Writing" | "Talk"; when: string; title: string; where: string; href: string; shots?: Shot[] };
 
 export const writing: Piece[] = [
-  { kind: "Talk", when: "17 Oct 2026", title: "Open-world malware detection, at the Chugoku-section joint conference", where: "Conference", href: links.talk },
+  {
+    kind: "Talk",
+    when: "17 Oct 2026",
+    title: "Open-world malware detection, at the Chugoku-section joint conference",
+    where: "Conference",
+    href: links.talk,
+    shots: [
+      { src: "/images/talk/talk-room.jpg", caption: "Presenting to the session" },
+      { src: "/images/talk/talk-presenting.jpg", caption: "Walking through how the detector works" },
+      { src: "/images/talk/talk-conclusion.jpg", caption: "The last slide: what worked and what comes next" },
+    ],
+  },
   { kind: "Writing", when: "Oct 2026", title: "The Pioneers Are Betting Against LLMs", where: "Medium", href: "https://medium.com/@ramadhanzome4/the-pioneers-are-betting-against-llms-0be8c29c5de2" },
   { kind: "Writing", when: "Jul 2026", title: "I Wrote a Windows PE File From Scratch, in Assembly", where: "Medium", href: "https://medium.com/@ramadhanzome4/i-wrote-a-windows-pe-file-from-scratch-in-assembly-d011cb0097cb" },
   { kind: "Writing", when: "Sep 2026", title: "Row Hammer: How Reading Memory Fast Enough Breaks Memory That Was Never Touched", where: "Medium", href: "https://medium.com/@ramadhanzome4" },

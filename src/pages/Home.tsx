@@ -498,7 +498,23 @@ function Writing() {
           }
         />
         <div className="grid gap-5 md:grid-cols-2">
-          {writing.map((w, k) => (
+          {writing.map((w, k) =>
+            w.shots ? (
+              // a talk with photos: the photos switch on their own, so the card is not one big link
+              <div key={w.title} data-rise={k * 0.08} className="relative flex flex-col gap-8 overflow-hidden rounded-[2rem] bg-accent p-8 text-accent-ink md:row-span-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-bold">{w.kind}</span>
+                  <span>
+                    {w.when} · {w.where}
+                  </span>
+                </div>
+                <h3 className="display text-4xl font-black leading-tight sm:text-5xl">{w.title}</h3>
+                <Gallery shots={w.shots} />
+                <a href={w.href} target="_blank" rel="noreferrer" data-cursor="Details" className="group inline-flex items-center gap-2 self-start font-bold">
+                  Conference programme <Arrow className="h-5 w-5 transition duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
+                </a>
+              </div>
+            ) : (
             <a
               key={w.title}
               href={w.href}
@@ -519,7 +535,8 @@ function Writing() {
               <h3 className={`display mt-10 font-black leading-tight ${w.kind === "Talk" ? "text-4xl sm:text-5xl" : "text-2xl"}`}>{w.title}</h3>
               <Arrow className="mt-6 h-6 w-6 transition duration-500 group-hover:-translate-y-1 group-hover:translate-x-1" />
             </a>
-          ))}
+            ),
+          )}
         </div>
       </div>
     </section>
