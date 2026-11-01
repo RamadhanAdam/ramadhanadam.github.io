@@ -116,8 +116,6 @@ body {
   letter-spacing: 0;
 }
 
-/* SplitText wraps lines in masks; this keeps descenders from being clipped. */
-.split-line { padding-bottom: 0.08em; }
 
 /* Film grain over everything, very faint. */
 .grain {
