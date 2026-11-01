@@ -71,6 +71,13 @@ export type Stop = { when: string; kind: "Work" | "Study" | "Exchange"; title: s
 // Newest first. The home page shows work and the exchange under Experience, and study under Education.
 export const path: Stop[] = [
   {
+    when: "Nov 2026 – Present",
+    kind: "Work",
+    title: "Computer vision engineer, part-time",
+    org: "KEMCO",
+    body: "Computer vision that reads light switches and air-conditioner control panels.",
+  },
+  {
     when: "Aug 2026 – Jan 2027",
     kind: "Exchange",
     title: "Master's exchange",
