@@ -111,8 +111,8 @@ export function Cursor() {
 export function Loader() {
   const [show, setShow] = useState(() => {
     try {
-      // shown once, on a visitor's first visit; never again on this browser
-      return !localStorage.getItem("intro-seen") && !reducedMotion();
+      // shown once per visit: a new tab or window plays it again, moving between pages does not
+      return !sessionStorage.getItem("intro") && !reducedMotion();
     } catch {
       return false;
     }
@@ -124,7 +124,7 @@ export function Loader() {
   useEffect(() => {
     if (!show) return;
     try {
-      localStorage.setItem("intro-seen", "1");
+      sessionStorage.setItem("intro", "1");
     } catch {
       /* private mode */
     }
