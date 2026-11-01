@@ -75,7 +75,7 @@ export const path: Stop[] = [
     kind: "Work",
     title: "Computer vision engineer, part-time",
     org: "KEMCO",
-    body: "Computer vision that reads light switches and air-conditioner control panels.",
+    body: "I work on computer vision for reading light switches and air-conditioner panels.",
   },
   {
     when: "Aug 2026 – Jan 2027",
