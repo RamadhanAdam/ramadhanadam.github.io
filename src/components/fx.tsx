@@ -111,7 +111,8 @@ export function Cursor() {
 export function Loader() {
   const [show, setShow] = useState(() => {
     try {
-      return !sessionStorage.getItem("intro") && !reducedMotion();
+      // shown once, on a visitor's first visit; never again on this browser
+      return !localStorage.getItem("intro-seen") && !reducedMotion();
     } catch {
       return false;
     }
@@ -123,7 +124,7 @@ export function Loader() {
   useEffect(() => {
     if (!show) return;
     try {
-      sessionStorage.setItem("intro", "1");
+      localStorage.setItem("intro-seen", "1");
     } catch {
       /* private mode */
     }
@@ -135,12 +136,12 @@ export function Loader() {
         setShow(false);
       },
     });
-    tl.from(bytes.current!.children, { opacity: 0, y: 8, stagger: 0.03, duration: 0.3 })
+    tl.from(bytes.current!.children, { opacity: 0, y: 8, stagger: 0.01, duration: 0.2 })
       .to(
         n,
         {
           v: 100,
-          duration: 1.6,
+          duration: 0.7,
           ease: "power2.inOut",
           onUpdate: () => {
             if (count.current) count.current.textContent = String(Math.round(n.v)).padStart(3, "0");
@@ -149,10 +150,10 @@ export function Loader() {
         0,
       )
       .add(() => {
-        if (name.current) scramble(name.current, "RAMADHAN ADAM ZOME", 1000);
-      }, 0.45)
-      .to(bytes.current, { opacity: 0, duration: 0.3 }, 1.5)
-      .to(root.current, { clipPath: "inset(0 0 100% 0)", duration: 0.9, ease: "expo.inOut" }, 1.9);
+        if (name.current) scramble(name.current, "RAMADHAN ADAM ZOME", 450);
+      }, 0.1)
+      .to(bytes.current, { opacity: 0, duration: 0.2 }, 0.6)
+      .to(root.current, { clipPath: "inset(0 0 100% 0)", duration: 0.5, ease: "expo.inOut" }, 0.75);
     const skip = () => tl.progress(1);
     root.current?.addEventListener("click", skip);
     return () => {
