@@ -438,22 +438,31 @@ function Projects() {
         <div data-line className="h-px bg-line" />
         <ul onMouseLeave={() => setHover(null)}>
           {projects.map((p, k) => (
-            <li key={p.title} data-rise={k * 0.06}>
+            <li key={p.title} data-rise={k * 0.06} className="border-b border-line">
               <a
                 href={p.href}
                 target="_blank"
                 rel="noreferrer"
                 data-cursor="Open"
                 onMouseEnter={() => setHover(p.shots ? null : k)}
-                className={`group grid grid-cols-[2.5rem_1fr] items-baseline gap-x-6 gap-y-2 py-9 lg:grid-cols-[3rem_1.1fr_1.4fr_0.9fr] ${p.shots ? "" : "border-b border-line"}`}
+                className="group grid grid-cols-[2.5rem_1fr] items-baseline gap-x-6 gap-y-2 pt-9 lg:grid-cols-[3rem_1.1fr_1.4fr_0.9fr]"
               >
                 <span className="serif text-xl text-faint">0{k + 1}</span>
                 <span className="display text-3xl font-black transition duration-500 group-hover:translate-x-3 group-hover:text-accent sm:text-4xl">{p.title}</span>
                 <span className="col-start-2 text-muted lg:col-start-auto">{p.what}</span>
                 <span className="col-start-2 text-sm text-faint lg:col-start-auto lg:text-right">{p.stack}</span>
               </a>
+              <div className="grid grid-cols-[2.5rem_1fr] gap-x-6 pb-9 pt-4 lg:grid-cols-[3rem_1.1fr_1.4fr_0.9fr]">
+                <div className="col-start-2 flex flex-wrap gap-x-5 gap-y-2 lg:col-start-3">
+                  {p.links.map((l) => (
+                    <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-display text-sm font-bold text-accent">
+                      {l.label} <Arrow />
+                    </a>
+                  ))}
+                </div>
+              </div>
               {p.shots && (
-                <div className="border-b border-line pb-9 lg:pl-[4.5rem]">
+                <div className="pb-9 lg:pl-[4.5rem]">
                   <Gallery shots={p.shots} />
                 </div>
               )}
