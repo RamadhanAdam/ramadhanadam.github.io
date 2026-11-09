@@ -177,12 +177,12 @@ export const projects: Project[] = [
   },
   {
     title: "HUASA website",
-    what: "My idea for a new huasa.org, the site of the Hiroshima University African Students Association: a new design on every page, full conference pages, light and dark modes, an interactive map of Africa, a gallery and a magazine you page through.",
+    what: "My idea for a new huasa.org, the site of the Hiroshima University African Students Association: a new design on every page, rebuilt conference pages, light and dark modes, an interactive map of Africa, a gallery and a magazine you page through.",
     stack: "Next.js · React · TypeScript · Firebase",
     preview: "image",
     image: "/images/projects/huasa.jpg",
     href: "https://huasa.org",
-    links: [{ label: "Site", href: "https://huasa.org" }],
+    links: [{ label: "huasa.org", href: "https://huasa.org" }],
   },
   {
     title: "raw-pe",
